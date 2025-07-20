@@ -41,6 +41,22 @@
 
     --radius: 0.5rem;
   }
+  
+  .early-morning {
+    --background: 39 100% 95%; /* Light Yellow */
+    --foreground: 39 10% 20%;
+    --primary: 39 90% 60%;
+    --secondary: 180 30% 75%;
+    --accent: 39 95% 65%;
+  }
+
+  .evening {
+    --background: 24 50% 15%; /* Dark Orange/Brown */
+    --foreground: 24 15% 85%;
+    --primary: 30 80% 60%;
+    --secondary: 240 10% 40%;
+    --accent: 30 85% 65%;
+  }
 
   .dark {
     --background: 222 47% 11%;
@@ -85,7 +101,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
   }
 }
 
