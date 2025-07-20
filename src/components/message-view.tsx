@@ -1,0 +1,112 @@
+"use client";
+
+import React, { useState, useRef, useEffect } from 'react';
+import type { Conversation, User, Message } from '@/lib/types';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { MessageItem } from '@/components/message-item';
+import { SendHorizonal, MoreVertical } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+export function MessageView({ initialConversation, currentUser }: { initialConversation: Conversation; currentUser: User }) {
+  const { toast } = useToast();
+  const [messages, setMessages] = useState<Message[]>(initialConversation.messages);
+  const [newMessage, setNewMessage] = useState('');
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const otherParticipant = initialConversation.participants.find(p => p.id !== currentUser.id);
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newMessage.trim() === '') return;
+
+    const message: Message = {
+      id: `msg-${Date.now()}`,
+      text: newMessage,
+      timestamp: Date.now(),
+      senderId: currentUser.id,
+      status: 'sent',
+    };
+
+    setMessages(prev => [...prev, message]);
+    setNewMessage('');
+
+    // Simulate receiving a reply and show a notification
+    setTimeout(() => {
+      const reply: Message = {
+        id: `msg-${Date.now() + 1}`,
+        text: 'This is an automated reply!',
+        timestamp: Date.now() + 1000,
+        senderId: otherParticipant!.id,
+        status: 'delivered',
+      };
+      setMessages(prev => [...prev, reply]);
+      toast({
+        title: `New message from ${otherParticipant?.name}`,
+        description: reply.text,
+      });
+    }, 2000);
+  };
+
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
+      if(viewport) {
+        viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+      }
+    }
+  }, [messages]);
+
+  if (!otherParticipant) return null;
+
+  return (
+    <div className="flex flex-col h-screen">
+      <header className="flex items-center p-4 border-b shrink-0">
+        <Avatar>
+          <AvatarImage src={otherParticipant.avatarUrl} alt={otherParticipant.name} data-ai-hint="person face" />
+          <AvatarFallback>{otherParticipant.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div className="ml-4">
+          <h2 className="font-semibold">{otherParticipant.name}</h2>
+          <p className="text-sm text-muted-foreground">{otherParticipant.isOnline ? 'Online' : 'Offline'}</p>
+        </div>
+        <div className="ml-auto">
+          <Button variant="ghost" size="icon">
+            <MoreVertical className="h-5 w-5" />
+          </Button>
+        </div>
+      </header>
+
+      <ScrollArea className="flex-1" ref={scrollAreaRef}>
+        <div className="p-4 space-y-6">
+          {messages.map((message) => (
+            <MessageItem key={message.id} message={message} currentUser={currentUser} otherParticipant={otherParticipant} />
+          ))}
+        </div>
+      </ScrollArea>
+
+      <footer className="p-4 border-t shrink-0">
+        <form onSubmit={handleSendMessage} className="flex items-start space-x-4">
+          <Textarea
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message..."
+            className="flex-1 resize-none"
+            rows={1}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage(e);
+              }
+            }}
+          />
+          <Button type="submit" size="icon" aria-label="Send Message">
+            <SendHorizonal className="h-5 w-5" />
+          </Button>
+        </form>
+      </footer>
+    </div>
+  );
+}
