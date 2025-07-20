@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useTransition } from 'react';
@@ -9,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Check, CheckCheck, Languages, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { getTranslation } from '@/lib/actions';
+import { useLanguageStore } from '@/lib/language-store';
 
 function MessageStatus({ status }: { status: Message['status'] }) {
   if (status === 'read') {
@@ -43,6 +45,7 @@ export function MessageItem({ message, currentUser, otherParticipant }: { messag
   const [translatedText, setTranslatedText] = useState<string | null>(message.translation || null);
   const [showTranslation, setShowTranslation] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { language: targetLanguage } = useLanguageStore();
 
   const isSentByCurrentUser = message.senderId === currentUser.id;
   const sender = isSentByCurrentUser ? currentUser : otherParticipant;
@@ -61,7 +64,6 @@ export function MessageItem({ message, currentUser, otherParticipant }: { messag
     startTransition(async () => {
         // Simple language detection mock
         const sourceLanguage = message.text.match(/[\u0400-\u04FF]/) ? 'Russian' : 'English';
-        const targetLanguage = sourceLanguage === 'Russian' ? 'English' : 'Spanish';
         
         const result = await getTranslation(message.text, sourceLanguage, targetLanguage);
         if (result.startsWith('Sorry')) {
@@ -99,7 +101,7 @@ export function MessageItem({ message, currentUser, otherParticipant }: { messag
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>{showTranslation ? 'Show original' : 'Translate'}</p>
+                  <p>{showTranslation ? 'Show original' : `Translate to ${targetLanguage}`}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
