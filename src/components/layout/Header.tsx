@@ -4,16 +4,15 @@
 import Link from "next/link";
 import { usePathname, useParams, useRouter, useSearchParams } from "next/navigation";
 import { GradientCloudIcon } from "@/components/icons/GradientCloudIcon";
-import { GradientMessageCircleIcon } from "@/components/icons/GradientMessageCircleIcon";
 import React from "react";
-import { GradientUserCircleIcon } from "@/components/icons/GradientUserCircleIcon";
 import { cn } from "@/lib/utils";
-import { mockChats, mockFriendsChats } from "@/app/(main)/chats/page";
-import type { ChatItemProps } from "@/components/chats/ChatItem";
 import { ArrowLeft, MapIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import Image from "next/image";
+import type { Conversation, User } from "@/lib/types";
+import { getConversationById, getCurrentUser } from "@/lib/mock-data";
+
 
 const BackToMapButton = () => {
     const router = useRouter();
@@ -61,7 +60,7 @@ const HeaderWithBackButton = ({ title, backPath }: { title: string, backPath?: s
 };
 
 
-const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: ChatItemProps, showMapButton: boolean }) => {
+const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton: boolean }) => {
     const router = useRouter();
     
     return (
@@ -88,7 +87,7 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: ChatItemProps, show
                         width={32}
                         height={32}
                         className="rounded-full object-cover"
-                        data-ai-hint={chatInfo.avatarHint}
+                        data-ai-hint={"person portrait"}
                     />
                     <AvatarFallback>{chatInfo.name.charAt(0)}</AvatarFallback>
                 </Avatar>
@@ -117,52 +116,60 @@ export function Header() {
   React.useEffect(() => {
     if (!mounted) return;
     
-    if (pathname.startsWith('/chats/')) {
-        const chatId = params.id as string;
-        const allChats: ChatItemProps[] = [...mockChats, ...mockFriendsChats];
-        const chatInfo = allChats.find(chat => chat.id === chatId);
-        
-        if (chatInfo) {
-            setHeaderContent(<ChatHeader chatInfo={chatInfo} showMapButton={showMapButton} />);
-        } else {
-            setHeaderContent(defaultHeader); // Fallback
-        }
-    } else if (pathname.startsWith('/users/')) {
-        const userId = params.id as string;
-        const allUsers: ChatItemProps[] = [...mockChats, ...mockFriendsChats];
-        const userInfo = allUsers.find(user => user.id === userId);
-        const title = userInfo ? `Профиль ${userInfo.name}` : "Профиль";
-        setHeaderContent(<HeaderWithBackButton title={title} />);
-    } else if (pathname === '/chats') {
-        setHeaderContent(
-            <div className="w-full h-full relative flex items-center justify-center">
-                {showMapButton && <BackToMapButton />}
-                <span className="text-xl font-headline text-foreground">Чаты</span>
-            </div>
-        );
-    } else if (pathname.startsWith('/profile/edit')) {
-        setHeaderContent(<HeaderWithBackButton title="Редактирование профиля" backPath="/settings" />);
-    } else if (pathname === '/settings') {
-         setHeaderContent(
-            <div className="w-full h-full relative flex items-center justify-center">
-                <span className="text-xl font-headline text-foreground">Настройки</span>
-            </div>
-         );
-    } else if (pathname.startsWith('/settings/')) {
-        let title = "Настройки";
-        if (pathname.includes('account')) title = "Аккаунт";
-        if (pathname.includes('help')) title = "Помощь";
-        if (pathname.includes('notifications')) title = "Уведомления";
-        if (pathname.includes('language')) title = "Язык";
-        if (pathname.includes('rate')) title = "Оценить приложение";
-        if (pathname.includes('about')) title = "О приложении";
-        if (pathname.includes('premium')) title = "Премиум";
-        
-        setHeaderContent(<HeaderWithBackButton title={title} backPath="/settings" />);
+    const fetchChatInfo = async () => {
+        if (pathname.startsWith('/chats/')) {
+            const chatId = params.id as string;
+            const conversation = await getConversationById(chatId);
+            const currentUser = await getCurrentUser();
+            if (conversation && currentUser) {
+                const otherParticipant = conversation.participants.find(p => p.id !== currentUser.id);
+                if (otherParticipant) {
+                  setHeaderContent(<ChatHeader chatInfo={otherParticipant} showMapButton={showMapButton} />);
+                }
+            } else {
+                setHeaderContent(defaultHeader); // Fallback
+            }
+        } else if (pathname.startsWith('/users/')) {
+            const userId = params.id as string;
+            // In a real app, you'd fetch user by ID. We'll simulate by finding in any conversation.
+            const conversation = (await getConversationById('conv-1')) || (await getConversationById('1')); // hack to find some user
+            const user = conversation?.participants.find(p => p.id !== 'user-1'); // Assume we find some user
+            const title = user ? `Профиль ${user.name}` : "Профиль";
+            setHeaderContent(<HeaderWithBackButton title={title} />);
+        } else if (pathname === '/chats') {
+            setHeaderContent(
+                <div className="w-full h-full relative flex items-center justify-center">
+                    {showMapButton && <BackToMapButton />}
+                    <span className="text-xl font-headline text-foreground">Чаты</span>
+                </div>
+            );
+        } else if (pathname.startsWith('/profile/edit')) {
+            setHeaderContent(<HeaderWithBackButton title="Редактирование профиля" backPath="/settings" />);
+        } else if (pathname === '/settings') {
+             setHeaderContent(
+                <div className="w-full h-full relative flex items-center justify-center">
+                    <span className="text-xl font-headline text-foreground">Настройки</span>
+                </div>
+             );
+        } else if (pathname.startsWith('/settings/')) {
+            let title = "Настройки";
+            if (pathname.includes('account')) title = "Аккаунт";
+            if (pathname.includes('help')) title = "Помощь";
+            if (pathname.includes('notifications')) title = "Уведомления";
+            if (pathname.includes('language')) title = "Язык";
+            if (pathname.includes('rate')) title = "Оценить приложение";
+            if (pathname.includes('about')) title = "О приложении";
+            if (pathname.includes('premium')) title = "Премиум";
+            
+            setHeaderContent(<HeaderWithBackButton title={title} backPath="/settings" />);
 
-    } else {
-        setHeaderContent(defaultHeader);
-    }
+        } else {
+            setHeaderContent(defaultHeader);
+        }
+    };
+    
+    fetchChatInfo();
+
   }, [pathname, params, mounted, showMapButton]);
 
   if (!mounted) {

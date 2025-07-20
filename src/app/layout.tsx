@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
 import { ThemeProvider } from '@/components/theme-provider';
 import { LocationProvider } from '@/lib/location-provider';
+import { ToastProvider } from '@/hooks/use-toast';
 
 
 export const metadata: Metadata = {
@@ -35,10 +36,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <LocationProvider>
-            {children}
-          </LocationProvider>
-          <Toaster />
+          <ToastProvider>
+            <LocationProvider>
+              {children}
+            </LocationProvider>
+            <Toaster />
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>
