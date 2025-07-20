@@ -4,6 +4,14 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 
 export type Gender = 'male' | 'female' | 'other';
 
+type ProfileData = {
+  isPremium?: boolean;
+  nickname?: string | null;
+  about?: string | null;
+  gender?: Gender | null;
+  avatar?: string | null;
+}
+
 interface ProfileState {
   isRegistered: boolean | null;
   isPremium: boolean;
@@ -14,6 +22,7 @@ interface ProfileState {
   setIsRegistered: (isRegistered: boolean) => void;
   checkRegistration: () => void;
   logout: () => void;
+  setProfile: (data: ProfileData) => void;
 }
 
 // In a real app, this would check a token, call an API, etc.
@@ -26,7 +35,7 @@ const checkUserRegistration = (): boolean => {
 
 export const useProfileStore = create<ProfileState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isRegistered: null,
       isPremium: false,
       nickname: null,
@@ -50,13 +59,21 @@ export const useProfileStore = create<ProfileState>()(
           localStorage.removeItem('user_premium');
         }
         set({ isRegistered: false, isPremium: false, nickname: null, about: null, gender: null, avatar: null });
+      },
+      setProfile: (data) => {
+        const currentState = get();
+        const newState = { ...currentState, ...data };
+        
+        if (typeof window !== 'undefined' && data.isPremium !== undefined) {
+          localStorage.setItem('user_premium', String(data.isPremium));
+        }
+        set(newState);
       }
     }),
     {
       name: 'profile-storage', // name of the item in the storage (must be unique)
       storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
       partialize: (state) => ({ 
-        isRegistered: state.isRegistered, 
         isPremium: state.isPremium,
         nickname: state.nickname,
         about: state.about,
@@ -65,6 +82,9 @@ export const useProfileStore = create<ProfileState>()(
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
+            // isRegistered is handled separately to avoid hydration issues on first load
+            const registered = checkUserRegistration();
+            state.isRegistered = registered;
             state.checkRegistration();
         }
       }
