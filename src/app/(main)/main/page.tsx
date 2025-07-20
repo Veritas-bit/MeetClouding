@@ -1,0 +1,62 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import dynamic from "next/dynamic";
+import { LoaderCircle } from "lucide-react";
+
+// Lazy load the sheet components
+const WantSheet = dynamic(() => import('@/components/want/WantSheet').then(mod => mod.WantSheet), {
+  loading: () => <div className="h-full flex justify-center items-center"><LoaderCircle className="animate-spin" /></div>,
+  ssr: false
+});
+const SearchSheet = dynamic(() => import('@/components/search/SearchSheet').then(mod => mod.SearchSheet), {
+  loading: () => <div className="h-full flex justify-center items-center"><LoaderCircle className="animate-spin" /></div>,
+  ssr: false
+});
+
+
+export default function MainPage() {
+  return (
+    <div className="flex-grow h-full w-full flex items-center justify-center relative -mt-16 pt-32 pb-24">
+    <div className="absolute inset-0 bg-background" />
+
+    <div className="relative flex flex-col items-center justify-center text-center text-foreground p-4 sm:p-8">
+        
+        <p className="text-[1.1rem] font-headline mb-4 max-w-md text-foreground">
+            Найди компанию своему желанию!
+        </p>
+
+        <div className="flex flex-col gap-6 items-center">
+        <Sheet>
+            <SheetTrigger asChild>
+                <Button className="w-72 h-12 text-xl font-bold rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground shadow-lg shadow-primary/40 transition-all duration-300 active:shadow-xl active:shadow-primary/60">
+                Найти компанию
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
+                <SheetHeader>
+                    <SheetTitle className="sr-only">Создать желание</SheetTitle>
+                </SheetHeader>
+                <WantSheet />
+            </SheetContent>
+        </Sheet>
+        <Sheet>
+            <SheetTrigger asChild>
+            <button className="text-xl uppercase font-bold text-primary active:text-accent transition-colors">
+                Поиск облачков
+            </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
+                <SheetHeader>
+                    <SheetTitle className="sr-only">Поиск</SheetTitle>
+                </SheetHeader>
+                <SearchSheet />
+            </SheetContent>
+        </Sheet>
+        </div>
+        
+    </div>
+    </div>
+  );
+}
