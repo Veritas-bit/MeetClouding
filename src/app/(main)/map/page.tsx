@@ -1,10 +1,11 @@
+
 "use client";
 
 import { Suspense, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useLocationStore } from '@/lib/location-store';
-import { WISH_CATEGORIES, WishCategoryKey } from '@/lib/categories';
+import { WISH_CATEGORIES, WishCategoryKey, WISH_CATEGORY_KEYS } from '@/lib/categories';
 import { MapLoader } from '@/components/map/MapLoader';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { useProfileStore } from '@/lib/profile-store';
@@ -28,7 +29,6 @@ export interface MarkerInfo {
 // Function to generate random coordinates within a given radius
 const generateRandomMarkers = (center: [number, number], category: WishCategoryKey | null, radiusKm: number): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
-    const WISH_CATEGORY_KEYS = Object.keys(WISH_CATEGORIES) as WishCategoryKey[];
     // Adjust marker count based on radius for a more populated feel in larger areas
     const count = 5 + Math.floor(radiusKm / 2) * 3; 
 
@@ -44,8 +44,9 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
         const latOffset = (distance / 111.32) * Math.cos(angle);
         const lonOffset = (distance / (111.32 * Math.cos(center[0] * (Math.PI / 180)))) * Math.sin(angle);
         
-        const lat = center[0] + latOffset;
-        const lon = center[1] + lonOffset;
+        // Rounding to prevent potential NaN issues with very small numbers or edge cases
+        const lat = parseFloat((center[0] + latOffset).toFixed(6));
+        const lon = parseFloat((center[1] + lonOffset).toFixed(6));
 
         markers.push({
             id: `search-result-${i}-${lat}-${lon}`,
@@ -64,7 +65,7 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
 
 function MapContent() {
   const searchParams = useSearchParams();
-  const { latitude, longitude } = useLocationStore();
+  const { location } = useLocationStore();
   const { isPremium } = useProfileStore();
   
   const [markers, setMarkers] = useState<MarkerInfo[]>([]);
@@ -92,14 +93,14 @@ function MapContent() {
     const isSearch = searchParams.get('search') === 'true';
 
     // Wait for user location to be determined first
-    if (latitude === null || longitude === null) return;
+    if (!location) return;
 
     // Priority 1: Search results
     if (isSearch) {
-        const searchRadius = parseInt(searchParams.get('radius') || '5', 10);
+        const searchRadius = parseFloat(searchParams.get('radius') || '5');
         const searchCategory = searchParams.get('category') as WishCategoryKey | null;
         
-        const searchCenter: [number, number] = [latitude, longitude];
+        const searchCenter: [number, number] = [location.latitude, location.longitude];
         setCenter(searchCenter);
         // Pass category (or null if not provided) to the generator function
         setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
@@ -126,14 +127,14 @@ function MapContent() {
     } 
     // Priority 3: Default to user's current location
     else {
-      setCenter([latitude, longitude]);
+      setCenter([location.latitude, location.longitude]);
       setMarkers([]); // No markers by default
     }
 
-  }, [latitude, longitude, searchParams, isPremium]);
+  }, [location, searchParams, isPremium]);
 
   if (!center) {
-    return <FullScreenLoader text={(latitude === null || longitude === null) ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
+    return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
   }
 
   return (
