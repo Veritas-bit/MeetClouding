@@ -76,7 +76,8 @@ export default function MapComponent({ center, markers = [], className }: MapPro
       alert("Это ваше собственное желание!");
       return;
     }
-    router.push(`/chats/1?from=map`);
+    // This is a mock navigation. In a real app, you would navigate to the specific chat.
+    router.push(`/chats/conv-2?from=map`);
   };
   
   const getEffectiveTheme = useCallback(() => {
@@ -95,8 +96,8 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   const isDarkMap = effectiveTheme === 'dark';
 
   const mapStyleUrl = isDarkMap
-    ? `https://api.maptiler.com/maps/streets-v2-dark/style.json?key=qLNkbiPhLci13jOWPT7q`
-    : `https://api.maptiler.com/maps/streets-v2/style.json?key=qLNkbiPhLci13jOWPT7q`;
+    ? `https://api.maptiler.com/maps/streets-v2-dark/style.json?key=GET_YOUR_OWN_KEY`
+    : `https://api.maptiler.com/maps/streets-v2/style.json?key=GET_YOUR_OWN_KEY`;
 
   const mapContainerStyle: React.CSSProperties = {
     position: 'absolute',
