@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware'
 
-export type Gender = 'male' | 'female' | 'other';
+export type Gender = 'male' | 'female' | 'unselected' | null;
 
 type ProfileData = {
   isPremium?: boolean;
@@ -57,6 +57,8 @@ export const useProfileStore = create<ProfileState>()(
          if (typeof window !== 'undefined') {
           localStorage.removeItem('user_registered');
           localStorage.removeItem('user_premium');
+          // Also clear the persisted state in zustand
+          localStorage.removeItem('profile-storage');
         }
         set({ isRegistered: false, isPremium: false, nickname: null, about: null, gender: null, avatar: null });
       },

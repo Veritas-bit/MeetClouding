@@ -1,0 +1,236 @@
+"use client";
+
+import { useState, useRef, type ChangeEvent, useEffect } from "react";
+import Image from "next/image";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Sparkles, LoaderCircle, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useProfileStore, type Gender } from "@/lib/profile-store";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
+import { maleNicknames, femaleNicknames, neutralNicknames } from "@/lib/nicknames";
+
+export default function EditProfilePage() {
+  const { toast } = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const { 
+    nickname: storeNickname, 
+    about: storeAbout, 
+    gender: storeGender, 
+    avatar: storeAvatar,
+    setProfile,
+   } = useProfileStore();
+
+  const [nickname, setNickname] = useState(storeNickname || '');
+  const [about, setAbout] = useState(storeAbout || '');
+  const [gender, setGender] = useState<Gender>(storeGender || 'unselected');
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(storeAvatar);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isGenderOpen, setIsGenderOpen] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const tgNick = searchParams.get('nickname');
+    const tgPhoto = searchParams.get('photo');
+    if (tgNick) {
+      setNickname(tgNick);
+    }
+    if (tgPhoto) {
+      setAvatarPreview(decodeURIComponent(tgPhoto));
+    }
+  }, [searchParams]);
+
+  const genderOptions: { value: Gender; label: string }[] = [
+    { value: "male", label: "Мужчина" },
+    { value: "female", label: "Женщина" },
+    { value: "unselected", label: "Не выбран" },
+  ];
+
+  const handleAvatarChangeClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setAvatarPreview(result);
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset the input value to allow selecting the same file again
+    if (event.target) {
+        event.target.value = "";
+    }
+  };
+
+  const handleGenerateNickname = () => {
+    setIsGenerating(true);
+    let nicknamePool: string[];
+
+    switch (gender) {
+        case "male":
+            nicknamePool = maleNicknames;
+            break;
+        case "female":
+            nicknamePool = femaleNicknames;
+            break;
+        default:
+            nicknamePool = [...maleNicknames, ...femaleNicknames, ...neutralNicknames];
+            break;
+    }
+
+    const randomIndex = Math.floor(Math.random() * nicknamePool.length);
+    const randomNickname = nicknamePool[randomIndex];
+    
+    // Simulate a short delay to show the loading animation
+    setTimeout(() => {
+        setNickname(randomNickname);
+        setIsGenerating(false);
+    }, 300);
+  };
+
+  const handleSaveChanges = () => {
+    // Prevent double-clicks
+    if (isSaving) return;
+    setIsSaving(true);
+    
+    setProfile({
+      nickname,
+      about,
+      gender,
+      avatar: avatarPreview || storeAvatar,
+    });
+
+    toast({
+      title: "Сохранено",
+      description: "Ваш профиль успешно обновлен.",
+    });
+    
+    router.push('/settings');
+  };
+  
+  const selectedGenderLabel = genderOptions.find(opt => opt.value === gender)?.label || "Выберите пол";
+
+  return (
+    <>
+    <div className="container mx-auto p-4 py-6 flex flex-col items-center pb-24">
+      <div className="relative mb-2">
+        <Image
+          src={avatarPreview || "https://placehold.co/80x80.png"}
+          alt="User Avatar"
+          width={80}
+          height={80}
+          className="rounded-full border-4 border-background object-cover aspect-square"
+          data-ai-hint="person portrait"
+        />
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          className="hidden"
+          accept="image/*"
+        />
+      </div>
+
+      <button
+        onClick={handleAvatarChangeClick}
+        className="text-sm text-primary active:underline mb-4"
+      >
+        Изменить фотографию
+      </button>
+
+      <div className="w-full max-w-md">
+        <Card className="bg-card/50">
+          <CardContent className="p-4 space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="nickname">Никнейм</Label>
+              <Input
+                id="nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder="Ваш уникальный никнейм"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={handleGenerateNickname}
+                disabled={isGenerating}
+              >
+                {isGenerating ? (
+                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                    <Sparkles className="mr-2 h-4 w-4" />
+                )}
+                Сгенерировать
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="about">О себе</Label>
+              <Textarea
+                id="about"
+                value={about}
+                onChange={(e) => setAbout(e.target.value)}
+                placeholder="Расскажите немного о себе..."
+                rows={3}
+                className="resize-none min-h-[60px]"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Ваш пол</Label>
+              <Collapsible open={isGenderOpen} onOpenChange={setIsGenderOpen} className="relative">
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" className="w-full justify-between">
+                    {selectedGenderLabel}
+                    <span className="text-muted-foreground">...</span>
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="absolute w-full z-10">
+                    <Card className="mt-2">
+                        <CardContent className="p-2 space-y-1">
+                           {genderOptions.map((option) => (
+                             <Button
+                                key={option.value}
+                                variant="ghost"
+                                className="w-full justify-start"
+                                onClick={() => {
+                                  setGender(option.value);
+                                  setIsGenderOpen(false);
+                                }}
+                              >
+                                <Check className={cn("mr-2 h-4 w-4", gender === option.value ? "opacity-100" : "opacity-0")} />
+                                {option.label}
+                              </Button>
+                           ))}
+                        </CardContent>
+                    </Card>
+                </CollapsibleContent>
+              </Collapsible>
+            </div>
+            
+            <Button className="w-full" size="lg" onClick={handleSaveChanges} disabled={isSaving}>
+                {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                Сохранить изменения
+            </Button>
+
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+    </>
+  );
+}
