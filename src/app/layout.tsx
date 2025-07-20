@@ -1,11 +1,22 @@
 import type { Metadata } from 'next';
+import { Nunito } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import { cn } from '@/lib/utils';
+import { ThemeProvider } from '@/components/theme-provider';
+import { LocationProvider } from '@/lib/location-provider';
+
 
 export const metadata: Metadata = {
-  title: 'LinguaLink',
-  description: 'A messenger with real-time translation.',
+  title: 'MeetCloud',
+  description: 'Найди компанию своему желанию',
 };
+
+const nunito = Nunito({
+  subsets: ['cyrillic'],
+  display: 'swap',
+  variable: '--font-nunito',
+});
 
 export default function RootLayout({
   children,
@@ -13,15 +24,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="ru" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className="font-body antialiased h-full">
-        {children}
-        <Toaster />
+      <body className={cn("font-sans antialiased", nunito.variable)}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <LocationProvider>
+            {children}
+          </LocationProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
