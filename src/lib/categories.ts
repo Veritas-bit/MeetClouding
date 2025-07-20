@@ -23,3 +23,5 @@ export const WISH_CATEGORIES = {
 };
 
 export type WishCategoryKey = keyof typeof WISH_CATEGORIES;
+
+export const WISH_CATEGORY_KEYS = Object.keys(WISH_CATEGORIES) as WishCategoryKey[];
