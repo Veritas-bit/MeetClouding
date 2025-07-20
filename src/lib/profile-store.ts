@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware'
 
 interface ProfileState {
   isRegistered: boolean | null;
+  isPremium: boolean;
   setIsRegistered: (isRegistered: boolean) => void;
   checkRegistration: () => void;
 }
@@ -19,17 +20,20 @@ export const useProfileStore = create<ProfileState>()(
   persist(
     (set) => ({
       isRegistered: null,
+      isPremium: false, // Default to false
       setIsRegistered: (isRegistered) => set({ isRegistered }),
       checkRegistration: () => {
         const registered = checkUserRegistration();
-        set({ isRegistered: registered });
+        // In a real app, premium status would likely come from an API call
+        const premium = localStorage.getItem('user_premium') === 'true';
+        set({ isRegistered: registered, isPremium: premium });
       },
     }),
     {
       name: 'profile-storage', // name of the item in the storage (must be unique)
       storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
-      // Only persist the isRegistered state
-      partialize: (state) => ({ isRegistered: state.isRegistered }),
+      // Only persist isRegistered and isPremium states
+      partialize: (state) => ({ isRegistered: state.isRegistered, isPremium: state.isPremium }),
       // Set initial state from storage on hydration
       onRehydrateStorage: () => (state) => {
         if (state) {
