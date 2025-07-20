@@ -8,7 +8,7 @@ import { type ThemeProviderProps } from "next-themes/dist/types"
 const AUTO_THEME_INTERVAL = 1000 * 60 * 5; // Check every 5 minutes
 
 function AutoThemeProvider({ children }: { children: React.ReactNode }) {
-    const { theme, systemTheme } = useNextTheme();
+    const { theme, systemTheme, setTheme } = useNextTheme();
 
     React.useEffect(() => {
         if (typeof window === "undefined") return;
@@ -16,11 +16,6 @@ function AutoThemeProvider({ children }: { children: React.ReactNode }) {
         let interval: NodeJS.Timeout | undefined;
 
         const applyAutoTheme = () => {
-            if (theme !== 'auto') {
-                if (interval) clearInterval(interval);
-                return;
-            }
-
             const hour = new Date().getHours();
             let newThemeClass = 'light';
 
@@ -33,25 +28,23 @@ function AutoThemeProvider({ children }: { children: React.ReactNode }) {
             } else {
                 newThemeClass = 'dark'; // Ночь
             }
-
+            
+            // This sets the class on the HTML element for CSS to pick up.
             const doc = document.documentElement;
-            // Сначала удаляем все возможные классы тем
             doc.classList.remove('light', 'dark', 'early-morning', 'evening');
-            // Затем добавляем нужный класс
             doc.classList.add(newThemeClass);
         };
 
         if (theme === 'auto') {
-            applyAutoTheme(); // Применить при загрузке
+            applyAutoTheme();
             interval = setInterval(applyAutoTheme, AUTO_THEME_INTERVAL);
         } else {
-            // Когда тема не 'auto', убеждаемся, что установлен правильный класс
-            const doc = document.documentElement;
-            doc.classList.remove('light', 'dark', 'early-morning', 'evening');
-            const currentTheme = theme === 'system' ? (systemTheme || 'light') : theme;
-            if (currentTheme) {
-              doc.classList.add(currentTheme);
-            }
+             // When theme is not 'auto', let next-themes handle it.
+             // We just need to remove our custom auto classes.
+             const doc = document.documentElement;
+             if(theme !== 'early-morning' && theme !== 'evening') {
+                doc.classList.remove('early-morning', 'evening');
+             }
         }
 
         return () => {
