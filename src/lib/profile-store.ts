@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware'
 
+export type Gender = 'male' | 'female' | 'other';
+
 interface ProfileState {
   isRegistered: boolean | null;
   isPremium: boolean;
