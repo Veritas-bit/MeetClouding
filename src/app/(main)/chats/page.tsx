@@ -10,6 +10,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Link from "next/link";
 import { FullScreenLoader } from "@/components/common/FullScreenLoader";
+import type { Gender } from "@/lib/profile-store";
 
 function transformConversationToProps(conversation: Conversation, currentUser: User): ChatItemProps | null {
     const otherParticipant = conversation.participants.find(p => p.id !== currentUser.id);
@@ -17,8 +18,6 @@ function transformConversationToProps(conversation: Conversation, currentUser: U
 
     const lastMessage = conversation.messages[conversation.messages.length - 1];
 
-    // Count unread messages (mock logic, as we don't track read status per user)
-    // Let's assume messages not from the current user are "unread" for this demo
     const unreadCount = conversation.messages.filter(m => m.senderId !== currentUser.id && m.status !== 'read').length;
 
     return {
@@ -30,6 +29,7 @@ function transformConversationToProps(conversation: Conversation, currentUser: U
         unreadCount: unreadCount,
         avatarHint: "person portrait",
         isOnline: otherParticipant.isOnline,
+        gender: 'unselected' // Placeholder, as mock User doesn't have gender
     };
 }
 
@@ -44,7 +44,6 @@ export default function ChatsPage() {
       const allConversations = await getConversations();
       const currentUser = await getCurrentUser() as User;
       
-      // Separate chats based on some mock logic, e.g., ID prefix
       const mainConvs = allConversations.filter(c => c.id.startsWith('conv-'));
       const friendConvs = allConversations.filter(c => !c.id.startsWith('conv-'));
 

@@ -1,11 +1,74 @@
+
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Send, Settings, Cloud } from "lucide-react";
+import { cn } from "@/lib/utils";
+import React, { useEffect, useState } from "react";
+
+const navItems = [
+  { href: "/main", icon: Cloud, label: "Главная" },
+  { href: "/chats", icon: Send, label: "Чаты" },
+  { href: "/settings", icon: Settings, label: "Настройки" },
+];
+
+function BottomNavBarPlaceholder() {
+    return (
+        <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-border shadow-t-lg z-50">
+            <div className="flex justify-around items-center h-full max-w-lg mx-auto px-2">
+                {navItems.map((item) => (
+                    <div
+                        key={item.href}
+                        className="flex-1 flex flex-col items-center justify-center gap-1 text-muted-foreground"
+                    >
+                        <item.icon className="h-6 w-6" />
+                        <span className="text-xs font-medium">{item.label}</span>
+                    </div>
+                ))}
+            </div>
+        </nav>
+    );
+}
+
+
 export function BottomNavBar() {
+  const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <BottomNavBarPlaceholder />;
+  }
+
   return (
-    <footer className="sticky bottom-0 z-50 w-full border-t bg-background">
-      <div className="container flex h-16 items-center justify-center">
-        <p>Bottom Nav</p>
+    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-border shadow-t-lg z-50">
+      <div className="flex justify-around items-center h-full max-w-lg mx-auto px-2">
+        {navItems.map((item) => {
+          const isActive = pathname.startsWith(item.href);
+          
+          return (
+            <Link 
+              href={item.href} 
+              key={item.href} 
+              className="flex-1"
+            >
+              <div
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1 text-muted-foreground transition-colors duration-200",
+                   isActive ? "text-primary" : "active:text-foreground"
+                )}
+              >
+                <item.icon className="h-6 w-6" />
+                <span className="text-xs font-medium">{item.label}</span>
+              </div>
+            </Link>
+          );
+        })}
       </div>
-    </footer>
+    </nav>
   );
 }

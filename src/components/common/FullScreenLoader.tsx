@@ -1,10 +1,19 @@
-import { Loader2 } from "lucide-react";
 
-export function FullScreenLoader({ text }: { text?: string }) {
+'use client';
+
+import { GradientBorderCloudIcon } from '@/components/icons/GradientBorderCloudIcon';
+
+interface FullScreenLoaderProps {
+    text?: string;
+}
+
+export function FullScreenLoader({ text }: FullScreenLoaderProps) {
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm">
-      <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      {text && <p className="mt-4 text-lg text-foreground">{text}</p>}
+    <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-[100]">
+      <div className="flex flex-col items-center gap-4">
+        <GradientBorderCloudIcon className="h-24 w-24" />
+        {text && <p className="text-lg text-muted-foreground animate-pulse">{text}</p>}
+      </div>
     </div>
   );
 }

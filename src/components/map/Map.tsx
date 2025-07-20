@@ -1,87 +1,149 @@
 
-"use client";
+'use client';
 
-import React, { useState } from 'react';
-import Map, { Marker, Popup, NavigationControl } from 'react-map-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { cn } from '@/lib/utils';
+import Map, { Marker } from 'react-map-gl/maplibre';
 import type { MarkerInfo } from '@/app/(main)/map/page';
-import { Button } from '../ui/button';
-import { Send, Gem } from 'lucide-react';
-import Link from 'next/link';
 import { useTheme } from 'next-themes';
+import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
+import { Crown } from 'lucide-react';
 
-interface MapComponentProps {
+interface MapProps {
   center: [number, number];
-  markers: MarkerInfo[];
+  markers?: MarkerInfo[];
   className?: string;
 }
 
-export default function MapComponent({ center, markers, className }: MapComponentProps) {
-  const { resolvedTheme } = useTheme();
-  const [selectedMarker, setSelectedMarker] = useState<MarkerInfo | null>(null);
-
-  const mapStyle = resolvedTheme === 'dark' 
-    ? 'https://api.maptiler.com/maps/dataviz-dark/style.json?key=GET_YOUR_OWN_KEY'
-    : 'https://api.maptiler.com/maps/dataviz-light/style.json?key=GET_YOUR_OWN_KEY';
+function CloudIcon({ color, isPremium }: { color: string, isPremium?: boolean }) {
+  const getDarkerColor = (hslColor: string) => {
+    if (!hslColor || !hslColor.startsWith('hsl')) return hslColor;
+    try {
+        const parts = hslColor.match(/(\d+(\.\d+)?)/g);
+        if (!parts || parts.length < 3) return hslColor;
+        const [h, s, l] = parts.map(Number);
+        const newL = Math.max(0, l - 15);
+        return `hsl(${h}, ${s}%, ${newL}%)`;
+    } catch (e) {
+        return hslColor; // fallback
+    }
+  };
+  
+  const strokeColor = getDarkerColor(color);
 
   return (
-    <div className={cn("w-full h-full", className)}>
-      <Map
-        initialViewState={{
-          longitude: center[1],
-          latitude: center[0],
-          zoom: 13,
-        }}
-        mapStyle={mapStyle}
-        style={{ width: '100%', height: '100%' }}
-        onLoad={(e) => e.target.resize()} // Force resize on load
-      >
-        <NavigationControl position="top-right" />
+    <div className="relative" style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))' }}>
+        {isPremium && (
+            <Crown 
+                className="absolute -top-3.5 -left-1.5 h-6 w-6 text-yellow-400 -rotate-12"
+                stroke="hsl(var(--background))"
+                strokeWidth={0.5}
+                fill="currentColor"
+            />
+        )}
+        <svg
+            width="40"
+            height="30"
+            viewBox="0 0 80 60"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ overflow: 'visible', cursor: 'pointer' }}
+        >
+        <path
+            d="M61.5,14.5c-3.2-1.2-6.6-1.7-10-1.7c-8.9,0-16.9,4.4-21.7,11.3c-0.8-0.1-1.6-0.2-2.3-0.2c-8.3,0-15,6.7-15,15s6.7,15,15,15h34c7.2,0,13-5.8,13-13S68.7,14.5,61.5,14.5z"
+            fill={color}
+            stroke={strokeColor}
+            strokeWidth="3"
+            strokeLinejoin="round"
+            strokeMiterlimit="10"
+        />
+        </svg>
+    </div>
+  );
+}
 
+export default function MapComponent({ center, markers = [], className }: MapProps) {
+  const { theme, systemTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const router = useRouter();
+  
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
+  const handleMarkerClick = (marker: MarkerInfo) => {
+    if (marker.userId === '0') {
+      alert("Это ваше собственное желание!");
+      return;
+    }
+    router.push(`/chats/1?from=map`);
+  };
+  
+  const getEffectiveTheme = useCallback(() => {
+    if (!mounted) return 'light';
+
+    const doc = document.documentElement;
+    if (doc.classList.contains('dark') || doc.classList.contains('evening')) {
+        return 'dark';
+    }
+    return 'light';
+    
+  }, [mounted]);
+
+
+  const effectiveTheme = getEffectiveTheme();
+  const isDarkMap = effectiveTheme === 'dark';
+
+  const mapStyleUrl = isDarkMap
+    ? `https://api.maptiler.com/maps/streets-v2-dark/style.json?key=qLNkbiPhLci13jOWPT7q`
+    : `https://api.maptiler.com/maps/streets-v2/style.json?key=qLNkbiPhLci13jOWPT7q`;
+
+  const mapContainerStyle: React.CSSProperties = {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    transition: 'filter 0.5s ease-in-out',
+  };
+
+  const doc = typeof document !== 'undefined' ? document.documentElement : null;
+  if (doc?.classList.contains('early-morning')) {
+    mapContainerStyle.filter = 'sepia(20%)';
+  } else if (doc?.classList.contains('evening')) {
+    mapContainerStyle.filter = 'brightness(0.8) contrast(1.1)';
+  }
+
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <div style={mapContainerStyle}>
+        <Map
+            key={`${center.join('-')}-${effectiveTheme}`}
+            initialViewState={{
+                longitude: center[1],
+                latitude: center[0],
+                zoom: 13,
+            }}
+            mapStyle={mapStyleUrl}
+            className={cn(className)}
+            style={{ width: '100%', height: '100%' }}
+        >
         {markers.map((marker) => (
-          <Marker
+            <Marker
             key={marker.id}
             longitude={marker.longitude}
             latitude={marker.latitude}
-            onClick={(e) => {
-              e.originalEvent.stopPropagation();
-              setSelectedMarker(marker);
-            }}
-          >
-            <div
-              className="w-4 h-4 rounded-full border-2 border-white cursor-pointer shadow-md"
-              style={{ backgroundColor: marker.color || 'hsl(var(--primary))' }}
+            onClick={() => handleMarkerClick(marker)}
+            style={{ zIndex: marker.isPremium ? 10 : 1 }}
+            >
+            <CloudIcon 
+                color={marker.color || '#FF7F50'}
+                isPremium={marker.isPremium}
             />
-          </Marker>
+            </Marker>
         ))}
-
-        {selectedMarker && (
-          <Popup
-            longitude={selectedMarker.longitude}
-            latitude={selectedMarker.latitude}
-            onClose={() => setSelectedMarker(null)}
-            closeButton={false}
-            offset={20}
-          >
-            <div className="flex flex-col gap-2 max-w-xs">
-                <div className="flex justify-between items-center">
-                    <p className="text-xs font-bold" style={{ color: selectedMarker.color }}>
-                        {selectedMarker.categoryName || 'Желание'}
-                    </p>
-                    {selectedMarker.isPremium && <Gem className="h-4 w-4 text-primary" />}
-                </div>
-              <p className="text-sm">"{selectedMarker.message}"</p>
-              <Link href={`/users/${selectedMarker.userId}`}>
-                <Button size="sm" className="w-full">
-                  <Send className="mr-2 h-4 w-4" />
-                  Откликнуться
-                </Button>
-              </Link>
-            </div>
-          </Popup>
-        )}
-      </Map>
+        </Map>
     </div>
   );
 }

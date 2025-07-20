@@ -5,6 +5,7 @@ const users: User[] = [
   { id: 'user-2', name: 'Elena Petrova', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
   { id: 'user-3', name: 'Kenji Tanaka', avatarUrl: 'https://placehold.co/100x100.png', isOnline: false },
   { id: 'user-4', name: 'Priya Sharma', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
+  { id: '1', name: 'Иван', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
 ];
 
 const conversations: Conversation[] = [
@@ -32,6 +33,13 @@ const conversations: Conversation[] = [
        { id: 'msg-3-1', text: 'Hey Priya, are we still on for lunch tomorrow?', timestamp: Date.now() - 1000 * 60 * 30, senderId: 'user-1', status: 'sent' },
     ],
   },
+  {
+    id: '1',
+    participants: [users[0], users[4]],
+    messages: [
+       { id: 'msg-4-1', text: 'Привет! Давай встретимся?', timestamp: Date.now() - 1000 * 60 * 30, senderId: 'user-1', status: 'sent' },
+    ],
+  }
 ];
 
 export const getCurrentUser = async (): Promise<User> => {

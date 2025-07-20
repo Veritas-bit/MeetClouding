@@ -1,18 +1,23 @@
-"use client";
 
-import { LoaderCircle } from "lucide-react";
-import { cn } from "@/lib/utils";
+'use client';
 
-export function MapLoader({ isLoading }: { isLoading: boolean }) {
+import { GradientBorderCloudIcon } from '@/components/icons/GradientBorderCloudIcon';
+import { cn } from '@/lib/utils';
+
+interface MapLoaderProps {
+    isLoading: boolean;
+}
+
+export function MapLoader({ isLoading }: MapLoaderProps) {
   return (
-    <div
-      className={cn(
-        "absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm transition-opacity duration-300",
+    <div className={cn(
+        "fixed inset-0 bg-background flex items-center justify-center z-[100] transition-opacity duration-300 ease-out",
         isLoading ? "opacity-100" : "opacity-0 pointer-events-none"
-      )}
-    >
-      <LoaderCircle className="h-12 w-12 animate-spin text-primary" />
-      <p className="mt-4 text-foreground">Карта загружается...</p>
+    )}>
+      <div className="flex flex-col items-center gap-4">
+        <GradientBorderCloudIcon className="h-24 w-24" />
+        <p className="text-lg text-muted-foreground animate-pulse">Загружаем карту...</p>
+      </div>
     </div>
   );
 }

@@ -1,35 +1,53 @@
-
-"use client";
-
 import { create } from 'zustand';
 
+interface Location {
+  latitude: number;
+  longitude: number;
+}
+
 interface LocationState {
-  latitude: number | null;
-  longitude: number | null;
-  error: string | null;
+  location: Location | null;
+  error: GeolocationPositionError | null;
+  setLocation: (location: Location) => void;
+  setError: (error: GeolocationPositionError) => void;
   requestLocation: () => void;
 }
 
-export const useLocationStore = create<LocationState>((set) => ({
-  latitude: null,
-  longitude: null,
+const MOSCOW_COORDS = { latitude: 55.7558, longitude: 37.6173 };
+
+export const useLocationStore = create<LocationState>((set, get) => ({
+  location: null,
   error: null,
+  setLocation: (location) => set({ location, error: null }),
+  setError: (error) => {
+    console.error("Geolocation error:", error);
+    set({ error, location: MOSCOW_COORDS }); // Fallback to Moscow
+  },
   requestLocation: () => {
-    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+    if (get().location || get().error) {
+      return;
+    }
+
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          set({
+          get().setLocation({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            error: null,
           });
         },
         (error) => {
-          set({ error: error.message });
+          get().setError(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
         }
       );
     } else {
-      set({ error: "Geolocation is not supported by this browser." });
+      console.error("Geolocation is not supported by this browser.");
+      get().setLocation(MOSCOW_COORDS); // Fallback to Moscow if API not supported
     }
   },
 }));

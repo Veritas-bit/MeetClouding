@@ -1,30 +1,27 @@
-import { WISH_CATEGORIES, WishCategoryKey } from './categories';
 
-// This is a simple keyword-based categorization.
-// In a real app, this could be replaced with a more sophisticated NLP model or a Genkit flow.
-const categoryKeywords: Record<WishCategoryKey, string[]> = {
-    food: ['ресторан', 'кафе', 'поесть', 'суши', 'пицца', 'бургер'],
-    cinema: ['кино', 'фильм', 'сеанс', 'кинотеатр'],
-    event: ['концерт', 'фестиваль', 'шоу', 'выставка', 'стендап'],
-    travel: ['поездка', 'путешествие', 'в другой город', 'за границу'],
-    shopping: ['шопинг', 'по магазинам', 'купить', 'торговый центр'],
-    bar: ['бар', 'паб', 'пиво', 'коктейли', 'выпить'],
-    coffee: ['кофе', 'кофейня', 'эспрессо', 'капучино'],
-    sport: ['спорт', 'тренировка', 'пробежка', 'футбол', 'баскетбол', 'йога'],
-    art: ['рисовать', 'творчество', 'выставка', 'галерея', 'музей'],
-    music: ['музыка', 'инструмент', 'играть', 'петь'],
-    books: ['книга', 'читать', 'библиотека', 'книжный'],
-    other: [],
+import type { WishCategoryKey } from './categories';
+
+const keywordMap: Record<WishCategoryKey, string[]> = {
+    food: ['еда', 'кофе', 'ресторан', 'кафе', 'поесть', 'ужин', 'обед', 'завтрак', 'пицца', 'суши', 'бургер', 'выпить', 'бар'],
+    walk: ['прогулка', 'гулять', 'парк', 'набережная', 'сквер', 'погулять', 'пройтись'],
+    entertainment: ['развлечения', 'кино', 'фильм', 'концерт', 'боулинг', 'квест', 'антикафе', 'настолки'],
+    sport: ['спорт', 'велосипед', 'ролики', 'коньки', 'пробежка', 'тренировка', 'футбол', 'баскетбол', 'йога', 'скалолазание'],
+    culture: ['культура', 'музей', 'выставка', 'театр', 'галерея', 'экскурсия', 'искусство', 'лекция', 'планетарий'],
+    other: [], // 'other' is a fallback, so it doesn't need keywords
 };
 
-export function categorizeWishByKeywords(message: string): WishCategoryKey {
-    const lowerCaseMessage = message.toLowerCase();
-    for (const key in categoryKeywords) {
-        const categoryKey = key as Wish-CategoryKey;
-        const keywords = categoryKeywords[categoryKey];
-        if (keywords.some(keyword => lowerCaseMessage.includes(keyword))) {
-            return categoryKey;
+export function categorizeWishByKeywords(wish: string): WishCategoryKey {
+    const lowerCaseWish = wish.toLowerCase();
+
+    for (const [category, keywords] of Object.entries(keywordMap)) {
+        if (category === 'other') continue;
+
+        for (const keyword of keywords) {
+            if (lowerCaseWish.includes(keyword)) {
+                return category as WishCategoryKey;
+            }
         }
     }
+
     return 'other';
 }
