@@ -30,30 +30,24 @@ export interface MarkerInfo {
 // Function to generate random coordinates within a given radius using a more robust method
 const generateRandomMarkers = (center: [number, number], category: WishCategoryKey | null, radiusKm: number): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
-    const count = 5 + Math.floor(radiusKm / 2) * 3; 
+    const count = 5 + Math.floor(radiusKm / 2) * 3;
 
     for (let i = 0; i < count; i++) {
         const currentCategoryKey = category || WISH_CATEGORY_KEYS[Math.floor(Math.random() * WISH_CATEGORY_KEYS.length)];
         const categoryInfo = WISH_CATEGORIES[currentCategoryKey];
         
+        // Convert radius from kilometers to degrees (approximate)
+        const radiusInDegrees = radiusKm / 111.32;
+
         const y0 = center[0];
         const x0 = center[1];
-        // Convert radius from kilometers to degrees
-        const rd = radiusKm / 111.32;
 
-        const u = Math.random();
-        const v = Math.random();
+        // Generate a random point in a square box
+        const u = Math.random() * 2 - 1; // -1 to 1
+        const v = Math.random() * 2 - 1; // -1 to 1
 
-        const w = rd * Math.sqrt(u);
-        const t = 2 * Math.PI * v;
-        const x = w * Math.cos(t);
-        const y = w * Math.sin(t);
-        
-        // Adjust the x-coordinate for the shrinking of the east-west distances
-        const new_x = x / Math.cos(y0 * Math.PI / 180);
-
-        let newLat = y + y0;
-        let newLon = new_x + x0;
+        const newLat = y0 + u * radiusInDegrees;
+        const newLon = x0 + v * (radiusInDegrees / Math.cos(y0 * Math.PI / 180));
 
         // Final check for NaN or infinite values before pushing
         if (isNaN(newLat) || isNaN(newLon) || !isFinite(newLat) || !isFinite(newLon)) {
