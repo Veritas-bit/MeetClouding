@@ -69,12 +69,12 @@ export function MessageView({ initialConversation, currentUser }: { initialConve
       </ScrollArea>
 
       <div className="p-4 border-t bg-background shrink-0">
-        <form onSubmit={handleSendMessage} className="flex items-start space-x-4">
+        <form onSubmit={handleSendMessage} className="flex items-end space-x-4">
           <Textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 resize-none"
+            className="flex-1"
             rows={1}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -83,7 +83,7 @@ export function MessageView({ initialConversation, currentUser }: { initialConve
               }
             }}
           />
-          <Button type="submit" size="icon" aria-label="Send Message">
+          <Button type="submit" size="icon" aria-label="Send Message" className="self-end" disabled={!newMessage.trim()}>
             <SendHorizonal className="h-5 w-5" />
           </Button>
         </form>
