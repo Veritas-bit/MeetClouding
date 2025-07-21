@@ -1,3 +1,4 @@
+
 import type { User, Conversation } from './types';
 
 const users: User[] = [
@@ -5,7 +6,8 @@ const users: User[] = [
   { id: 'user-2', name: 'Elena Petrova', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
   { id: 'user-3', name: 'Kenji Tanaka', avatarUrl: 'https://placehold.co/100x100.png', isOnline: false },
   { id: 'user-4', name: 'Priya Sharma', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
-  { id: '1', name: 'Иван', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
+  { id: 'friend-1', name: 'Иван Друг', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
+  { id: 'friend-2', name: 'Мария Подруга', avatarUrl: 'https://placehold.co/100x100.png', isOnline: false },
 ];
 
 const conversations: Conversation[] = [
@@ -36,16 +38,48 @@ const conversations: Conversation[] = [
     ],
   },
   {
-    id: '1',
+    id: 'friend-1',
     participants: [users[0], users[4]],
     messages: [
-       { id: 'msg-4-1', text: 'Привет! Давай встретимся?', timestamp: Date.now() - 1000 * 60 * 30, senderId: 'user-1', status: 'sent' },
+       { id: 'msg-4-1', text: 'Привет! Давно не виделись!', timestamp: Date.now() - 1000 * 60 * 60 * 24, senderId: 'friend-1', status: 'read' },
+    ],
+  },
+  {
+    id: 'friend-2',
+    participants: [users[0], users[5]],
+    messages: [
+       { id: 'msg-5-1', text: 'Какие планы на выходные?', timestamp: Date.now() - 1000 * 60 * 60 * 4, senderId: 'user-1', status: 'delivered' },
     ],
   }
 ];
 
-export const getCurrentUser = async (): Promise<User> => {
-  return Promise.resolve(users[0]);
+type FriendshipStatus = "none" | "sent" | "received" | "friends";
+const friendshipStatuses: Record<string, FriendshipStatus> = {
+    'user-2': 'none',
+    'user-3': 'none',
+    'user-4': 'none',
+    'friend-1': 'friends',
+    'friend-2': 'friends',
+};
+
+export const getFriendshipStatus = (userId: string): FriendshipStatus => {
+    return friendshipStatuses[userId] || 'none';
+}
+
+export const setFriendshipStatus = (userId: string, status: FriendshipStatus) => {
+    friendshipStatuses[userId] = status;
+}
+
+export const getCurrentUser = async (): Promise<User | undefined> => {
+  return Promise.resolve(users.find(u => u.id === 'user-1'));
+};
+
+export const getAllUsers = async (): Promise<User[]> => {
+    return Promise.resolve(users);
+}
+
+export const getUserById = async (id: string): Promise<User | undefined> => {
+    return Promise.resolve(users.find(u => u.id === id));
 };
 
 export const getConversations = async (): Promise<Conversation[]> => {

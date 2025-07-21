@@ -1,40 +1,20 @@
 
-'use client';
-
 import { getConversationById, getCurrentUser } from '@/lib/mock-data';
 import { MessageView } from '@/components/message-view';
-import { notFound, useParams } from 'next/navigation';
-import type { User, Conversation } from '@/lib/types';
-import { useEffect, useState } from 'react';
-import { FullScreenLoader } from '@/components/common/FullScreenLoader';
+import { notFound } from 'next/navigation';
+import type { User } from '@/lib/types';
 
-export default function ConversationPage() {
-  const params = useParams();
-  const [conversation, setConversation] = useState<Conversation | null | undefined>(null);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+export default async function ConversationPage({ params }: { params: { id: string } }) {
+  const conversation = await getConversationById(params.id);
+  const currentUser = await getCurrentUser();
 
-  useEffect(() => {
-    async function fetchData() {
-      const conv = await getConversationById(params.id as string);
-      const user = await getCurrentUser();
-      setConversation(conv);
-      setCurrentUser(user as User);
-    }
-    fetchData();
-  }, [params.id]);
-
-
-  if (conversation === null || currentUser === null) {
-    return <FullScreenLoader text="Загрузка чата..." />;
-  }
-
-  if (conversation === undefined) {
+  if (!conversation || !currentUser) {
     notFound();
   }
 
   return (
     <div className='h-full flex flex-col'>
-      <MessageView initialConversation={conversation} currentUser={currentUser} />
+      <MessageView initialConversation={conversation} currentUser={currentUser as User} />
     </div>
   );
 }
