@@ -8,6 +8,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Crown } from 'lucide-react';
+import { MAPTILER_KEY } from '@/lib/config';
 
 interface MapProps {
   center: [number, number];
@@ -78,7 +79,7 @@ export default function MapComponent({ center, markers = [], className }: MapPro
     router.push(`/chats/conv-2?from=map`);
   };
 
-  const mapApiKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+  const mapApiKey = MAPTILER_KEY;
 
   if (!mapApiKey) {
     return (
