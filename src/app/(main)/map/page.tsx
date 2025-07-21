@@ -27,7 +27,7 @@ export interface MarkerInfo {
   isPremium?: boolean;
 }
 
-// Function to generate random coordinates within a given radius using a more robust method
+// Function to generate random coordinates within a given radius using a simple and robust method
 const generateRandomMarkers = (center: [number, number], category: WishCategoryKey | null, radiusKm: number): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
     const count = 5 + Math.floor(radiusKm / 2) * 3;
@@ -41,7 +41,7 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
         
         const [centerLat, centerLon] = center;
 
-        // Simple square bounding box generation
+        // Simple square bounding box generation to avoid complex math errors
         const latOffset = (Math.random() - 0.5) * 2 * radiusInDegrees;
         const lonOffset = (Math.random() - 0.5) * 2 * radiusInDegrees;
 
