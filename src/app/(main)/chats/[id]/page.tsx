@@ -32,5 +32,9 @@ export default function ConversationPage() {
     notFound();
   }
 
-  return <MessageView initialConversation={conversation} currentUser={currentUser} />;
+  return (
+    <div className='h-full flex flex-col'>
+      <MessageView initialConversation={conversation} currentUser={currentUser} />
+    </div>
+  );
 }
