@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { LifeBuoy, Bell, Palette, Languages, Star, Info, Gem, Sun, Moon, Laptop, UserCog, LogOut, Pencil, Bot, Sunrise, Sunset } from "lucide-react";
+import { LifeBuoy, Bell, Palette, Languages, Star, Info, Gem, Sun, Moon, Laptop, UserCog, LogOut, Pencil, Sunrise, Sunset, Orbit } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
   Collapsible,
@@ -34,11 +34,11 @@ function ThemeSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
 
   const themeOptions = [
-    { value: "light", label: "Светлая", icon: Sun },
-    { value: "dark", label: "Темная", icon: Moon },
+    { value: "light", label: "Утренняя", icon: Sun },
     { value: "early-morning", label: "Дневная", icon: Sunrise },
     { value: "evening", label: "Вечерняя", icon: Sunset },
-    { value: "auto", label: "Авто", icon: Bot },
+    { value: "dark", label: "Ночная", icon: Moon },
+    { value: "auto", label: "Авто", icon: Orbit },
     { value: "system", label: "Системная", icon: Laptop },
   ];
 
