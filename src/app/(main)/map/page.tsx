@@ -98,61 +98,61 @@ function MapContent() {
   }, [searchParams, setHasInteractedWithMap]);
 
   useEffect(() => {
-    const latParam = searchParams.get('lat');
-    const lonParam = searchParams.get('lon');
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
-
+    
     // Priority 1: Center on the published wish from URL (does not depend on user location)
-    if (isPublished && latParam && lonParam) {
-        const lat = parseFloat(latParam);
-        const lon = parseFloat(lonParam);
+    if (isPublished) {
+        const latParam = searchParams.get('lat');
+        const lonParam = searchParams.get('lon');
         const message = decodeURIComponent(searchParams.get('message') || '');
         const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
         const color = searchParams.get('color') || 'hsl(var(--primary))';
 
-        if (!isNaN(lat) && !isNaN(lon)) {
-            setCenter([lat, lon]);
-            setMarkers([{
-                id: `user-wish-${lat}-${lon}`,
-                userId: '0', // Current user's wish
-                latitude: lat,
-                longitude: lon,
-                message: message,
-                categoryName: categoryName,
-                color: color,
-                isPremium: isPremium
-            }]);
+        if (latParam && lonParam) {
+            const lat = parseFloat(latParam);
+            const lon = parseFloat(lonParam);
+            if (!isNaN(lat) && !isNaN(lon)) {
+                setCenter([lat, lon]);
+                setMarkers([{
+                    id: `user-wish-${lat}-${lon}`,
+                    userId: '0', // Current user's wish
+                    latitude: lat,
+                    longitude: lon,
+                    message: message,
+                    categoryName: categoryName,
+                    color: color,
+                    isPremium: isPremium
+                }]);
+                return; // Exit effect after handling published wish
+            }
         }
-        return; // Exit effect after handling published wish
     } 
-
+    
     // For other cases that depend on user location, wait for it.
     if (!location) {
-        return;
+        return; // Wait for location data
     }
-    
+
     // Priority 2: Search results (depends on user location)
     if (isSearch) {
         const searchRadiusParam = searchParams.get('radius');
         const searchCategory = searchParams.get('category') as WishKey | null;
         const searchRadius = searchRadiusParam ? parseFloat(searchRadiusParam) : NaN;
-        const searchCenter: [number, number] = [location.latitude, location.longitude];
         
-        setCenter(searchCenter); // Set center immediately for search
+        setCenter([location.latitude, location.longitude]);
         if (!isNaN(searchRadius)) {
-            setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
+            setMarkers(generateRandomMarkers([location.latitude, location.longitude], searchCategory, searchRadius));
         } else {
              setMarkers([]);
         }
     }
-    // Priority 3: Default to user's current location if not searching
+    // Priority 3: Default to user's current location if not searching or publishing
     else {
       setCenter([location.latitude, location.longitude]);
       setMarkers([]); // No markers by default
-      setHasInteractedWithMap(false); // Reset on default map view
     }
-  }, [location, searchParams, isPremium, setHasInteractedWithMap]);
+  }, [location, searchParams, isPremium]);
 
   if (!center) {
     return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
