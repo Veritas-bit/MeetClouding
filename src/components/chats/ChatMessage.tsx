@@ -124,7 +124,7 @@ export function ChatMessage({ id, message, timestamp, isOwn, image, video, sourc
     <>
       <div 
         ref={messageRef}
-        className="relative outline-none"
+        className="relative outline-none transition-all active:brightness-90 active:scale-[.98]"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -134,7 +134,7 @@ export function ChatMessage({ id, message, timestamp, isOwn, image, video, sourc
         onTouchEnd={handleTouchEnd}
       >
         <div
-          className={cn('flex items-end gap-2 transition-all active:brightness-75 active:scale-[.99]', isOwn ? 'justify-end' : 'justify-start')}
+          className={cn('flex items-end gap-2', isOwn ? 'justify-end' : 'justify-start')}
         >
           <div
             className={cn(
@@ -217,7 +217,7 @@ export function ChatMessage({ id, message, timestamp, isOwn, image, video, sourc
                       <span>Изменить</span>
                   </button>
               )}
-              {onDelete && (
+              {isOwn && onDelete && (
                 <button className="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-destructive outline-none transition-colors hover:bg-accent hover:text-destructive" onClick={() => handleAction('delete')}>
                     <Trash2 className="h-4 w-4" />
                     <span>Удалить</span>
