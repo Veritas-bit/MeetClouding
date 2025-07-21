@@ -9,8 +9,9 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageItem } from '@/components/message-item';
 import { SendHorizonal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
-export function MessageView({ initialConversation, currentUser }: { initialConversation: Conversation; currentUser: User }) {
+export function MessageView({ initialConversation, currentUser, className }: { initialConversation: Conversation; currentUser: User, className?: string }) {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>(initialConversation.messages);
   const [newMessage, setNewMessage] = useState('');
@@ -59,7 +60,7 @@ export function MessageView({ initialConversation, currentUser }: { initialConve
   if (!otherParticipant) return null;
 
   return (
-    <div className="flex-1 flex flex-col h-full">
+    <div className={cn("flex flex-col", className)}>
       <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
         <div className="p-4 space-y-6">
           {messages.map((message) => (
