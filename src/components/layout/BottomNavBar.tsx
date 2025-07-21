@@ -6,24 +6,31 @@ import { usePathname } from "next/navigation";
 import { Send, Settings, Cloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "@/hooks/use-translation";
 
 const navItems = [
-  { href: "/main", icon: Cloud, label: "Главная" },
-  { href: "/chats", icon: Send, label: "Чаты" },
-  { href: "/settings", icon: Settings, label: "Настройки" },
+  { href: "/main", icon: Cloud, translationKey: "main" },
+  { href: "/chats", icon: Send, translationKey: "chats" },
+  { href: "/settings", icon: Settings, translationKey: "settings" },
 ];
+
+const originalLabels = {
+    main: "Главная",
+    chats: "Чаты",
+    settings: "Настройки",
+};
 
 function BottomNavBarPlaceholder() {
     return (
         <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-border shadow-t-lg z-50">
             <div className="flex justify-around items-center h-full max-w-lg mx-auto px-2">
-                {navItems.map((item) => (
+                {navItems.map((item, index) => (
                     <div
                         key={item.href}
                         className="flex-1 flex flex-col items-center justify-center gap-1 text-muted-foreground"
                     >
                         <item.icon className="h-6 w-6" />
-                        <span className="text-xs font-medium">{item.label}</span>
+                        <span className="text-xs font-medium">{Object.values(originalLabels)[index]}</span>
                     </div>
                 ))}
             </div>
@@ -35,6 +42,7 @@ function BottomNavBarPlaceholder() {
 export function BottomNavBar() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const t = useTranslation(originalLabels);
 
   useEffect(() => {
     setMounted(true);
@@ -63,7 +71,7 @@ export function BottomNavBar() {
                 )}
               >
                 <item.icon className="h-6 w-6" />
-                <span className="text-xs font-medium">{item.label}</span>
+                <span className="text-xs font-medium">{t[item.translationKey as keyof typeof t]}</span>
               </div>
             </Link>
           );

@@ -12,14 +12,34 @@ import { Avatar, AvatarFallback } from "../ui/avatar";
 import Image from "next/image";
 import type { Conversation, User } from "@/lib/types";
 import { getConversationById, getCurrentUser } from "@/lib/mock-data";
+import { useTranslation } from "@/hooks/use-translation";
+
+
+const originalTexts = {
+  backToMap: "На карту",
+  back: "Назад",
+  chats: "Чаты",
+  profile: "Профиль",
+  editProfile: "Редактирование профиля",
+  settings: "Настройки",
+  account: "Аккаунт",
+  help: "Помощь",
+  notifications: "Уведомления",
+  language: "Язык",
+  rateApp: "Оценить приложение",
+  aboutApp: "О приложении",
+  premium: "Премиум",
+  wasRecently: "был(а) недавно",
+};
 
 
 const BackToMapButton = () => {
     const router = useRouter();
+    const t = useTranslation({ backToMap: originalTexts.backToMap });
     return (
         <Button variant="ghost" size="sm" onClick={() => router.push('/map')} className="text-foreground text-xs absolute left-4">
             <MapIcon className="h-4 w-4 mr-1" />
-            На карту
+            {t.backToMap}
         </Button>
     )
 };
@@ -39,8 +59,9 @@ const defaultHeader = (
     </>
 );
 
-const HeaderWithBackButton = ({ title, backPath }: { title: string, backPath?: string }) => {
+const HeaderWithBackButton = ({ titleKey, backPath }: { titleKey: keyof typeof originalTexts, backPath?: string }) => {
     const router = useRouter();
+    const t = useTranslation({ title: originalTexts[titleKey], back: originalTexts.back });
     const handleBack = () => {
         if (backPath) {
             router.push(backPath);
@@ -52,9 +73,9 @@ const HeaderWithBackButton = ({ title, backPath }: { title: string, backPath?: s
          <div className="w-full h-full relative flex items-center justify-center">
              <Button variant="ghost" size="icon" onClick={handleBack} className="text-foreground absolute left-0">
                 <ArrowLeft className="h-6 w-6" />
-                <span className="sr-only">Назад</span>
+                <span className="sr-only">{t.back}</span>
              </Button>
-             <span className="text-xl font-headline text-foreground">{title}</span>
+             <span className="text-xl font-headline text-foreground">{t.title}</span>
          </div>
     );
 };
@@ -62,6 +83,7 @@ const HeaderWithBackButton = ({ title, backPath }: { title: string, backPath?: s
 
 const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton: boolean }) => {
     const router = useRouter();
+    const t = useTranslation({ backToMap: originalTexts.backToMap, back: originalTexts.back, wasRecently: originalTexts.wasRecently });
     
     return (
         <div className="w-full h-full relative flex items-center justify-center">
@@ -69,12 +91,12 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
                  {showMapButton ? (
                     <Button variant="ghost" size="icon" onClick={() => router.push('/map')} className="text-foreground">
                         <MapIcon className="h-6 w-6" />
-                        <span className="sr-only">На карту</span>
+                        <span className="sr-only">{t.backToMap}</span>
                     </Button>
                 ) : (
                     <Button variant="ghost" size="icon" onClick={() => router.back()} className="text-foreground">
                         <ArrowLeft className="h-6 w-6" />
-                        <span className="sr-only">Назад</span>
+                        <span className="sr-only">{t.back}</span>
                     </Button>
                 )}
             </div>
@@ -93,7 +115,7 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
                 </Avatar>
                 <div className="flex flex-col items-start">
                      <span className="text-lg font-bold text-foreground leading-none">{chatInfo.name}</span>
-                     <span className="text-xs text-muted-foreground">был(а) недавно</span>
+                     <span className="text-xs text-muted-foreground">{t.wasRecently}</span>
                 </div>
             </Link>
         </div>
@@ -108,6 +130,7 @@ export function Header() {
   const [headerContent, setHeaderContent] = React.useState(defaultHeader);
   const [mounted, setMounted] = React.useState(false);
   const showMapButton = searchParams.get('from') === 'map';
+  const t = useTranslation({ chats: originalTexts.chats, profile: originalTexts.profile, settings: originalTexts.settings });
 
   React.useEffect(() => {
     setMounted(true);
@@ -130,38 +153,33 @@ export function Header() {
                 setHeaderContent(defaultHeader); // Fallback
             }
         } else if (pathname.startsWith('/users/')) {
-            const userId = params.id as string;
-            // In a real app, you'd fetch user by ID. We'll simulate by finding in any conversation.
-            const conversation = (await getConversationById('conv-1')) || (await getConversationById('1')); // hack to find some user
-            const user = conversation?.participants.find(p => p.id !== 'user-1'); // Assume we find some user
-            const title = user ? `Профиль ${user.name}` : "Профиль";
-            setHeaderContent(<HeaderWithBackButton title={title} />);
+            setHeaderContent(<HeaderWithBackButton titleKey="profile" />);
         } else if (pathname === '/chats') {
             setHeaderContent(
                 <div className="w-full h-full relative flex items-center justify-center">
                     {showMapButton && <BackToMapButton />}
-                    <span className="text-xl font-headline text-foreground">Чаты</span>
+                    <span className="text-xl font-headline text-foreground">{t.chats}</span>
                 </div>
             );
         } else if (pathname.startsWith('/profile/edit')) {
-            setHeaderContent(<HeaderWithBackButton title="Редактирование профиля" backPath="/settings" />);
+            setHeaderContent(<HeaderWithBackButton titleKey="editProfile" backPath="/settings" />);
         } else if (pathname === '/settings') {
              setHeaderContent(
                 <div className="w-full h-full relative flex items-center justify-center">
-                    <span className="text-xl font-headline text-foreground">Настройки</span>
+                    <span className="text-xl font-headline text-foreground">{t.settings}</span>
                 </div>
              );
         } else if (pathname.startsWith('/settings/')) {
-            let title = "Настройки";
-            if (pathname.includes('account')) title = "Аккаунт";
-            if (pathname.includes('help')) title = "Помощь";
-            if (pathname.includes('notifications')) title = "Уведомления";
-            if (pathname.includes('language')) title = "Язык";
-            if (pathname.includes('rate')) title = "Оценить приложение";
-            if (pathname.includes('about')) title = "О приложении";
-            if (pathname.includes('premium')) title = "Премиум";
+            let titleKey: keyof typeof originalTexts = "settings";
+            if (pathname.includes('account')) titleKey = "account";
+            if (pathname.includes('help')) titleKey = "help";
+            if (pathname.includes('notifications')) titleKey = "notifications";
+            if (pathname.includes('language')) titleKey = "language";
+            if (pathname.includes('rate')) titleKey = "rateApp";
+            if (pathname.includes('about')) titleKey = "aboutApp";
+            if (pathname.includes('premium')) titleKey = "premium";
             
-            setHeaderContent(<HeaderWithBackButton title={title} backPath="/settings" />);
+            setHeaderContent(<HeaderWithBackButton titleKey={titleKey} backPath="/settings" />);
 
         } else {
             setHeaderContent(defaultHeader);
@@ -170,7 +188,7 @@ export function Header() {
     
     fetchChatInfo();
 
-  }, [pathname, params, mounted, showMapButton]);
+  }, [pathname, params, mounted, showMapButton, t.chats, t.settings]);
 
   if (!mounted) {
     return (

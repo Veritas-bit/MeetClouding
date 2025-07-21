@@ -18,71 +18,55 @@ import { Separator } from "@/components/ui/separator";
 import { useProfileStore } from "@/lib/profile-store";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/use-translation";
 
 
-const settingsItems: SettingsButtonProps[] = [
-  { icon: UserCog, text: "Управление аккаунтом", href: "/settings/account" },
-  { icon: LifeBuoy, text: "Помощь", href: "/settings/help" },
-  { icon: Bell, text: "Уведомления", href: "/settings/notifications" },
-  { icon: Languages, text: "Язык", href: "/settings/language" },
-  { icon: Star, text: "Оценить приложение", href: "/settings/rate" },
-  { icon: Info, text: "О приложении", href: "/settings/about" },
-];
-
-function ThemeSwitcher() {
-  const { theme, setTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const themeOptions = [
-    { value: "light", label: "Утренняя", icon: Sun },
-    { value: "early-morning", label: "Дневная", icon: Sunrise },
-    { value: "evening", label: "Вечерняя", icon: Sunset },
-    { value: "dark", label: "Ночная", icon: Moon },
-    { value: "auto", label: "Авто", icon: Orbit },
-    { value: "system", label: "Системная", icon: Laptop },
-  ];
-
-  return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start h-10 text-base font-normal">
-                <Palette className="mr-4 h-4 w-4 text-foreground" />
-                Оформление
-            </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-            <div className="p-2 pt-0">
-                <Card className="bg-muted/50">
-                    <CardContent className="p-1 space-y-1">
-                        {themeOptions.map((option) => (
-                           <Button 
-                              key={option.value}
-                              variant={theme === option.value ? "secondary" : "ghost"} 
-                              className="w-full justify-start h-10 font-normal" 
-                              onClick={() => { setTheme(option.value); setIsOpen(false); }}>
-                              <option.icon className="mr-4 h-4 w-4" />
-                              {option.label}
-                           </Button>
-                        ))}
-                    </CardContent>
-                </Card>
-            </div>
-        </CollapsibleContent>
-    </Collapsible>
-  )
-}
+const originalSettingsTexts = {
+  accountManagement: "Управление аккаунтом",
+  help: "Помощь",
+  notifications: "Уведомления",
+  language: "Язык",
+  rateApp: "Оценить приложение",
+  aboutApp: "О приложении",
+  theme: "Оформление",
+  morning: "Утренняя",
+  day: "Дневная",
+  evening: "Вечерняя",
+  night: "Ночная",
+  auto: "Авто",
+  system: "Системная",
+  premium: "Премиум-аккаунт",
+  logout: "Выйти",
+  edit: "Изменить",
+  aboutSelf: "О себе",
+  genderMale: "мужской",
+  genderFemale: "женский",
+  genderUnselected: "не выбран",
+  infoNotProvided: "Информация не указана.",
+  user: "Пользователь",
+};
 
 function ProfileSection() {
     const { nickname, about, gender, avatar, isPremium } = useProfileStore();
+    const t = useTranslation({
+      edit: originalSettingsTexts.edit,
+      aboutSelf: originalSettingsTexts.aboutSelf,
+      genderMale: originalSettingsTexts.genderMale,
+      genderFemale: originalSettingsTexts.genderFemale,
+      genderUnselected: originalSettingsTexts.genderUnselected,
+      infoNotProvided: originalSettingsTexts.infoNotProvided,
+      user: originalSettingsTexts.user,
+    });
+
 
     const getGenderText = () => {
         switch (gender) {
         case 'male':
-            return 'мужской';
+            return t.genderMale;
         case 'female':
-            return 'женский';
+            return t.genderFemale;
         default:
-            return 'не выбран';
+            return t.genderUnselected;
         }
     };
 
@@ -91,7 +75,7 @@ function ProfileSection() {
             <Link href="/profile/edit" className="absolute top-2 right-2">
                 <Button variant="ghost" size="sm">
                     <Pencil className="mr-2 h-4 w-4" />
-                    Изменить
+                    {t.edit}
                 </Button>
             </Link>
             <CardContent className="p-4 flex flex-col items-center">
@@ -108,7 +92,7 @@ function ProfileSection() {
 
                 <div className="text-center mt-2 mb-2">
                     <h1 className="text-md font-bold text-foreground flex items-center gap-2">
-                        {nickname || 'Пользователь'}
+                        {nickname || t.user}
                         {isPremium && <Gem className="h-4 w-4 text-primary" />}
                     </h1>
                     <p className="text-xs text-muted-foreground">{getGenderText()}</p>
@@ -116,9 +100,9 @@ function ProfileSection() {
 
                 <Card className="bg-card/50 w-full">
                     <CardContent className="px-3 pt-2 pb-3">
-                        <h2 className="text-sm font-semibold mt-1">О себе</h2>
+                        <h2 className="text-sm font-semibold mt-1">{t.aboutSelf}</h2>
                         <p className="text-xs text-muted-foreground mt-1">
-                        {about || 'Информация не указана.'}
+                        {about || t.infoNotProvided}
                         </p>
                     </CardContent>
                 </Card>
@@ -127,15 +111,36 @@ function ProfileSection() {
     );
 }
 
-
 export default function SettingsPage() {
   const router = useRouter();
   const logout = useProfileStore((state) => state.logout);
+  const t = useTranslation(originalSettingsTexts);
+
+  const { theme, setTheme } = useTheme();
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     router.replace('/');
   };
+
+  const settingsItems: SettingsButtonProps[] = [
+    { icon: UserCog, text: t.accountManagement, href: "/settings/account" },
+    { icon: LifeBuoy, text: t.help, href: "/settings/help" },
+    { icon: Bell, text: t.notifications, href: "/settings/notifications" },
+    { icon: Languages, text: t.language, href: "/settings/language" },
+    { icon: Star, text: t.rateApp, href: "/settings/rate" },
+    { icon: Info, text: t.aboutApp, href: "/settings/about" },
+  ];
+
+  const themeOptions = [
+    { value: "light", label: t.morning, icon: Sun },
+    { value: "early-morning", label: t.day, icon: Sunrise },
+    { value: "evening", label: t.evening, icon: Sunset },
+    { value: "dark", label: t.night, icon: Moon },
+    { value: "auto", label: t.auto, icon: Orbit },
+    { value: "system", label: t.system, icon: Laptop },
+  ];
   
   return (
     <div className="container mx-auto p-4 pb-24">
@@ -147,7 +152,32 @@ export default function SettingsPage() {
               <SettingsButton key={index} {...item} />
             ))}
             <div>
-              <ThemeSwitcher />
+              <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+                  <CollapsibleTrigger asChild>
+                      <Button variant="ghost" className="w-full justify-start h-10 text-base font-normal">
+                          <Palette className="mr-4 h-4 w-4 text-foreground" />
+                          {t.theme}
+                      </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                      <div className="p-2 pt-0">
+                          <Card className="bg-muted/50">
+                              <CardContent className="p-1 space-y-1">
+                                  {themeOptions.map((option) => (
+                                    <Button 
+                                        key={option.value}
+                                        variant={theme === option.value ? "secondary" : "ghost"} 
+                                        className="w-full justify-start h-10 font-normal" 
+                                        onClick={() => { setTheme(option.value); setIsOpen(false); }}>
+                                        <option.icon className="mr-4 h-4 w-4" />
+                                        {option.label}
+                                    </Button>
+                                  ))}
+                              </CardContent>
+                          </Card>
+                      </div>
+                  </CollapsibleContent>
+              </Collapsible>
               <Separator />
             </div>
              <div className="pt-4 px-2 pb-2">
@@ -159,7 +189,7 @@ export default function SettingsPage() {
                   )}
                 >
                   <Gem className="mr-4 h-5 w-5" />
-                  Премиум-аккаунт
+                  {t.premium}
                 </Link>
             </div>
             <Separator />
@@ -170,7 +200,7 @@ export default function SettingsPage() {
                   onClick={handleLogout}
               >
                   <LogOut className="mr-2 h-5 w-5" />
-                  Выйти
+                  {t.logout}
               </Button>
             </div>
           </div>
