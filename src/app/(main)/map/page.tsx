@@ -151,7 +151,7 @@ function MapContent() {
   }
 
   return (
-    <div className="flex-grow w-full h-full relative">
+    <div className="flex-grow w-full relative">
         <MapLoader isLoading={isLoading} />
         <div className="flex-grow w-full h-full transition-opacity duration-300" style={{ opacity: isLoading ? 0 : 1 }}>
             <Map center={center} markers={markers} className="w-full h-full" />

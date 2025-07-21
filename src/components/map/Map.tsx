@@ -92,27 +92,17 @@ export default function MapComponent({ center, markers = [], className }: MapPro
     )
   }
 
-  const mapContainerStyle: React.CSSProperties = {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    transition: 'filter 0.5s ease-in-out',
-  };
-
   const doc = typeof document !== 'undefined' ? document.documentElement : null;
   const themeClass = doc?.className || '';
-  if (themeClass.includes('early-morning')) {
-    mapContainerStyle.filter = 'sepia(20%)';
-  } else if (themeClass.includes('evening') || themeClass.includes('dark')) {
-    mapContainerStyle.filter = 'brightness(0.8) contrast(1.1)';
-  }
+  const isDark = themeClass.includes('dark') || themeClass.includes('evening');
+  const mapStyle = isDark ? "streets-v2-dark" : "streets-v2";
 
   if (!mounted) {
     return null;
   }
 
   return (
-    <div style={mapContainerStyle}>
+    <div className="absolute inset-0">
         <Map
             key={center.join('-')}
             initialViewState={{
@@ -120,7 +110,7 @@ export default function MapComponent({ center, markers = [], className }: MapPro
                 latitude: center[0],
                 zoom: 13,
             }}
-            mapStyle={`https://api.maptiler.com/maps/streets-v2/style.json?key=${mapApiKey}`}
+            mapStyle={`https://api.maptiler.com/maps/${mapStyle}/style.json?key=${mapApiKey}`}
             attributionControl={false}
             className={cn(className)}
             style={{ width: '100%', height: '100%' }}

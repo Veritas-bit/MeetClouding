@@ -46,7 +46,7 @@ export default function MainLayout({
   return (
     <div className="relative flex flex-col min-h-screen">
       <Header />
-      <main className="flex-1 flex flex-col pt-4 sm:pt-6 md:pt-8 pb-24">{children}</main>
+      <main className="flex-1 flex flex-col pt-4 sm:pt-6 md:pt-8 overflow-y-auto">{children}</main>
       <BottomNavBar />
     </div>
   );
