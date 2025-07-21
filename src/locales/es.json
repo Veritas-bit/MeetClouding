@@ -80,5 +80,9 @@
   "genderUnselectedLabel": "No seleccionado",
   "saveChanges": "Guardar cambios",
   "profileSavedTitle": "Guardado",
-  "profileSavedDescription": "Tu perfil ha sido actualizado correctamente."
+  "profileSavedDescription": "Tu perfil ha sido actualizado correctamente.",
+  "registrationTitle": "Registro",
+  "authSlogan": "Elige un método de inicio de sesión para continuar",
+  "loginWithGoogle": "Iniciar sesión con Google",
+  "loginWithApple": "Iniciar sesión con Apple"
 }

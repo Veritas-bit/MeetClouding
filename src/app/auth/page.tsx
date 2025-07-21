@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useProfileStore } from "@/lib/profile-store";
+import { useTranslation } from "@/hooks/use-translation";
 
 const GoogleIcon = () => (
     <svg className="h-4 w-4 mr-3 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
@@ -24,6 +25,7 @@ const AppleIcon = () => (
 
 export default function AuthPage() {
     const router = useRouter();
+    const t = useTranslation();
 
     const handleLogin = () => {
         useProfileStore.getState().setIsRegistered(true);
@@ -33,17 +35,17 @@ export default function AuthPage() {
     return (
         <div className="flex flex-col h-screen w-full items-center justify-center bg-background p-4 relative">
             <div className="w-full max-w-sm flex flex-col items-center">
-                 <h1 className="text-2xl font-bold text-center mb-2">Регистрация</h1>
-                 <p className="text-muted-foreground text-center mb-8">Выберите способ входа, чтобы продолжить</p>
+                 <h1 className="text-2xl font-bold text-center mb-2">{t('registrationTitle')}</h1>
+                 <p className="text-muted-foreground text-center mb-8">{t('authSlogan')}</p>
 
                  <div className="flex flex-col space-y-3 w-full">
                     <Button variant="outline" className="justify-start h-12 text-base border-primary/50 text-foreground pl-20" onClick={handleLogin}>
                         <GoogleIcon />
-                        Войти с помощью Google
+                        {t('loginWithGoogle')}
                     </Button>
                     <Button variant="outline" className="justify-start h-12 text-base border-primary/50 text-foreground pl-20" onClick={handleLogin}>
                         <AppleIcon />
-                        Войти с помощью Apple
+                        {t('loginWithApple')}
                     </Button>
                 </div>
             </div>
@@ -52,7 +54,7 @@ export default function AuthPage() {
                 <Link href="/">
                     <Button variant="outline" size="lg">
                         <ArrowLeft className="mr-2 h-4 w-4" />
-                        Назад
+                        {t('back')}
                     </Button>
                 </Link>
             </div>

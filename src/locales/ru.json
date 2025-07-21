@@ -80,5 +80,9 @@
   "genderUnselectedLabel": "Не выбран",
   "saveChanges": "Сохранить изменения",
   "profileSavedTitle": "Сохранено",
-  "profileSavedDescription": "Ваш профиль успешно обновлен."
+  "profileSavedDescription": "Ваш профиль успешно обновлен.",
+  "registrationTitle": "Регистрация",
+  "authSlogan": "Выберите способ входа, чтобы продолжить",
+  "loginWithGoogle": "Войти с помощью Google",
+  "loginWithApple": "Войти с помощью Apple"
 }

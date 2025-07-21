@@ -80,5 +80,9 @@
   "genderUnselectedLabel": "Unselected",
   "saveChanges": "Save changes",
   "profileSavedTitle": "Saved",
-  "profileSavedDescription": "Your profile has been updated successfully."
+  "profileSavedDescription": "Your profile has been updated successfully.",
+  "registrationTitle": "Registration",
+  "authSlogan": "Choose a login method to continue",
+  "loginWithGoogle": "Sign in with Google",
+  "loginWithApple": "Sign in with Apple"
 }
