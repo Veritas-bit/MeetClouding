@@ -100,9 +100,9 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   if (!mapApiKey || mapApiKey === 'GET_YOUR_OWN_KEY') {
     return (
         <div className="flex h-full w-full items-center justify-center bg-muted">
-            <div className="text-center">
-                <p className="text-lg font-semibold text-destructive">MapTiler API Key Missing</p>
-                <p className="text-sm text-muted-foreground">Please add your MapTiler API key to the .env file.</p>
+            <div className="text-center p-4">
+                <p className="text-lg font-semibold text-destructive">Ключ API MapTiler отсутствует</p>
+                <p className="text-sm text-muted-foreground">Пожалуйста, добавьте ваш ключ API MapTiler в файл .env.</p>
             </div>
         </div>
     )
@@ -140,6 +140,8 @@ export default function MapComponent({ center, markers = [], className }: MapPro
                 zoom: 13,
             }}
             mapStyle={mapStyleUrl}
+            mapLibreLogo={false}
+            attributionControl={false}
             className={cn(className)}
             style={{ width: '100%', height: '100%' }}
         >
