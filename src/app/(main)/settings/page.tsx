@@ -121,10 +121,10 @@ export default function SettingsPage() {
             <div>
               <Collapsible open={isOpen} onOpenChange={setIsOpen}>
                   <CollapsibleTrigger asChild>
-                      <Button variant="ghost" className="w-full justify-start h-10 text-base font-normal">
+                      <button className="flex w-full items-center justify-start h-10 px-4 text-base font-normal text-foreground bg-transparent">
                           <Palette className="mr-4 h-4 w-4 text-foreground" />
                           {t('theme')}
-                      </Button>
+                      </button>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                       <div className="p-2 pt-0">
@@ -151,7 +151,7 @@ export default function SettingsPage() {
                 <Link 
                   href="/settings/premium"
                   className={cn(
-                    "inline-flex items-center justify-center gap-2 w-full h-10 text-base rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground shadow-lg shadow-primary/40 transition-all duration-300 active:shadow-xl active:shadow-primary/60",
+                    "inline-flex items-center justify-center gap-2 w-full h-10 text-base rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground",
                     "font-medium" 
                   )}
                 >
@@ -176,5 +176,3 @@ export default function SettingsPage() {
     </div>
   );
 }
-
-    

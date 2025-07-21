@@ -67,7 +67,7 @@ export default function WelcomePage() {
 
           <Button
             size="lg"
-            className="w-72 h-12 text-lg rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground shadow-lg shadow-primary/40 transition-all duration-300 active:shadow-xl active:shadow-primary/60 font-bold"
+            className="w-72 h-12 text-lg rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground font-bold"
             onClick={() => router.push('/auth')}
           >
             {t('getStartedButton')}

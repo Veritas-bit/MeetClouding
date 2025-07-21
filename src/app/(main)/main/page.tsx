@@ -32,7 +32,7 @@ export default function MainPage() {
         <div className="flex flex-col gap-6 items-center">
         <Sheet>
             <SheetTrigger asChild>
-                <Button className="w-72 h-12 text-xl font-bold rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground shadow-lg shadow-primary/40 transition-all duration-300 active:shadow-xl active:shadow-primary/60">
+                <Button className="w-72 h-12 text-xl font-bold rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground">
                 {t('findCompanyButton')}
                 </Button>
             </SheetTrigger>
