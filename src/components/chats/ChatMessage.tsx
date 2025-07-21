@@ -28,6 +28,7 @@ export interface ChatMessageProps {
 export function ChatMessage({ id, message, timestamp, isOwn, image, video, source, replyTo, onDelete, onReply, onEdit, authorName }: ChatMessageProps) {
   const { toast } = useToast();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const startPos = useRef({ x: 0, y: 0 });
@@ -52,10 +53,12 @@ export function ChatMessage({ id, message, timestamp, isOwn, image, video, sourc
   }, []);
   
   const handlePressStart = (clientX: number, clientY: number) => {
+    setIsPressed(true);
     clearTimer();
     startPos.current = { x: clientX, y: clientY };
     pressTimer.current = setTimeout(() => {
         openMenu();
+        setIsPressed(false);
         pressTimer.current = null;
     }, 1000);
   };
@@ -64,11 +67,13 @@ export function ChatMessage({ id, message, timestamp, isOwn, image, video, sourc
     const dx = Math.abs(clientX - startPos.current.x);
     const dy = Math.abs(clientY - startPos.current.y);
     if (dx > 10 || dy > 10) {
+      setIsPressed(false);
       clearTimer();
     }
   };
 
   const handlePressEnd = () => {
+    setIsPressed(false);
     clearTimer();
   };
 
@@ -124,7 +129,10 @@ export function ChatMessage({ id, message, timestamp, isOwn, image, video, sourc
     <>
       <div 
         ref={messageRef}
-        className="relative outline-none transition-all active:brightness-90"
+        className={cn(
+          "relative outline-none transition-all",
+          isPressed && "brightness-90"
+        )}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
