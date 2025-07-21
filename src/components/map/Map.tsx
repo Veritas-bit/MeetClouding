@@ -120,8 +120,7 @@ export default function MapComponent({ center, markers = [], className }: MapPro
                 latitude: center[0],
                 zoom: 13,
             }}
-            mapStyle={`https://api.maptiler.com/maps/streets-v2/style.json`}
-            mapTilerAccessToken={mapApiKey}
+            mapStyle={`https://api.maptiler.com/maps/streets-v2/style.json?key=${mapApiKey}`}
             attributionControl={false}
             className={cn(className)}
             style={{ width: '100%', height: '100%' }}
