@@ -67,8 +67,12 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
 
   useEffect(() => {
+    // Scroll to the bottom when messages change.
+    // Use a timeout to ensure the DOM has updated before scrolling.
     if (viewportRef.current) {
-      viewportRef.current.scrollTo({ top: viewportRef.current.scrollHeight, behavior: 'smooth' });
+        setTimeout(() => {
+            viewportRef.current?.scrollTo({ top: viewportRef.current.scrollHeight, behavior: 'smooth' });
+        }, 0);
     }
   }, [messages]);
 
@@ -85,7 +89,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t bg-background shrink-0 fixed bottom-20 left-0 right-0">
+      <div className="fixed bottom-20 left-0 right-0 p-4 border-t bg-background shrink-0">
         <form onSubmit={handleSendMessage} className="relative w-full flex items-center">
             <Textarea
                 value={newMessage}
