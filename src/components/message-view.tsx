@@ -18,8 +18,6 @@ export function MessageView({ initialConversation, currentUser, className }: { i
   const [newMessage, setNewMessage] = useState('');
   const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const inputContainerRef = useRef<HTMLDivElement>(null);
-  const [inputHeight, setInputHeight] = useState(0);
 
   const otherParticipant = initialConversation.participants.find(p => p.id !== currentUser.id);
 
@@ -76,28 +74,21 @@ export function MessageView({ initialConversation, currentUser, className }: { i
     }
   }, [messages]);
 
-  useEffect(() => {
-    if (inputContainerRef.current) {
-      setInputHeight(inputContainerRef.current.offsetHeight);
-    }
-  }, [newMessage]);
-
-
   if (!otherParticipant) return null;
 
   return (
     <>
     <div className={cn("flex flex-col h-full", className)}>
       <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
-        <div className="p-4 space-y-6">
+        {/* pb-40 is a magic number: ~80px for input and ~80px for bottom nav */}
+        <div className="p-4 space-y-6 pb-40"> 
           {messages.map((message) => (
             <MessageItem key={message.id} message={message} currentUser={currentUser} otherParticipant={otherParticipant} />
           ))}
-          <div style={{ height: `${inputHeight}px` }} />
         </div>
       </ScrollArea>
 
-      <div ref={inputContainerRef} className="fixed bottom-20 left-0 right-0 p-4 border-t bg-background shrink-0">
+      <div className="fixed bottom-20 left-0 right-0 p-4 border-t bg-background shrink-0">
         <form onSubmit={handleSendMessage} className="relative w-full flex items-center">
             <Textarea
                 value={newMessage}
