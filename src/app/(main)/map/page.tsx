@@ -103,34 +103,8 @@ function MapContent() {
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
 
-    // Wait for user location to be determined first
-    if (!location) return;
-
-    // Priority 1: Search results
-    if (isSearch) {
-        const searchRadiusParam = searchParams.get('radius');
-        const searchCategory = searchParams.get('category') as WishKey | null;
-
-        if (searchRadiusParam) {
-            const searchRadius = parseFloat(searchRadiusParam);
-            const searchCenter: [number, number] = [location.latitude, location.longitude];
-            
-            // Ensure searchRadius is a valid number before generating markers
-            if (!isNaN(searchRadius)) {
-                setCenter(searchCenter);
-                setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
-            } else {
-                 setCenter([location.latitude, location.longitude]);
-                 setMarkers([]);
-            }
-        } else {
-            // Default behavior if radius is not provided for search
-            setCenter([location.latitude, location.longitude]);
-            setMarkers([]);
-        }
-    }
-    // Priority 2: Center on the published wish from URL
-    else if (isPublished && latParam && lonParam) {
+    // Priority 1: Center on the published wish from URL (does not depend on user location)
+    if (isPublished && latParam && lonParam) {
         const lat = parseFloat(latParam);
         const lon = parseFloat(lonParam);
         const message = decodeURIComponent(searchParams.get('message') || '');
@@ -150,7 +124,35 @@ function MapContent() {
                 isPremium: isPremium
             }]);
         }
+        return; // Exit effect after handling published wish
     } 
+
+    // For other cases, wait for user location
+    if (!location) {
+        return; // Wait for location to be available
+    }
+
+    // Priority 2: Search results (depends on user location)
+    if (isSearch) {
+        const searchRadiusParam = searchParams.get('radius');
+        const searchCategory = searchParams.get('category') as WishKey | null;
+
+        if (searchRadiusParam) {
+            const searchRadius = parseFloat(searchRadiusParam);
+            const searchCenter: [number, number] = [location.latitude, location.longitude];
+            
+            if (!isNaN(searchRadius)) {
+                setCenter(searchCenter);
+                setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
+            } else {
+                 setCenter([location.latitude, location.longitude]);
+                 setMarkers([]);
+            }
+        } else {
+            setCenter([location.latitude, location.longitude]);
+            setMarkers([]);
+        }
+    }
     // Priority 3: Default to user's current location
     else {
       setCenter([location.latitude, location.longitude]);
