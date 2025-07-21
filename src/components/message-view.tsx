@@ -76,7 +76,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
   return (
     <>
-    <div className={cn("flex flex-col flex-1", className)}>
+    <div className={cn("flex flex-col flex-1 h-full", className)}>
       <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
         <div className="p-4 space-y-6">
           {messages.map((message) => (
@@ -91,7 +91,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 placeholder="Сообщение..."
-                className="w-full pl-12 pr-12 py-3"
+                className="w-full pl-14 pr-14 py-3"
                 rows={1}
                 onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -113,10 +113,14 @@ export function MessageView({ initialConversation, currentUser, className }: { i
                 </Button>
             </div>
 
-             <div className="absolute left-10 top-0 bottom-0 flex items-center">
+            <div className="absolute left-12 top-0 bottom-0 flex items-center">
                 <div className="h-6 w-px bg-border" />
             </div>
             
+            <div className="absolute right-12 top-0 bottom-0 flex items-center">
+                 <div className="h-6 w-px bg-border" />
+            </div>
+
             <div className="absolute right-0 top-0 bottom-0 flex items-center pr-3">
                 <Button 
                     type="submit" 
