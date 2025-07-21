@@ -13,7 +13,6 @@ import { useTranslation } from "@/hooks/use-translation";
 export default function WelcomePage() {
   const router = useRouter();
   const { isRegistered, checkRegistration } = useProfileStore();
-  const [isAnimating, setIsAnimating] = useState(false);
   const t = useTranslation();
 
   useEffect(() => {
@@ -27,12 +26,6 @@ export default function WelcomePage() {
     if (isRegistered === true) {
       router.replace('/main');
     } 
-    // If it's false, it means we should show the welcome screen.
-    // We trigger the animation only when we are sure the user is not registered.
-    else if (isRegistered === false) {
-      // Start animation for a smooth transition.
-      setTimeout(() => setIsAnimating(true), 100);
-    }
   }, [isRegistered, router]);
 
   // While isRegistered is `null`, we are waiting for the store to rehydrate.
@@ -48,8 +41,8 @@ export default function WelcomePage() {
       <div className="flex-grow flex flex-col items-center justify-center">
         <div
           className={cn(
-            "flex flex-col items-center justify-center text-center text-foreground p-4 sm:p-8 opacity-0 transition-opacity duration-1000 ease-out",
-            isAnimating && "opacity-100"
+            "flex flex-col items-center justify-center text-center text-foreground p-4 sm:p-8",
+            "animate-in fade-in duration-1000 ease-out"
           )}
         >
           <GradientCloudIcon className="h-32 w-32" />
