@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, type ChangeEvent, useEffect } from "react";
@@ -108,6 +109,9 @@ export default function EditProfilePage() {
     if (isSaving) return;
     setIsSaving(true);
     
+    // Check if it's the first time saving the profile (i.e., no nickname was stored before)
+    const isFirstSave = !storeNickname;
+
     setProfile({
       nickname,
       about,
@@ -120,7 +124,12 @@ export default function EditProfilePage() {
       description: t('profileSavedDescription'),
     });
     
-    router.push('/settings');
+    // Redirect to main page on first save, otherwise back to settings
+    if (isFirstSave) {
+      router.push('/main');
+    } else {
+      router.push('/settings');
+    }
   };
   
   const selectedGenderLabel = genderOptions.find(opt => opt.value === gender)?.label || t('selectGenderPlaceholder');
@@ -224,7 +233,7 @@ export default function EditProfilePage() {
               </Collapsible>
             </div>
             
-            <Button className="w-full" size="lg" onClick={handleSaveChanges} disabled={isSaving}>
+            <Button className="w-full" size="lg" onClick={handleSaveChanges} disabled={isSaving || !nickname}>
                 {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
                 {t('saveChanges')}
             </Button>
