@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -21,10 +22,8 @@ export default function MainPage() {
   const t = useTranslation();
 
   return (
-    <div className="flex-grow h-full w-full flex items-center justify-center relative -mt-16 pt-32 pb-24">
-    <div className="absolute inset-0 bg-background" />
-
-    <div className="relative flex flex-col items-center justify-center text-center text-foreground p-4 sm:p-8">
+    <div className="flex-grow flex flex-col justify-center items-center p-4">
+      <div className="relative flex flex-col items-center justify-center text-center text-foreground">
         
         <p className="text-[1.1rem] font-headline mb-4 max-w-md text-foreground">
             {t('mainPageSlogan')}

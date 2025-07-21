@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, LoaderCircle, LayoutGrid, ToyBrick, Utensils, Film, Ticket, Plane, ShoppingCart, Beer, Coffee, Dumbbell, Palette, Music, BookOpen, HelpingHand } from "lucide-react";
+import { ArrowLeft, LoaderCircle, LayoutGrid, ToyBrick, Utensils, Film, Ticket, Plane, ShoppingCart, Beer, Coffee, Dumbbell, Palette, Music, BookOpen, HelpingHand, Footprints, Dice5, Landmark, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useLocationStore } from "@/lib/location-store";
 import { WISH_CATEGORIES, WishCategoryKey } from '@/lib/categories';
@@ -81,7 +81,7 @@ function CategorizeWishForm() {
     }
     
     return (
-        <div className="container mx-auto p-8 sm:p-12 lg:p-16 pt-8 pb-24 flex flex-col justify-center items-center min-h-screen">
+        <div className="flex-grow flex flex-col justify-center items-center p-4">
             <div className="w-full max-w-lg">
                 <Card>
                     <CardHeader>
