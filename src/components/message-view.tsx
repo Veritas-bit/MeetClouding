@@ -32,12 +32,11 @@ export function MessageView({ initialConversation, currentUser, className }: { i
       status: 'sent',
       image: media?.type === 'image' ? media.src : undefined,
       video: media?.type === 'video' ? media.src : undefined,
-      source: source as any, // Cast for now
+      source: source as any,
     };
     
     setMessages(prev => [...prev, message]);
 
-    // Simulate receiving a reply
     setTimeout(() => {
       const reply: Message = {
         id: `msg-${Date.now() + 1}`,
@@ -78,7 +77,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
   return (
     <>
-    <div className={cn("flex flex-col h-full", className)}>
+    <div className={cn("relative flex flex-col h-full", className)}>
       <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
         {/* pb-40 is a magic number: ~80px for input and ~80px for bottom nav */}
         <div className="p-4 space-y-6 pb-40"> 
