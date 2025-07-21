@@ -13,8 +13,6 @@ export default async function ConversationPage({ params }: { params: { id: strin
   }
 
   return (
-    <div className="flex-1 flex flex-col pb-20">
-        <MessageView initialConversation={conversation} currentUser={currentUser as User} className="flex-1" />
-    </div>
+    <MessageView initialConversation={conversation} currentUser={currentUser as User} className="flex-1 flex flex-col" />
   );
 }

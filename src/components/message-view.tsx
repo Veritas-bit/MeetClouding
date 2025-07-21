@@ -76,16 +76,16 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
   return (
     <>
-    <div className={cn("flex flex-col h-full flex-1", className)}>
+    <div className={cn("flex flex-col h-full", className)}>
       <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
-        <div className="p-4 space-y-6">
+        <div className="p-4 space-y-6 pb-20">
           {messages.map((message) => (
             <MessageItem key={message.id} message={message} currentUser={currentUser} otherParticipant={otherParticipant} />
           ))}
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t bg-background shrink-0">
+      <div className="p-4 border-t bg-background shrink-0 fixed bottom-20 left-0 right-0">
         <form onSubmit={handleSendMessage} className="relative w-full flex items-center">
             <Textarea
                 value={newMessage}
