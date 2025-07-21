@@ -10,7 +10,7 @@ import { SheetClose, SheetHeader, SheetTitle } from "../ui/sheet";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "../ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { GradientBorderCloudIcon } from "../icons/GradientBorderCloudIcon";
+import { GradientCloudIcon } from "../icons/GradientCloudIcon";
 import { FullScreenLoader } from "../common/FullScreenLoader";
 import { WISHES } from "@/lib/wishes";
 import { WISH_CATEGORY_KEYS, type WishCategoryKey } from "@/lib/categories";
@@ -108,40 +108,29 @@ export function WantSheet() {
 
 
         <div className="p-4 border-t bg-background mt-auto">
-          <div 
-            className={cn(
-              "relative rounded-xl p-px",
-              "before:absolute before:-z-10 before:inset-0 before:rounded-xl before:bg-[linear-gradient(135deg,var(--tw-gradient-stops))] before:from-primary before:to-secondary",
-              "after:absolute after:-z-20 after:inset-0 after:rounded-xl after:bg-[linear-gradient(135deg,var(--tw-gradient-stops))] after:from-primary after:to-secondary after:blur-md after:transition-opacity after:duration-500 after:opacity-0",
-              "has-[textarea:focus]:after:opacity-50"
-            )}
-          >
-            <div className="relative flex items-start gap-2 rounded-[11px] bg-muted/90 p-1">
-                <div className="p-2.5 pt-3 text-muted-foreground shrink-0">
-                    <GradientBorderCloudIcon className="h-5 w-5" />
-                </div>
-                <Textarea
-                    ref={textareaRef}
-                    id="message" 
-                    placeholder={t('writeOwnOptionPlaceholder')} 
-                    rows={1}
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="flex-1 pr-2 py-2.5 max-h-24 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-                <button 
-                    className={cn(
-                        "p-2.5 transition-colors shrink-0 self-end -mb-0.5",
-                        isSendDisabled ? "text-muted-foreground" : "text-primary active:text-accent"
-                    )}
-                    onClick={handleNext}
-                    disabled={isSendDisabled}
-                    aria-label={t('nextButtonLabel')}
-                >
-                    <Send className="h-5 w-5 -rotate-12" />
-                </button>
-            </div>
+          <div className="relative flex items-end gap-2">
+              <div className="p-2.5 pb-3 text-muted-foreground shrink-0 hidden sm:block">
+                  <GradientCloudIcon className="h-6 w-6" />
+              </div>
+              <Textarea
+                  ref={textareaRef}
+                  id="message" 
+                  placeholder={t('writeOwnOptionPlaceholder')} 
+                  rows={1}
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="flex-1 pr-2 py-2.5 max-h-24"
+              />
+              <Button
+                  className="shrink-0"
+                  size="icon"
+                  onClick={handleNext}
+                  disabled={isSendDisabled}
+                  aria-label={t('nextButtonLabel')}
+              >
+                  <Send className="h-5 w-5" />
+              </Button>
           </div>
         </div>
 

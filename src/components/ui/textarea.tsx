@@ -33,10 +33,11 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'tex
     return (
       <div 
         className={cn(
-          "relative rounded-xl p-px w-full",
-          "before:absolute before:-z-10 before:inset-0 before:rounded-xl before:bg-[linear-gradient(135deg,var(--tw-gradient-stops))] before:from-primary/50 before:to-secondary/50",
-          "after:absolute after:-z-20 after:inset-0 after:rounded-xl after:bg-[linear-gradient(135deg,var(--tw-gradient-stops))] after:from-primary after:to-secondary after:blur-md after:transition-opacity after:duration-500 after:opacity-0",
-          "has-[textarea:focus]:after:opacity-30"
+          "relative w-full rounded-xl p-px",
+          "bg-gradient-to-r from-primary/30 to-secondary/30",
+          "transition-all duration-300",
+          "focus-within:from-primary/80 focus-within:to-secondary/80",
+          "focus-within:shadow-[0_0_12px_hsl(var(--primary)/0.3)]"
         )}
       >
         <textarea
@@ -45,7 +46,9 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'tex
           value={value}
           onChange={handleChange}
           className={cn(
-            'flex w-full rounded-[11px] border-none bg-muted/90 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50',
+            'relative flex w-full rounded-[11px] border-none bg-background px-3 py-2 text-sm text-foreground',
+            'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0',
+            'disabled:cursor-not-allowed disabled:opacity-50',
             'resize-none overflow-y-hidden',
             className
           )}
