@@ -4,7 +4,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
-export type Language = 'Russian' | 'English' | 'Spanish';
+export type Language = 'Russian' | 'English' | 'Spanish' | 'Ukrainian' | 'Belarusian';
 
 interface LanguageState {
   language: Language;

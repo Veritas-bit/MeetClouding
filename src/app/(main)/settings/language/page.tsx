@@ -10,6 +10,8 @@ import { cn } from "@/lib/utils";
 const availableLanguages: { code: Language; name: string }[] = [
   { code: 'Russian', name: 'Русский' },
   { code: 'English', name: 'Английский' },
+  { code: 'Ukrainian', name: 'Українська' },
+  { code: 'Belarusian', name: 'Беларуская' },
   { code: 'Spanish', name: 'Испанский' },
 ];
 

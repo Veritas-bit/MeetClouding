@@ -33,7 +33,16 @@ const translateMessagePrompt = ai.definePrompt({
   name: 'translateMessagePrompt',
   input: {schema: TranslateMessageInputSchema},
   output: {schema: TranslateMessageOutputSchema},
-  prompt: `Translate the following message from {{sourceLanguage}} to {{targetLanguage}}:\n\n{{text}}`,
+  prompt: `You are an expert translator specializing in informal, conversational text between multiple languages, including closely related Slavic languages like Russian, Ukrainian, and Belarusian.
+
+Your task is to translate the following message from {{sourceLanguage}} to {{targetLanguage}}.
+
+It is critical to preserve the original tone, style, and any nuances like slang or informalities. For translations between Russian, Ukrainian, and Belarusian, be extra careful to provide a natural and accurate translation, not just a literal one.
+
+Original message ({{sourceLanguage}}):
+"{{text}}"
+
+Translate this message to {{targetLanguage}}.`,
 });
 
 const translateMessageFlow = ai.defineFlow(
@@ -47,4 +56,3 @@ const translateMessageFlow = ai.defineFlow(
     return output!;
   }
 );
-
