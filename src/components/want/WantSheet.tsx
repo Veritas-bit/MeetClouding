@@ -14,6 +14,7 @@ import { GradientBorderCloudIcon } from "../icons/GradientBorderCloudIcon";
 import { FullScreenLoader } from "../common/FullScreenLoader";
 import { WISHES } from "@/lib/wishes";
 import { WISH_CATEGORY_KEYS, type WishCategoryKey } from "@/lib/categories";
+import { useTranslation } from "@/hooks/use-translation";
 
 
 export function WantSheet() {
@@ -23,6 +24,7 @@ export function WantSheet() {
   const router = useRouter();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
+  const t = useTranslation();
 
   const fetchNewWish = () => {
     setIsLoading(true);
@@ -49,9 +51,9 @@ export function WantSheet() {
   const handleNext = () => {
     if (!message) return;
     // Automatically prepend "Я хочу " if it's not already there
-    const finalMessage = message.trim().toLowerCase().startsWith('я хочу') 
+    const finalMessage = message.trim().toLowerCase().startsWith(t('iWant').toLowerCase()) 
       ? message.trim()
-      : `Я хочу ${message.trim()}`;
+      : `${t('iWant')} ${message.trim()}`;
       
     const encodedMessage = encodeURIComponent(finalMessage);
     router.push(`/want/categorize?message=${encodedMessage}`);
@@ -59,7 +61,7 @@ export function WantSheet() {
 
   const handleSelectWish = () => {
       if (isLoading || !placeholderWish) return;
-      const wishToPublish = `Я хочу ${placeholderWish.text}`;
+      const wishToPublish = `${t('iWant')} ${placeholderWish.text}`;
       const encodedMessage = encodeURIComponent(wishToPublish);
       router.push(`/want/categorize?message=${encodedMessage}&category=${placeholderWish.category}`);
   };
@@ -77,32 +79,32 @@ export function WantSheet() {
 
   return (
     <>
-      {isLoading && <FullScreenLoader text="Придумываем желание..." />}
+      {isLoading && <FullScreenLoader text={t('generatingWish')} />}
       <div className="flex flex-col h-full bg-background">
         <SheetHeader>
-          <SheetTitle className="sr-only">Сформулируйте ваше желание</SheetTitle>
+          <SheetTitle className="sr-only">{t('formulateWishTitle')}</SheetTitle>
         </SheetHeader>
         <div className="p-4 flex-grow flex flex-col justify-center items-center text-center">
           <h1 className="text-3xl font-bold font-headline text-primary mb-4">
-              Выберите желание
+              {t('selectWishTitle')}
           </h1>
           <Card className="bg-muted/50 border-dashed w-full max-w-sm min-h-[6rem] flex items-center justify-center">
               <CardContent className="p-3">
                   {isLoading || !placeholderWish ? (
                       <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
                   ) : (
-                      <p className="text-muted-foreground">Я хочу {placeholderWish.text}</p>
+                      <p className="text-muted-foreground">{t('iWant')} {placeholderWish.text}</p>
                   )}
               </CardContent>
           </Card>
           <div className="mt-2 flex gap-2">
               <Button variant="outline" size="sm" onClick={handleSelectWish} disabled={isLoading}>
                   <Check className="mr-2 h-4 w-4"/>
-                  Выбрать
+                  {t('selectButton')}
               </Button>
               <Button variant="ghost" size="sm" onClick={fetchNewWish} className="text-muted-foreground" disabled={isLoading}>
                   <Shuffle className="mr-2 h-4 w-4"/>
-                  Другой вариант
+                  {t('anotherOptionButton')}
               </Button>
           </div>
         </div>
@@ -124,7 +126,7 @@ export function WantSheet() {
                 <Textarea
                     ref={textareaRef}
                     id="message" 
-                    placeholder="...или напишите свой вариант" 
+                    placeholder={t('writeOwnOptionPlaceholder')} 
                     rows={1}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
@@ -138,7 +140,7 @@ export function WantSheet() {
                     )}
                     onClick={handleNext}
                     disabled={isSendDisabled}
-                    aria-label="Далее"
+                    aria-label={t('nextButtonLabel')}
                 >
                     <Send className="h-5 w-5 -rotate-12" />
                 </button>
@@ -149,7 +151,7 @@ export function WantSheet() {
         <div className="absolute top-6 left-4">
           <SheetClose asChild>
               <Button variant="outline" size="lg" className="border-primary/50 text-foreground">
-                  Назад
+                  {t('back')}
               </Button>
           </SheetClose>
         </div>

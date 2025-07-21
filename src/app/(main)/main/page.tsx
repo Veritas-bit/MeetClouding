@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import dynamic from "next/dynamic";
 import { LoaderCircle } from "lucide-react";
+import { useTranslation } from "@/hooks/use-translation";
 
 // Lazy load the sheet components
 const WantSheet = dynamic(() => import('@/components/want/WantSheet').then(mod => mod.WantSheet), {
@@ -17,6 +18,8 @@ const SearchSheet = dynamic(() => import('@/components/search/SearchSheet').then
 
 
 export default function MainPage() {
+  const t = useTranslation();
+
   return (
     <div className="flex-grow h-full w-full flex items-center justify-center relative -mt-16 pt-32 pb-24">
     <div className="absolute inset-0 bg-background" />
@@ -24,19 +27,19 @@ export default function MainPage() {
     <div className="relative flex flex-col items-center justify-center text-center text-foreground p-4 sm:p-8">
         
         <p className="text-[1.1rem] font-headline mb-4 max-w-md text-foreground">
-            Найди компанию своему желанию!
+            {t('mainPageSlogan')}
         </p>
 
         <div className="flex flex-col gap-6 items-center">
         <Sheet>
             <SheetTrigger asChild>
                 <Button className="w-72 h-12 text-xl font-bold rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground shadow-lg shadow-primary/40 transition-all duration-300 active:shadow-xl active:shadow-primary/60">
-                Найти компанию
+                {t('findCompanyButton')}
                 </Button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
                 <SheetHeader>
-                    <SheetTitle className="sr-only">Создать желание</SheetTitle>
+                    <SheetTitle className="sr-only">{t('createWishTitle')}</SheetTitle>
                 </SheetHeader>
                 <WantSheet />
             </SheetContent>
@@ -44,12 +47,12 @@ export default function MainPage() {
         <Sheet>
             <SheetTrigger asChild>
             <button className="text-xl uppercase font-bold text-primary active:text-accent transition-colors">
-                Поиск облачков
+                {t('searchWishesButton')}
             </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
                 <SheetHeader>
-                    <SheetTitle className="sr-only">Поиск</SheetTitle>
+                    <SheetTitle className="sr-only">{t('searchTitle')}</SheetTitle>
                 </SheetHeader>
                 <SearchSheet />
             </SheetContent>

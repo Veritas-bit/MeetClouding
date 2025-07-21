@@ -14,11 +14,13 @@ import { useProfileStore, type Gender } from "@/lib/profile-store";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 import { maleNicknames, femaleNicknames, neutralNicknames } from "@/lib/nicknames";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function EditProfilePage() {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useTranslation();
 
   const { 
     nickname: storeNickname, 
@@ -50,9 +52,9 @@ export default function EditProfilePage() {
   }, [searchParams]);
 
   const genderOptions: { value: Gender; label: string }[] = [
-    { value: "male", label: "Мужчина" },
-    { value: "female", label: "Женщина" },
-    { value: "unselected", label: "Не выбран" },
+    { value: "male", label: t('genderMaleLabel') },
+    { value: "female", label: t('genderFemaleLabel') },
+    { value: "unselected", label: t('genderUnselectedLabel') },
   ];
 
   const handleAvatarChangeClick = () => {
@@ -114,14 +116,14 @@ export default function EditProfilePage() {
     });
 
     toast({
-      title: "Сохранено",
-      description: "Ваш профиль успешно обновлен.",
+      title: t('profileSavedTitle'),
+      description: t('profileSavedDescription'),
     });
     
     router.push('/settings');
   };
   
-  const selectedGenderLabel = genderOptions.find(opt => opt.value === gender)?.label || "Выберите пол";
+  const selectedGenderLabel = genderOptions.find(opt => opt.value === gender)?.label || t('selectGenderPlaceholder');
 
   return (
     <>
@@ -148,19 +150,19 @@ export default function EditProfilePage() {
         onClick={handleAvatarChangeClick}
         className="text-sm text-primary active:underline mb-4"
       >
-        Изменить фотографию
+        {t('changePhoto')}
       </button>
 
       <div className="w-full max-w-md">
         <Card className="bg-card/50">
           <CardContent className="p-4 space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="nickname">Никнейм</Label>
+              <Label htmlFor="nickname">{t('nicknameLabel')}</Label>
               <Input
                 id="nickname"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
-                placeholder="Ваш уникальный никнейм"
+                placeholder={t('nicknamePlaceholder')}
               />
               <Button
                 variant="outline"
@@ -174,24 +176,24 @@ export default function EditProfilePage() {
                 ) : (
                     <Sparkles className="mr-2 h-4 w-4" />
                 )}
-                Сгенерировать
+                {t('generate')}
               </Button>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="about">О себе</Label>
+              <Label htmlFor="about">{t('aboutLabel')}</Label>
               <Textarea
                 id="about"
                 value={about}
                 onChange={(e) => setAbout(e.target.value)}
-                placeholder="Расскажите немного о себе..."
+                placeholder={t('aboutPlaceholder')}
                 rows={3}
                 className="resize-none min-h-[60px]"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Ваш пол</Label>
+              <Label>{t('yourGenderLabel')}</Label>
               <Collapsible open={isGenderOpen} onOpenChange={setIsGenderOpen} className="relative">
                 <CollapsibleTrigger asChild>
                   <Button variant="outline" className="w-full justify-between">
@@ -224,7 +226,7 @@ export default function EditProfilePage() {
             
             <Button className="w-full" size="lg" onClick={handleSaveChanges} disabled={isSaving}>
                 {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                Сохранить изменения
+                {t('saveChanges')}
             </Button>
 
           </CardContent>

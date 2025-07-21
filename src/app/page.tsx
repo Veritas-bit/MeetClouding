@@ -8,11 +8,13 @@ import { useRouter } from "next/navigation";
 import { useProfileStore } from "@/lib/profile-store";
 import { FullScreenLoader } from "@/components/common/FullScreenLoader";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/use-translation";
 
 export default function WelcomePage() {
   const router = useRouter();
   const { isRegistered, checkRegistration } = useProfileStore();
   const [isAnimating, setIsAnimating] = useState(false);
+  const t = useTranslation();
 
   useEffect(() => {
     // This is the only place we should check registration status at startup.
@@ -35,12 +37,12 @@ export default function WelcomePage() {
   // While isRegistered is `null`, we are waiting for the store to rehydrate.
   // Show a loader to prevent flicker.
   if (isRegistered === null) {
-    return <FullScreenLoader text="Загрузка..." />;
+    return <FullScreenLoader text={t('loading')} />;
   }
 
   // If isRegistered is true, we will be redirected, so we can show a loader as well.
   if (isRegistered === true) {
-    return <FullScreenLoader text="Вход..." />;
+    return <FullScreenLoader text={t('signingIn')} />;
   }
 
   // Only render the welcome screen if the user is not registered.
@@ -60,7 +62,7 @@ export default function WelcomePage() {
           </h1>
 
           <p className="text-lg text-muted-foreground mb-8 max-w-md">
-            Найди компанию своему желанию!
+            {t('welcomeSlogan')}
           </p>
 
           <Button
@@ -68,7 +70,7 @@ export default function WelcomePage() {
             className="w-72 h-12 text-lg rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground shadow-lg shadow-primary/40 transition-all duration-300 active:shadow-xl active:shadow-primary/60 font-bold"
             onClick={() => router.push('/auth')}
           >
-            Начать
+            {t('getStartedButton')}
           </Button>
         </div>
       </div>
