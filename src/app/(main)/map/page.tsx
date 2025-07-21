@@ -127,20 +127,16 @@ function MapContent() {
         return; // Exit effect after handling published wish
     } 
 
-    // For other cases, we need user location. If it's not available yet, we don't proceed.
-    // The component will re-render when location is available.
-    if (!location) {
-        return; 
-    }
-
-    // Priority 2: Search results (depends on user location)
-    if (isSearch) {
-        const searchRadiusParam = searchParams.get('radius');
-        const searchCategory = searchParams.get('category') as WishKey | null;
-        const searchCenter: [number, number] = [location.latitude, location.longitude];
-        
-        if (searchRadiusParam) {
-            const searchRadius = parseFloat(searchRadiusParam);
+    // For other cases, we might need user location.
+    // If location is available, proceed to set map center and markers.
+    if (location) {
+        // Priority 2: Search results (depends on user location)
+        if (isSearch) {
+            const searchRadiusParam = searchParams.get('radius');
+            const searchCategory = searchParams.get('category') as WishKey | null;
+            const searchCenter: [number, number] = [location.latitude, location.longitude];
+            const searchRadius = searchRadiusParam ? parseFloat(searchRadiusParam) : NaN;
+            
             if (!isNaN(searchRadius)) {
                 setCenter(searchCenter);
                 setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
@@ -148,17 +144,17 @@ function MapContent() {
                  setCenter(searchCenter);
                  setMarkers([]);
             }
-        } else {
-            setCenter(searchCenter);
-            setMarkers([]);
+        }
+        // Priority 3: Default to user's current location
+        else {
+          setCenter([location.latitude, location.longitude]);
+          setMarkers([]); // No markers by default
+          setHasInteractedWithMap(false); // Reset on default map view
         }
     }
-    // Priority 3: Default to user's current location
-    else {
-      setCenter([location.latitude, location.longitude]);
-      setMarkers([]); // No markers by default
-      setHasInteractedWithMap(false); // Reset on default map view
-    }
+    // If location is not yet available, and it's not a 'published' wish,
+    // the component will wait. The loader will be shown because `center` is still null.
+    // The effect will re-run when `location` is updated.
 
   }, [location, searchParams, isPremium, setHasInteractedWithMap]);
 
