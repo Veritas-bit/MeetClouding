@@ -112,7 +112,7 @@ export default function SettingsPage() {
   return (
     <div className="container mx-auto p-4 pb-24">
       <ProfileSection />
-      <Card>
+      <Card className="w-full max-w-md mx-auto">
         <CardContent className="p-0">
           <div className="flex flex-col">
             {settingsItems.map((item, index) => (
