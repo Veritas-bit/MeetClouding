@@ -77,64 +77,66 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
   return (
     <>
-    <div className={cn("h-full flex flex-col", className)}>
-      <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
-        <div className="p-4 space-y-6"> 
+    <div className={cn("relative h-full", className)}>
+      <ScrollArea className="h-full" viewportProps={{ ref: viewportRef }}>
+        <div className="p-4 space-y-6 pb-28">
           {messages.map((message) => (
             <MessageItem key={message.id} message={message} currentUser={currentUser} otherParticipant={otherParticipant} />
           ))}
         </div>
       </ScrollArea>
 
-      <div className="p-4 border-t bg-background shrink-0">
-        <form onSubmit={handleSendMessage} className="relative w-full flex items-center">
-            <Textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Сообщение..."
-                className="w-full pl-12 pr-12 py-3"
-                rows={1}
-                onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage(e);
-                }
-                }}
-            />
-            <div className="absolute left-0 top-0 bottom-0 flex items-center">
-                <Button 
-                    type="button" 
-                    variant="ghost" 
-                    size="icon" 
-                    className="h-full w-10 hover:bg-transparent" 
-                    onClick={() => setIsAttachmentModalOpen(true)}
-                >
-                    <Camera className="h-5 w-5 text-muted-foreground" />
-                    <span className="sr-only">Открыть камеру</span>
-                </Button>
-            </div>
+      <div className="fixed bottom-20 left-0 right-0 z-10">
+        <div className="p-4 border-t bg-background">
+          <form onSubmit={handleSendMessage} className="relative w-full flex items-center">
+              <Textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Сообщение..."
+                  className="w-full pl-12 pr-12 py-3"
+                  rows={1}
+                  onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage(e);
+                  }
+                  }}
+              />
+              <div className="absolute left-0 top-0 bottom-0 flex items-center">
+                  <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-full w-10 hover:bg-transparent" 
+                      onClick={() => setIsAttachmentModalOpen(true)}
+                  >
+                      <Camera className="h-5 w-5 text-muted-foreground" />
+                      <span className="sr-only">Открыть камеру</span>
+                  </Button>
+              </div>
 
-            <div className="absolute left-10 top-0 bottom-0 flex items-center">
-                <div className="h-6 w-px bg-border" />
-            </div>
-            
-            <div className="absolute right-10 top-0 bottom-0 flex items-center">
-                 <div className="h-6 w-px bg-border" />
-            </div>
+              <div className="absolute left-10 top-0 bottom-0 flex items-center">
+                  <div className="h-6 w-px bg-border" />
+              </div>
+              
+              <div className="absolute right-10 top-0 bottom-0 flex items-center">
+                   <div className="h-6 w-px bg-border" />
+              </div>
 
-            <div className="absolute right-0 top-0 bottom-0 flex items-center">
-                <Button 
-                    type="submit" 
-                    size="icon" 
-                    variant="ghost" 
-                    aria-label="Send Message" 
-                    className="h-full w-10 hover:bg-transparent"
-                    disabled={!newMessage.trim()}
-                >
-                    <SendHorizonal className="h-5 w-5 text-muted-foreground" />
-                </Button>
-            </div>
-        </form>
+              <div className="absolute right-0 top-0 bottom-0 flex items-center">
+                  <Button 
+                      type="submit" 
+                      size="icon" 
+                      variant="ghost" 
+                      aria-label="Send Message" 
+                      className="h-full w-10 hover:bg-transparent"
+                      disabled={!newMessage.trim()}
+                  >
+                      <SendHorizonal className="h-5 w-5 text-muted-foreground" />
+                  </Button>
+              </div>
+          </form>
+        </div>
       </div>
     </div>
     <ChatAttachmentModal 
