@@ -60,7 +60,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
   if (!otherParticipant) return null;
 
   return (
-    <div className={cn("flex flex-col", className)}>
+    <div className={cn("flex flex-col flex-1", className)}>
       <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
         <div className="p-4 space-y-6">
           {messages.map((message) => (
@@ -70,7 +70,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
       </ScrollArea>
 
       <div className="p-4 border-t bg-background shrink-0">
-        <form onSubmit={handleSendMessage} className="flex items-end space-x-4">
+        <form onSubmit={handleSendMessage} className="flex items-end space-x-2">
           <Textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}

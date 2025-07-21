@@ -31,17 +31,26 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'tex
     }, [props.value]);
 
     return (
-      <textarea
-        {...props}
-        ref={textareaRef}
-        value={value}
-        onChange={handleChange}
+      <div 
         className={cn(
-          'flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-          'resize-none overflow-y-hidden',
-          className
+          "relative rounded-xl p-px w-full",
+          "before:absolute before:-z-10 before:inset-0 before:rounded-xl before:bg-[linear-gradient(135deg,var(--tw-gradient-stops))] before:from-primary/50 before:to-secondary/50",
+          "after:absolute after:-z-20 after:inset-0 after:rounded-xl after:bg-[linear-gradient(135deg,var(--tw-gradient-stops))] after:from-primary after:to-secondary after:blur-md after:transition-opacity after:duration-500 after:opacity-0",
+          "has-[textarea:focus]:after:opacity-30"
         )}
-      />
+      >
+        <textarea
+          {...props}
+          ref={textareaRef}
+          value={value}
+          onChange={handleChange}
+          className={cn(
+            'flex w-full rounded-[11px] border-none bg-muted/50 px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:cursor-not-allowed disabled:opacity-50',
+            'resize-none overflow-y-hidden',
+            className
+          )}
+        />
+      </div>
     );
   }
 );
