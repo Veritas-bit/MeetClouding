@@ -95,9 +95,22 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   const effectiveTheme = getEffectiveTheme();
   const isDarkMap = effectiveTheme === 'dark';
 
+  const mapApiKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+
+  if (!mapApiKey || mapApiKey === 'GET_YOUR_OWN_KEY') {
+    return (
+        <div className="flex h-full w-full items-center justify-center bg-muted">
+            <div className="text-center">
+                <p className="text-lg font-semibold text-destructive">MapTiler API Key Missing</p>
+                <p className="text-sm text-muted-foreground">Please add your MapTiler API key to the .env file.</p>
+            </div>
+        </div>
+    )
+  }
+
   const mapStyleUrl = isDarkMap
-    ? `https://api.maptiler.com/maps/streets-v2-dark/style.json?key=GET_YOUR_OWN_KEY`
-    : `https://api.maptiler.com/maps/streets-v2/style.json?key=GET_YOUR_OWN_KEY`;
+    ? `https://api.maptiler.com/maps/streets-v2-dark/style.json?key=${mapApiKey}`
+    : `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapApiKey}`;
 
   const mapContainerStyle: React.CSSProperties = {
     position: 'absolute',
