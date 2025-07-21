@@ -11,7 +11,7 @@ import Link from "next/link";
 import { useLocationStore } from "@/lib/location-store";
 import { WISH_CATEGORIES, WishCategoryKey } from '@/lib/categories';
 import { categorizeWishByKeywords } from '@/lib/categorize';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 import { useToast } from '@/hooks/use-toast';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { useProfileStore } from '@/lib/profile-store';
@@ -102,9 +102,9 @@ function CategorizeWishForm() {
             const categoryInfo = WISH_CATEGORIES[selectedCategory!];
             const encodedMessage = encodeURIComponent(message);
             const encodedCategoryName = encodeURIComponent(categoryInfo.name);
-            const encodedColor = encodeURIComponent(categoryInfo.color);
+            const color = categoryInfo.color;
             
-            router.push(`/map?published=true&message=${encodedMessage}&lat=${coords.latitude}&lon=${coords.longitude}&categoryName=${encodedCategoryName}&color=${encodedColor}`);
+            router.push(`/map?published=true&message=${encodedMessage}&lat=${coords.latitude}&lon=${coords.longitude}&categoryName=${encodedCategoryName}&color=${color}`);
 
         } catch (err) {
             toast({
