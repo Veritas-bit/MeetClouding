@@ -15,7 +15,9 @@ const conversations: Conversation[] = [
     messages: [
       { id: 'msg-1-1', text: 'Hey Elena! How are you doing?', timestamp: Date.now() - 1000 * 60 * 5, senderId: 'user-1', status: 'read' },
       { id: 'msg-1-2', text: 'Привет! I am doing well, thank you. Just working on the new design. How about you?', timestamp: Date.now() - 1000 * 60 * 4, senderId: 'user-2', status: 'read' },
-      { id: 'msg-1-3', text: 'I\'m great! Excited to see it. Btw, checkout this cool site: https://google.com', timestamp: Date.now() - 1000 * 60 * 3, senderId: 'user-1', status: 'delivered' },
+      { id: 'msg-1-3', text: 'I\'m great! Excited to see it. Btw, checkout this cool site: https://google.com', timestamp: Date.now() - 1000 * 60 * 3, senderId: 'user-1', status: 'read' },
+      { id: 'msg-1-4', text: 'Sure, I will take a look. I also wanted to ask you something.', timestamp: Date.now() - 1000 * 60 * 2, senderId: 'user-2', status: 'delivered' },
+      { id: 'msg-1-5', text: 'Are we still on for the meeting tomorrow?', timestamp: Date.now() - 1000 * 60 * 1, senderId: 'user-2', status: 'delivered' },
     ],
   },
   {
