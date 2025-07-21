@@ -90,7 +90,7 @@ export function MessageItem({ message, currentUser, otherParticipant }: { messag
       )}
       <div className={cn(
           'max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', 
-          'transition-colors hover:brightness-95 active:brightness-90',
+          'transition-colors active:brightness-75',
           messageColorClass
       )}>
         <div className="text-sm whitespace-pre-wrap break-words">
