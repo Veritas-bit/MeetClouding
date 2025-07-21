@@ -77,16 +77,14 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
   return (
     <>
-    <div className={cn("flex-1 flex flex-col", className)}>
-      <div className="flex-1 overflow-y-auto">
-        <ScrollArea className="h-full" viewportProps={{ ref: viewportRef }}>
-          <div className="p-4 space-y-6"> 
-            {messages.map((message) => (
-              <MessageItem key={message.id} message={message} currentUser={currentUser} otherParticipant={otherParticipant} />
-            ))}
-          </div>
-        </ScrollArea>
-      </div>
+    <div className={cn("h-full flex flex-col", className)}>
+      <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
+        <div className="p-4 space-y-6"> 
+          {messages.map((message) => (
+            <MessageItem key={message.id} message={message} currentUser={currentUser} otherParticipant={otherParticipant} />
+          ))}
+        </div>
+      </ScrollArea>
 
       <div className="p-4 border-t bg-background shrink-0">
         <form onSubmit={handleSendMessage} className="relative w-full flex items-center">
