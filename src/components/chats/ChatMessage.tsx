@@ -129,10 +129,7 @@ export function ChatMessage({ id, message, timestamp, isOwn, image, video, sourc
     <>
       <div 
         ref={messageRef}
-        className={cn(
-          "relative outline-none transition-all",
-          isPressed && "brightness-90"
-        )}
+        className="relative outline-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -146,12 +143,13 @@ export function ChatMessage({ id, message, timestamp, isOwn, image, video, sourc
         >
           <div
             className={cn(
-              'max-w-[75%] rounded-lg text-sm shadow-md sm:max-w-[60%]',
+              'max-w-[75%] rounded-lg text-sm shadow-md sm:max-w-[60%] transition-all',
               !hasMedia && !replyTo && 'p-3',
               hasMedia && !replyTo && 'p-1',
               isOwn
                 ? 'rounded-br-none bg-primary text-primary-foreground'
-                : 'rounded-bl-none bg-muted text-foreground'
+                : 'rounded-bl-none bg-muted text-foreground',
+              isPressed && "brightness-90"
             )}
           >
             {replyTo && (
