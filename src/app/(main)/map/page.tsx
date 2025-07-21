@@ -45,9 +45,14 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
         const latOffset = parseFloat(((distance / 111.32) * Math.cos(angle)).toFixed(6));
         const lonOffset = parseFloat(((distance / (111.32 * Math.cos(center[0] * (Math.PI / 180)))) * Math.sin(angle)).toFixed(6));
         
-        // Rounding to prevent potential NaN issues with very small numbers or edge cases
         const lat = parseFloat((center[0] + latOffset).toFixed(6));
         const lon = parseFloat((center[1] + lonOffset).toFixed(6));
+
+        // Validate coordinates to prevent map crashes from NaN values
+        if (isNaN(lat) || isNaN(lon)) {
+            console.warn("Skipping invalid marker generation due to NaN coordinates.");
+            continue; // Skip this iteration if coordinates are invalid
+        }
 
         markers.push({
             id: `search-result-${i}-${lat}-${lon}`,
