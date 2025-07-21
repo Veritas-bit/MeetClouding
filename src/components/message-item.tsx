@@ -49,6 +49,9 @@ export function MessageItem({ message, currentUser, otherParticipant }: { messag
   const { language: targetLanguage } = useLanguageStore();
   const t = useTranslation();
 
+  const isSentByCurrentUser = message.senderId === currentUser.id;
+  const sender = isSentByCurrentUser ? currentUser : otherParticipant;
+
   const handleTranslate = () => {
     if (showTranslation) {
         setShowTranslation(false);
