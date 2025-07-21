@@ -8,6 +8,7 @@ import { Header } from "@/components/layout/Header";
 import { BottomNavBar } from "@/components/layout/BottomNavBar";
 import { FullScreenLoader } from "@/components/common/FullScreenLoader";
 import { useLocationStore } from "@/lib/location-store";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Heavy components are now lazy-loaded where they are used.
 
