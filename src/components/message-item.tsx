@@ -88,7 +88,11 @@ export function MessageItem({ message, currentUser, otherParticipant }: { messag
           <AvatarFallback>{sender.name.charAt(0)}</AvatarFallback>
         </Avatar>
       )}
-      <div className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}>
+      <div className={cn(
+          'max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', 
+          'transition-colors hover:brightness-95 active:brightness-90',
+          messageColorClass
+      )}>
         <div className="text-sm whitespace-pre-wrap break-words">
             {parseMessageContent(textToShow)}
             {showTranslation && <p className="text-xs opacity-70 mt-2 pt-2 border-t border-t-white/20">{t('original')}: {message.text}</p>}
