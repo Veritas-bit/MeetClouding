@@ -19,9 +19,9 @@ const BackToMapButton = () => {
     const router = useRouter();
     const t = useTranslation();
     return (
-        <Button variant="ghost" size="sm" onClick={() => router.push('/map')} className="text-foreground text-xs absolute left-4">
-            <MapIcon className="h-4 w-4 mr-1" />
-            {t('backToMap')}
+        <Button variant="ghost" size="icon" onClick={() => router.push('/map')} className="text-foreground absolute left-0">
+            <MapIcon className="h-6 w-6" />
+            <span className="sr-only">{t('backToMap')}</span>
         </Button>
     )
 };
@@ -41,7 +41,7 @@ const defaultHeader = (
     </>
 );
 
-const HeaderWithBackButton = ({ titleKey, backPath }: { titleKey: string, backPath?: string }) => {
+const HeaderWithBackButton = ({ titleKey, backPath, showMapButton }: { titleKey: string, backPath?: string, showMapButton?: boolean }) => {
     const router = useRouter();
     const t = useTranslation();
     const handleBack = () => {
@@ -53,10 +53,12 @@ const HeaderWithBackButton = ({ titleKey, backPath }: { titleKey: string, backPa
     }
     return (
          <div className="w-full h-full relative flex items-center justify-center">
-             <Button variant="ghost" size="icon" onClick={handleBack} className="text-foreground absolute left-0">
-                <ArrowLeft className="h-6 w-6" />
-                <span className="sr-only">{t('back')}</span>
-             </Button>
+             {showMapButton ? <BackToMapButton /> : (
+                <Button variant="ghost" size="icon" onClick={handleBack} className="text-foreground absolute left-0">
+                    <ArrowLeft className="h-6 w-6" />
+                    <span className="sr-only">{t('back')}</span>
+                </Button>
+             )}
              <span className="text-xl font-headline text-foreground">{t(titleKey)}</span>
          </div>
     );
@@ -147,9 +149,7 @@ export function Header() {
             setHeaderContent(<HeaderWithBackButton titleKey="editProfile" backPath="/settings" />);
         } else if (pathname === '/settings') {
              setHeaderContent(
-                <div className="w-full h-full relative flex items-center justify-center">
-                    <span className="text-xl font-headline text-foreground">{t('settings')}</span>
-                </div>
+                <HeaderWithBackButton titleKey="settings" showMapButton={showMapButton} />
              );
         } else if (pathname.startsWith('/settings/')) {
             let titleKey = "settings";
@@ -190,5 +190,3 @@ export function Header() {
     </header>
   );
 }
-
-    
