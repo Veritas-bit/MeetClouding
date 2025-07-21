@@ -71,13 +71,17 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
 
 function MapContent() {
   const searchParams = useSearchParams();
-  const { location } = useLocationStore();
+  const { location, requestLocation } = useLocationStore();
   const { isPremium } = useProfileStore();
   const setHasInteractedWithMap = useInteractionStore((state) => state.setHasInteractedWithMap);
   
   const [markers, setMarkers] = useState<MarkerInfo[]>([]);
   const [center, setCenter] = useState<[number, number] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    requestLocation();
+  }, [requestLocation]);
 
   useEffect(() => {
     const isSearch = searchParams.get('search') === 'true';
@@ -87,10 +91,9 @@ function MapContent() {
         setHasInteractedWithMap(true);
     }
 
-    // Show loader on navigation from search or publish to create a smooth transition effect
     if (isSearch || isPublished) {
       setIsLoading(true);
-      const timer = setTimeout(() => setIsLoading(false), 1500); // Adjust time as needed for map to load
+      const timer = setTimeout(() => setIsLoading(false), 1500);
       return () => clearTimeout(timer);
     } else {
       setIsLoading(false);
@@ -100,58 +103,48 @@ function MapContent() {
   useEffect(() => {
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
-    
-    // Priority 1: Center on the published wish from URL (does not depend on user location)
+
+    let newCenter: [number, number] | null = null;
+    let newMarkers: MarkerInfo[] = [];
+
+    // Priority 1: Published wish from URL (does not depend on user location)
     if (isPublished) {
-        const latParam = searchParams.get('lat');
-        const lonParam = searchParams.get('lon');
+        const lat = parseFloat(searchParams.get('lat') || '0');
+        const lon = parseFloat(searchParams.get('lon') || '0');
         const message = decodeURIComponent(searchParams.get('message') || '');
         const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
         const color = searchParams.get('color') || 'hsl(var(--primary))';
 
-        if (latParam && lonParam) {
-            const lat = parseFloat(latParam);
-            const lon = parseFloat(lonParam);
-            if (!isNaN(lat) && !isNaN(lon)) {
-                setCenter([lat, lon]);
-                setMarkers([{
-                    id: `user-wish-${lat}-${lon}`,
-                    userId: '0', // Current user's wish
-                    latitude: lat,
-                    longitude: lon,
-                    message: message,
-                    categoryName: categoryName,
-                    color: color,
-                    isPremium: isPremium
-                }]);
-                return; // Exit effect after handling published wish
-            }
+        if (lat && lon) {
+            newCenter = [lat, lon];
+            newMarkers.push({
+                id: `user-wish-${lat}-${lon}`,
+                userId: '0', // Current user's wish
+                latitude: lat,
+                longitude: lon,
+                message,
+                categoryName,
+                color,
+                isPremium: isPremium
+            });
         }
     } 
-    
-    // For other cases that depend on user location, wait for it.
-    if (!location) {
-        return; // Wait for location data
-    }
+    // Priority 2 & 3: Search results or default view (depend on user location)
+    else if (location) {
+        newCenter = [location.latitude, location.longitude];
 
-    // Priority 2: Search results (depends on user location)
-    if (isSearch) {
-        const searchRadiusParam = searchParams.get('radius');
-        const searchCategory = searchParams.get('category') as WishKey | null;
-        const searchRadius = searchRadiusParam ? parseFloat(searchRadiusParam) : NaN;
-        
-        setCenter([location.latitude, location.longitude]);
-        if (!isNaN(searchRadius)) {
-            setMarkers(generateRandomMarkers([location.latitude, location.longitude], searchCategory, searchRadius));
-        } else {
-             setMarkers([]);
+        if (isSearch) {
+            const searchRadius = parseFloat(searchParams.get('radius') || '1');
+            const searchCategory = searchParams.get('category') as WishCategoryKey | null;
+            newMarkers = generateRandomMarkers([location.latitude, location.longitude], searchCategory, searchRadius);
         }
     }
-    // Priority 3: Default to user's current location if not searching or publishing
-    else {
-      setCenter([location.latitude, location.longitude]);
-      setMarkers([]); // No markers by default
+
+    if (newCenter) {
+        setCenter(newCenter);
     }
+    setMarkers(newMarkers);
+    
   }, [location, searchParams, isPremium]);
 
   if (!center) {

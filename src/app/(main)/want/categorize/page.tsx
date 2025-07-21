@@ -19,7 +19,7 @@ import { useProfileStore } from '@/lib/profile-store';
 function CategorizeWishForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { latitude, longitude, error, requestLocation } = useLocationStore();
+    const { location, error, requestLocation } = useLocationStore();
     const { toast } = useToast();
     const { isPremium } = useProfileStore();
 
@@ -63,36 +63,61 @@ function CategorizeWishForm() {
 
     }, [searchParams, isPremium]);
 
-    const handlePublish = () => {
+    const handlePublish = async () => {
+        if (!message || !selectedCategory) return;
         setIsPublishing(true);
-        // Retry logic to wait for location
-        const waitForLocation = (retries = 5, delay = 500) => {
-            if (latitude !== null && longitude !== null) {
-                const categoryInfo = WISH_CATEGORIES[selectedCategory!];
-                const encodedMessage = encodeURIComponent(message);
-                const encodedCategoryName = encodeURIComponent(categoryInfo.name);
-                const color = categoryInfo.color;
 
-                router.push(`/map?published=true&message=${encodedMessage}&lat=${latitude}&lon=${longitude}&categoryName=${encodedCategoryName}&color=${color}`);
+        const locationPromise = new Promise<Coordinates>((resolve, reject) => {
+            if (location) {
+                resolve({latitude: location.latitude, longitude: location.longitude});
                 return;
             }
 
-            if (retries > 0) {
-                setTimeout(() => waitForLocation(retries - 1, delay), delay);
-            } else {
-                toast({
-                    variant: "destructive",
-                    title: "Не удалось определить местоположение",
-                    description: "Пожалуйста, проверьте настройки геолокации и попробуйте снова.",
-                });
-                setIsPublishing(false);
-            }
-        };
+            const timeout = 10000; // 10 seconds timeout
+            const interval = 200; // check every 200ms
+            let elapsedTime = 0;
 
-        if (!message || !selectedCategory) return;
-        
-        waitForLocation();
+            const intervalId = setInterval(() => {
+                const currentLoc = useLocationStore.getState().location;
+                const currentError = useLocationStore.getState().error;
+                
+                if (currentLoc) {
+                    clearInterval(intervalId);
+                    resolve({latitude: currentLoc.latitude, longitude: currentLoc.longitude});
+                } else if (currentError) {
+                    clearInterval(intervalId);
+                    reject(currentError);
+                } else if (elapsedTime >= timeout) {
+                    clearInterval(intervalId);
+                    reject(new Error("Location request timed out."));
+                }
+                elapsedTime += interval;
+            }, interval);
+        });
+
+        try {
+            const coords = await locationPromise;
+            const categoryInfo = WISH_CATEGORIES[selectedCategory!];
+            const encodedMessage = encodeURIComponent(message);
+            const encodedCategoryName = encodeURIComponent(categoryInfo.name);
+            const color = categoryInfo.color;
+            
+            router.push(`/map?published=true&message=${encodedMessage}&lat=${coords.latitude}&lon=${coords.longitude}&categoryName=${encodedCategoryName}&color=${color}`);
+
+        } catch (err) {
+            toast({
+                variant: "destructive",
+                title: "Не удалось определить местоположение",
+                description: "Пожалуйста, проверьте настройки геолокации и попробуйте снова.",
+            });
+        } finally {
+            setIsPublishing(false);
+        }
     };
+    
+    // Helper type
+    type Coordinates = { latitude: number; longitude: number };
+
 
     if (isLoading) {
       return <FullScreenLoader text="Подбираем категорию..." />;
