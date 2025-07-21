@@ -97,7 +97,6 @@ export function ChatMessage({ message, currentUser, otherParticipant }: { messag
         onTouchCancel={() => setIsPressed(false)}
         className={cn(
           'max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col',
-          'transition-all',
           messageColorClass,
           isPressed && 'brightness-90'
         )}
