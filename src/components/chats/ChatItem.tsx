@@ -44,7 +44,7 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
           <div className="flex justify-between items-start">
               <p className="text-sm text-muted-foreground truncate">{lastMessage}</p>
               {unreadCount && unreadCount > 0 && (
-              <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0">
+              <span className="ml-2 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-accent-foreground text-xs font-bold shrink-0">
                   {unreadCount}
               </span>
               )}
