@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, LoaderCircle, LayoutGrid, ToyBrick, Utensils, Film, Ticket, Plane, ShoppingCart, Beer, Coffee, Dumbbell, Palette, Music, BookOpen, HelpingHand, Footprints, Dice5, Landmark, Sparkles } from "lucide-react";
+import { ArrowLeft, LoaderCircle, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { useLocationStore } from "@/lib/location-store";
 import { WISH_CATEGORIES, WishCategoryKey } from '@/lib/categories';
@@ -19,13 +19,19 @@ import { useProfileStore } from '@/lib/profile-store';
 function CategorizeWishForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { latitude, longitude, error } = useLocationStore();
+    const { latitude, longitude, error, requestLocation } = useLocationStore();
     const { toast } = useToast();
     const { isPremium } = useProfileStore();
 
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [isPublishing, setIsPublishing] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<WishCategoryKey | null>(null);
+
+    useEffect(() => {
+        // Ensure location is requested when component mounts
+        requestLocation();
+    }, [requestLocation]);
     
     useEffect(() => {
         const messageParam = searchParams.get('message');
@@ -58,14 +64,34 @@ function CategorizeWishForm() {
     }, [searchParams, isPremium]);
 
     const handlePublish = () => {
-        if (!message || latitude === null || longitude === null || !selectedCategory) return;
+        setIsPublishing(true);
+        // Retry logic to wait for location
+        const waitForLocation = (retries = 5, delay = 500) => {
+            if (latitude !== null && longitude !== null) {
+                const categoryInfo = WISH_CATEGORIES[selectedCategory!];
+                const encodedMessage = encodeURIComponent(message);
+                const encodedCategoryName = encodeURIComponent(categoryInfo.name);
+                const color = categoryInfo.color;
 
-        const categoryInfo = WISH_CATEGORIES[selectedCategory];
-        const encodedMessage = encodeURIComponent(message);
-        const encodedCategoryName = encodeURIComponent(categoryInfo.name);
-        const color = categoryInfo.color;
+                router.push(`/map?published=true&message=${encodedMessage}&lat=${latitude}&lon=${longitude}&categoryName=${encodedCategoryName}&color=${color}`);
+                return;
+            }
 
-        router.push(`/map?published=true&message=${encodedMessage}&lat=${latitude}&lon=${longitude}&categoryName=${encodedCategoryName}&color=${color}`);
+            if (retries > 0) {
+                setTimeout(() => waitForLocation(retries - 1, delay), delay);
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Не удалось определить местоположение",
+                    description: "Пожалуйста, проверьте настройки геолокации и попробуйте снова.",
+                });
+                setIsPublishing(false);
+            }
+        };
+
+        if (!message || !selectedCategory) return;
+        
+        waitForLocation();
     };
 
     if (isLoading) {
@@ -135,9 +161,9 @@ function CategorizeWishForm() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button className="w-full" onClick={handlePublish} disabled={!selectedCategory || latitude === null || longitude === null}>
-                            {(latitude === null || longitude === null) && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                            {(latitude === null || longitude === null) ? 'Определяем место...' : 'Опубликовать на карте'}
+                        <Button className="w-full" onClick={handlePublish} disabled={isPublishing || !selectedCategory}>
+                            {isPublishing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                            {isPublishing ? 'Определяем место...' : 'Опубликовать на карте'}
                         </Button>
                     </CardFooter>
                 </Card>
