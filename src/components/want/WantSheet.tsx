@@ -19,7 +19,7 @@ import { useTranslation } from "@/hooks/use-translation";
 
 export function WantSheet() {
   const [message, setMessage] = useState("");
-  const [placeholderWish, setPlaceholderWish] = useState<{text: string, category: WishCategoryKey} | null>(null);
+  const [placeholderWish, setPlaceholderWish] = useState<{key: string, category: WishCategoryKey} | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -29,17 +29,14 @@ export function WantSheet() {
   const fetchNewWish = () => {
     setIsLoading(true);
     
-    // Select a random category that has wishes
     const availableCategories = WISH_CATEGORY_KEYS.filter(key => WISHES[key] && WISHES[key].length > 0);
     const randomCategoryKey = availableCategories[Math.floor(Math.random() * availableCategories.length)];
     const wishesForCategory = WISHES[randomCategoryKey];
     
-    // Select a random wish from that category
-    const randomWishText = wishesForCategory[Math.floor(Math.random() * wishesForCategory.length)];
+    const randomWishKey = wishesForCategory[Math.floor(Math.random() * wishesForCategory.length)];
 
-    setPlaceholderWish({ text: randomWishText, category: randomCategoryKey });
+    setPlaceholderWish({ key: randomWishKey, category: randomCategoryKey });
 
-    // Simulate loading to avoid flash of content
     setTimeout(() => setIsLoading(false), 200); 
   };
 
@@ -50,7 +47,6 @@ export function WantSheet() {
 
   const handleNext = () => {
     if (!message) return;
-    // Automatically prepend "Я хочу " if it's not already there
     const finalMessage = message.trim().toLowerCase().startsWith(t('iWant').toLowerCase()) 
       ? message.trim()
       : `${t('iWant')} ${message.trim()}`;
@@ -61,14 +57,15 @@ export function WantSheet() {
 
   const handleSelectWish = () => {
       if (isLoading || !placeholderWish) return;
-      const wishToPublish = `${t('iWant')} ${placeholderWish.text}`;
+      const wishText = t(placeholderWish.key as any);
+      const wishToPublish = `${t('iWant')} ${wishText}`;
       const encodedMessage = encodeURIComponent(wishToPublish);
       router.push(`/want/categorize?message=${encodedMessage}&category=${placeholderWish.category}`);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
-      event.preventDefault(); // Prevent new line on Enter
+      event.preventDefault(); 
       if (message) {
         handleNext();
       }
@@ -93,7 +90,7 @@ export function WantSheet() {
                   {isLoading || !placeholderWish ? (
                       <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
                   ) : (
-                      <p className="text-muted-foreground">{t('iWant')} {placeholderWish.text}</p>
+                      <p className="text-muted-foreground">{t('iWant')} {t(placeholderWish.key as any)}</p>
                   )}
               </CardContent>
           </Card>
