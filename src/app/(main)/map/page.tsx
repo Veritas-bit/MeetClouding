@@ -27,42 +27,54 @@ export interface MarkerInfo {
   isPremium?: boolean;
 }
 
-// Function to generate random coordinates within a given radius
+// Function to generate random coordinates within a given radius using a more stable method
 const generateRandomMarkers = (center: [number, number], category: WishCategoryKey | null, radiusKm: number): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
-    // Adjust marker count based on radius for a more populated feel in larger areas
     const count = 5 + Math.floor(radiusKm / 2) * 3; 
 
     for (let i = 0; i < count; i++) {
-        // If no category is specified, pick a random one for each marker
         const currentCategoryKey = category || WISH_CATEGORY_KEYS[Math.floor(Math.random() * WISH_CATEGORY_KEYS.length)];
         const categoryInfo = WISH_CATEGORIES[currentCategoryKey];
-
-        const angle = Math.random() * 2 * Math.PI;
-        // Use Math.sqrt on a random number to ensure uniform distribution across the area of the circle
-        const distance = Math.sqrt(Math.random()) * radiusKm;
         
-        const latOffset = parseFloat(((distance / 111.32) * Math.cos(angle)).toFixed(6));
-        const lonOffset = parseFloat(((distance / (111.32 * Math.cos(center[0] * (Math.PI / 180)))) * Math.sin(angle)).toFixed(6));
+        // Convert radius from km to degrees (approximate)
+        const radiusInDegrees = radiusKm / 111.32;
         
-        const lat = parseFloat((center[0] + latOffset).toFixed(6));
-        const lon = parseFloat((center[1] + lonOffset).toFixed(6));
+        const u = Math.random();
+        const v = Math.random();
+        
+        const w = radiusInDegrees * Math.sqrt(u);
+        const t = 2 * Math.PI * v;
+        
+        const latOffset = w * Math.sin(t);
+        // Adjust longitude offset for latitude to avoid distortion
+        const lonOffset = w * Math.cos(t) / Math.cos(center[0] * Math.PI / 180);
+        
+        let newLat = center[0] + latOffset;
+        let newLon = center[1] + lonOffset;
 
-        // Validate coordinates to prevent map crashes from NaN values
-        if (isNaN(lat) || isNaN(lon)) {
-            console.warn("Skipping invalid marker generation due to NaN coordinates.");
-            continue; // Skip this iteration if coordinates are invalid
+        // Ensure latitude is within valid bounds
+        if (newLat > 90) newLat = 90;
+        if (newLat < -90) newLat = -90;
+
+        // Ensure longitude wraps around
+        if (newLon > 180) newLon -= 360;
+        if (newLon < -180) newLon += 360;
+
+        // Final check for NaN or infinite values before pushing
+        if (isNaN(newLat) || isNaN(newLon) || !isFinite(newLat) || !isFinite(newLon)) {
+            console.warn("Skipping invalid marker generation due to invalid coordinates.");
+            continue;
         }
 
         markers.push({
-            id: `search-result-${i}-${lat}-${lon}`,
-            userId: `${Math.floor(Math.random() * 10) + 1}`, // Random user ID from 1 to 10
-            latitude: lat,
-            longitude: lon,
+            id: `search-result-${i}-${newLat}-${newLon}`,
+            userId: `${Math.floor(Math.random() * 10) + 1}`,
+            latitude: newLat,
+            longitude: newLon,
             message: `Это тестовое желание для категории '${categoryInfo.name}'`,
             categoryName: categoryInfo.name,
             color: categoryInfo.color,
-            isPremium: Math.random() > 0.7 // ~30% of mock users are premium
+            isPremium: Math.random() > 0.7
         });
     }
     return markers;
