@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { useProfileStore } from '@/lib/profile-store';
+import { useTranslation } from '@/hooks/use-translation';
 
 function CategorizeWishForm() {
     const router = useRouter();
@@ -22,6 +23,7 @@ function CategorizeWishForm() {
     const { location, error, requestLocation } = useLocationStore();
     const { toast } = useToast();
     const { isPremium } = useProfileStore();
+    const t = useTranslation();
 
     const [message, setMessage] = useState('');
     const [isLoading, setIsLoading] = useState(true);
@@ -100,9 +102,9 @@ function CategorizeWishForm() {
             const categoryInfo = WISH_CATEGORIES[selectedCategory!];
             const encodedMessage = encodeURIComponent(message);
             const encodedCategoryName = encodeURIComponent(categoryInfo.name);
-            const color = categoryInfo.color;
+            const encodedColor = encodeURIComponent(categoryInfo.color);
             
-            router.push(`/map?published=true&message=${encodedMessage}&lat=${coords.latitude}&lon=${coords.longitude}&categoryName=${encodedCategoryName}&color=${color}`);
+            router.push(`/map?published=true&message=${encodedMessage}&lat=${coords.latitude}&lon=${coords.longitude}&categoryName=${encodedCategoryName}&color=${encodedColor}`);
 
         } catch (err) {
             toast({

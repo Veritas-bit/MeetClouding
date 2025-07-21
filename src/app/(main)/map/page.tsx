@@ -110,7 +110,7 @@ function MapContent() {
       const lon = parseFloat(searchParams.get('lon') || '0');
       const message = decodeURIComponent(searchParams.get('message') || '');
       const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
-      const color = searchParams.get('color') || 'hsl(var(--primary))';
+      const color = decodeURIComponent(searchParams.get('color') || 'hsl(var(--primary))');
 
       if (lat && lon) {
         setCenter([lat, lon]);
