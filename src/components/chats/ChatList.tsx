@@ -13,9 +13,9 @@ interface ChatListProps {
 
 export function ChatList({ mainChats, friendChats }: ChatListProps) {
   return (
-    <div className="container mx-auto p-0 sm:p-4 pb-24">
-      <Tabs defaultValue="all" className="w-full">
-        <div className="flex justify-center p-2 sticky top-16 bg-background z-10">
+    <div className="container mx-auto p-0 sm:p-4 pb-24 flex-grow flex flex-col">
+      <Tabs defaultValue="all" className="w-full flex flex-col">
+        <div className="flex justify-center p-2 sticky top-0 bg-background z-10">
             <TabsList>
                 <TabsTrigger value="all">Чаты</TabsTrigger>
                 <TabsTrigger value="friends">Друзья</TabsTrigger>
