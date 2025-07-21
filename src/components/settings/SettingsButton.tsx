@@ -20,7 +20,7 @@ export function SettingsButton({ icon: Icon, text, href }: SettingsButtonProps) 
             href={href} 
             className={cn(
                 buttonVariants({ variant: "ghost" }), 
-                "w-full justify-start h-10 text-base font-normal"
+                "w-full justify-start h-10 text-base font-normal hover:bg-transparent hover:text-foreground"
             )}
         >
         <Icon className="mr-4 h-4 w-4 text-foreground" />
