@@ -41,9 +41,9 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
         
         const [centerLat, centerLon] = center;
 
-        // Simple square bounding box generation to avoid complex math errors
+        // Simple square bounding box generation
         const latOffset = (Math.random() - 0.5) * 2 * radiusInDegrees;
-        const lonOffset = (Math.random() - 0.5) * 2 * (radiusInDegrees / Math.cos(centerLat * Math.PI / 180)); // Correction for longitude
+        const lonOffset = (Math.random() - 0.5) * 2 * radiusInDegrees / Math.cos(centerLat * Math.PI / 180);
 
         const newLat = centerLat + latOffset;
         const newLon = centerLon + lonOffset;
@@ -127,26 +127,22 @@ function MapContent() {
         return; // Exit effect after handling published wish
     } 
 
-    // For other cases, we might need user location.
-    // If location is not yet available, the component will wait. The loader will be shown because `center` is still null.
+    // For other cases that depend on user location, wait for it.
     if (!location) {
         return;
     }
-    
-    // At this point, `location` is guaranteed to be available.
     
     // Priority 2: Search results (depends on user location)
     if (isSearch) {
         const searchRadiusParam = searchParams.get('radius');
         const searchCategory = searchParams.get('category') as WishKey | null;
-        const searchCenter: [number, number] = [location.latitude, location.longitude];
         const searchRadius = searchRadiusParam ? parseFloat(searchRadiusParam) : NaN;
+        const searchCenter: [number, number] = [location.latitude, location.longitude];
         
+        setCenter(searchCenter); // Set center immediately for search
         if (!isNaN(searchRadius)) {
-            setCenter(searchCenter);
             setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
         } else {
-             setCenter(searchCenter);
              setMarkers([]);
         }
     }
