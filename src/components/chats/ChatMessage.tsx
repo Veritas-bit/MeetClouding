@@ -124,7 +124,7 @@ export function ChatMessage({ id, message, timestamp, isOwn, image, video, sourc
     <>
       <div 
         ref={messageRef}
-        className="relative outline-none transition-all active:brightness-90 active:scale-[.98]"
+        className="relative outline-none transition-all active:brightness-90"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
