@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageItem } from '@/components/message-item';
-import { SendHorizonal, Paperclip } from 'lucide-react';
+import { SendHorizonal, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { ChatAttachmentModal } from './chats/ChatAttachmentModal';
@@ -86,16 +86,12 @@ export function MessageView({ initialConversation, currentUser, className }: { i
       </ScrollArea>
 
       <div className="p-4 border-t bg-background shrink-0">
-        <form onSubmit={handleSendMessage} className="flex items-end space-x-2">
-           <Button type="button" variant="ghost" size="icon" className="shrink-0" onClick={() => setIsAttachmentModalOpen(true)}>
-             <Paperclip className="h-5 w-5" />
-             <span className="sr-only">Прикрепить файл</span>
-           </Button>
+        <form onSubmit={handleSendMessage} className="relative w-full">
           <Textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 pr-12"
+            placeholder="Сообщение..."
+            className="w-full pr-20 pl-12 py-3"
             rows={1}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -104,8 +100,12 @@ export function MessageView({ initialConversation, currentUser, className }: { i
               }
             }}
           />
-          <Button type="submit" size="icon" aria-label="Send Message" className="self-end" disabled={!newMessage.trim()}>
-            <SendHorizonal className="h-5 w-5" />
+           <Button type="button" variant="ghost" size="icon" className="absolute left-3 top-1/2 -translate-y-1/2" onClick={() => setIsAttachmentModalOpen(true)}>
+             <Camera className="h-5 w-5 text-muted-foreground" />
+             <span className="sr-only">Открыть камеру</span>
+           </Button>
+          <Button type="submit" size="icon" variant="ghost" aria-label="Send Message" className="absolute right-3 top-1/2 -translate-y-1/2" disabled={!newMessage.trim()}>
+            <SendHorizonal className="h-5 w-5 text-muted-foreground" />
           </Button>
         </form>
       </div>
