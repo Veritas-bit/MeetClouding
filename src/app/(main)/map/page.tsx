@@ -43,7 +43,7 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
 
         // Simple square bounding box generation to avoid complex math errors
         const latOffset = (Math.random() - 0.5) * 2 * radiusInDegrees;
-        const lonOffset = (Math.random() - 0.5) * 2 * radiusInDegrees;
+        const lonOffset = (Math.random() - 0.5) * 2 * (radiusInDegrees / Math.cos(centerLat * Math.PI / 180)); // Correction for longitude
 
         const newLat = centerLat + latOffset;
         const newLon = centerLon + lonOffset;
@@ -109,16 +109,22 @@ function MapContent() {
     // Priority 1: Search results
     if (isSearch) {
         const searchRadiusParam = searchParams.get('radius');
-        // Ensure radius is a valid number before proceeding
+        const searchCategory = searchParams.get('category') as WishKey | null;
+
         if (searchRadiusParam) {
             const searchRadius = parseFloat(searchRadiusParam);
-            const searchCategory = searchParams.get('category') as WishKey | null;
-            
             const searchCenter: [number, number] = [location.latitude, location.longitude];
-            setCenter(searchCenter);
-            setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
+            
+            // Ensure searchRadius is a valid number before generating markers
+            if (!isNaN(searchRadius)) {
+                setCenter(searchCenter);
+                setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
+            } else {
+                 setCenter([location.latitude, location.longitude]);
+                 setMarkers([]);
+            }
         } else {
-            // Default behavior if radius is not provided
+            // Default behavior if radius is not provided for search
             setCenter([location.latitude, location.longitude]);
             setMarkers([]);
         }
@@ -131,17 +137,19 @@ function MapContent() {
         const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
         const color = searchParams.get('color') || 'hsl(var(--primary))';
 
-        setCenter([lat, lon]);
-        setMarkers([{
-            id: `user-wish-${lat}-${lon}`,
-            userId: '0', // Current user's wish
-            latitude: lat,
-            longitude: lon,
-            message: message,
-            categoryName: categoryName,
-            color: color,
-            isPremium: isPremium
-        }]);
+        if (!isNaN(lat) && !isNaN(lon)) {
+            setCenter([lat, lon]);
+            setMarkers([{
+                id: `user-wish-${lat}-${lon}`,
+                userId: '0', // Current user's wish
+                latitude: lat,
+                longitude: lon,
+                message: message,
+                categoryName: categoryName,
+                color: color,
+                isPremium: isPremium
+            }]);
+        }
     } 
     // Priority 3: Default to user's current location
     else {
