@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, LoaderCircle, ClipboardCheck, ToyBrick, Utensils, Film, Ticket, Plane, ShoppingCart, Beer, Coffee, Dumbbell, Palette, Music, BookOpen, HelpingHand } from "lucide-react";
+import { ArrowLeft, LoaderCircle, LayoutGrid, ToyBrick, Utensils, Film, Ticket, Plane, ShoppingCart, Beer, Coffee, Dumbbell, Palette, Music, BookOpen, HelpingHand } from "lucide-react";
 import Link from "next/link";
 import { useLocationStore } from "@/lib/location-store";
 import { WISH_CATEGORIES, WishCategoryKey } from '@/lib/categories';
@@ -86,7 +86,7 @@ function CategorizeWishForm() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline">
-                            <ClipboardCheck className="h-6 w-6 text-primary" />
+                            <LayoutGrid className="h-6 w-6 text-primary" />
                             Выберите категорию
                         </CardTitle>
                     </CardHeader>
@@ -96,8 +96,6 @@ function CategorizeWishForm() {
                                 <Label>Ваше желание:</Label>
                                 <p className="text-sm text-muted-foreground italic mt-1">"{message}"</p>
                             </div>
-
-                            <Label>Категории:</Label>
                             
                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 {Object.entries(WISH_CATEGORIES).map(([key, cat]) => {
