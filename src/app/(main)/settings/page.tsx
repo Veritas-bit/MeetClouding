@@ -19,6 +19,7 @@ import { useProfileStore } from "@/lib/profile-store";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/use-translation";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 
 function ProfileSection() {
@@ -110,69 +111,71 @@ export default function SettingsPage() {
   ];
   
   return (
-    <div className="container mx-auto p-4 pb-24">
-      <ProfileSection />
-      <Card className="w-full max-w-md mx-auto">
-        <CardContent className="p-0">
-          <div className="flex flex-col">
-            {settingsItems.map((item, index) => (
-              <SettingsButton key={index} {...item} />
-            ))}
-            <div>
-              <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-                  <CollapsibleTrigger asChild>
-                      <button className="flex w-full items-center justify-start h-10 px-4 text-base font-normal text-foreground bg-transparent">
-                          <Palette className="mr-4 h-4 w-4 text-foreground" />
-                          {t('theme')}
-                      </button>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                      <div className="p-2 pt-0">
-                          <Card className="bg-muted/50">
-                              <CardContent className="p-1 space-y-1">
-                                  {themeOptions.map((option) => (
-                                    <Button 
-                                        key={option.value}
-                                        variant={theme === option.value ? "secondary" : "ghost"} 
-                                        className="w-full justify-start h-10 font-normal" 
-                                        onClick={() => { setTheme(option.value); setIsOpen(false); }}>
-                                        <option.icon className="mr-4 h-4 w-4" />
-                                        {option.label}
-                                    </Button>
-                                  ))}
-                              </CardContent>
-                          </Card>
-                      </div>
-                  </CollapsibleContent>
-              </Collapsible>
-              <Separator />
-            </div>
-             <div className="pt-4 px-2 pb-2">
-                <Link 
-                  href="/settings/premium"
-                  className={cn(
-                    "inline-flex items-center justify-center gap-2 w-full h-10 text-base rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground",
-                    "font-medium" 
-                  )}
+    <ScrollArea className="flex-1">
+        <div className="container mx-auto p-4 pb-24">
+        <ProfileSection />
+        <Card className="w-full max-w-md mx-auto">
+            <CardContent className="p-0">
+            <div className="flex flex-col">
+                {settingsItems.map((item, index) => (
+                <SettingsButton key={index} {...item} />
+                ))}
+                <div>
+                <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+                    <CollapsibleTrigger asChild>
+                        <button className="flex w-full items-center justify-start h-10 px-4 text-base font-normal text-foreground bg-transparent">
+                            <Palette className="mr-4 h-4 w-4 text-foreground" />
+                            {t('theme')}
+                        </button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                        <div className="p-2 pt-0">
+                            <Card className="bg-muted/50">
+                                <CardContent className="p-1 space-y-1">
+                                    {themeOptions.map((option) => (
+                                        <Button 
+                                            key={option.value}
+                                            variant={theme === option.value ? "secondary" : "ghost"} 
+                                            className="w-full justify-start h-10 font-normal" 
+                                            onClick={() => { setTheme(option.value); setIsOpen(false); }}>
+                                            <option.icon className="mr-4 h-4 w-4" />
+                                            {option.label}
+                                        </Button>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </CollapsibleContent>
+                </Collapsible>
+                <Separator />
+                </div>
+                <div className="pt-4 px-2 pb-2">
+                    <Link 
+                    href="/settings/premium"
+                    className={cn(
+                        "inline-flex items-center justify-center gap-2 w-full h-10 text-base rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground",
+                        "font-medium" 
+                    )}
+                    >
+                    <Gem className="mr-4 h-5 w-5" />
+                    {t('premium')}
+                    </Link>
+                </div>
+                <Separator />
+                <div className="flex justify-center px-2 py-4">
+                <Button 
+                    variant="destructive" 
+                    className="w-auto px-8"
+                    onClick={handleLogout}
                 >
-                  <Gem className="mr-4 h-5 w-5" />
-                  {t('premium')}
-                </Link>
+                    <LogOut className="mr-2 h-5 w-5" />
+                    {t('logout')}
+                </Button>
+                </div>
             </div>
-            <Separator />
-            <div className="flex justify-center px-2 py-4">
-              <Button 
-                  variant="destructive" 
-                  className="w-auto px-8"
-                  onClick={handleLogout}
-              >
-                  <LogOut className="mr-2 h-5 w-5" />
-                  {t('logout')}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+            </CardContent>
+        </Card>
+        </div>
+    </ScrollArea>
   );
 }
