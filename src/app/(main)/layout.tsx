@@ -27,18 +27,11 @@ export default function MainLayout({
   }, [requestLocation]);
 
   useEffect(() => {
-    // If we're still determining the registration status (e.g., on a fresh load in a new tab)
-    // and the user is trying to access a deep link, redirect them to the root to start the auth flow.
-    if (isRegistered === null && pathname !== '/main') {
-        router.replace('/');
-        return;
-    }
-
     // If the registration status is determined to be false, redirect to the root welcome/auth page.
     if (isRegistered === false) {
       router.replace('/');
     }
-  }, [isRegistered, router, pathname]);
+  }, [isRegistered, router]);
 
   // While we wait for the registration status, show a loader.
   if (isRegistered === null) {

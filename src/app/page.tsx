@@ -52,7 +52,7 @@ export default function WelcomePage() {
         <div
           className={cn(
             "flex flex-col items-center justify-center text-center text-foreground p-4 sm:p-8 opacity-0 transition-opacity duration-1000 ease-out",
-            isAnimating && "opacity-100 animate-fade-in-up"
+            isAnimating && "opacity-100"
           )}
         >
           <GradientCloudIcon className="h-32 w-32" />
