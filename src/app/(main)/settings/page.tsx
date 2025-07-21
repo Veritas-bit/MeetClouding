@@ -21,52 +21,19 @@ import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/use-translation";
 
 
-const originalSettingsTexts = {
-  accountManagement: "Управление аккаунтом",
-  help: "Помощь",
-  notifications: "Уведомления",
-  language: "Язык",
-  rateApp: "Оценить приложение",
-  aboutApp: "О приложении",
-  theme: "Оформление",
-  morning: "Утренняя",
-  day: "Дневная",
-  evening: "Вечерняя",
-  night: "Ночная",
-  auto: "Авто",
-  system: "Системная",
-  premium: "Премиум-аккаунт",
-  logout: "Выйти",
-  edit: "Изменить",
-  aboutSelf: "О себе",
-  genderMale: "мужской",
-  genderFemale: "женский",
-  genderUnselected: "не выбран",
-  infoNotProvided: "Информация не указана.",
-  user: "Пользователь",
-};
-
 function ProfileSection() {
     const { nickname, about, gender, avatar, isPremium } = useProfileStore();
-    const t = useTranslation({
-      edit: originalSettingsTexts.edit,
-      aboutSelf: originalSettingsTexts.aboutSelf,
-      genderMale: originalSettingsTexts.genderMale,
-      genderFemale: originalSettingsTexts.genderFemale,
-      genderUnselected: originalSettingsTexts.genderUnselected,
-      infoNotProvided: originalSettingsTexts.infoNotProvided,
-      user: originalSettingsTexts.user,
-    });
+    const t = useTranslation();
 
 
     const getGenderText = () => {
         switch (gender) {
         case 'male':
-            return t.genderMale;
+            return t('genderMale');
         case 'female':
-            return t.genderFemale;
+            return t('genderFemale');
         default:
-            return t.genderUnselected;
+            return t('genderUnselected');
         }
     };
 
@@ -75,7 +42,7 @@ function ProfileSection() {
             <Link href="/profile/edit" className="absolute top-2 right-2">
                 <Button variant="ghost" size="sm">
                     <Pencil className="mr-2 h-4 w-4" />
-                    {t.edit}
+                    {t('edit')}
                 </Button>
             </Link>
             <CardContent className="p-4 flex flex-col items-center">
@@ -92,7 +59,7 @@ function ProfileSection() {
 
                 <div className="text-center mt-2 mb-2">
                     <h1 className="text-md font-bold text-foreground flex items-center gap-2">
-                        {nickname || t.user}
+                        {nickname || t('user')}
                         {isPremium && <Gem className="h-4 w-4 text-primary" />}
                     </h1>
                     <p className="text-xs text-muted-foreground">{getGenderText()}</p>
@@ -100,9 +67,9 @@ function ProfileSection() {
 
                 <Card className="bg-card/50 w-full">
                     <CardContent className="px-3 pt-2 pb-3">
-                        <h2 className="text-sm font-semibold mt-1">{t.aboutSelf}</h2>
+                        <h2 className="text-sm font-semibold mt-1">{t('aboutSelf')}</h2>
                         <p className="text-xs text-muted-foreground mt-1">
-                        {about || t.infoNotProvided}
+                        {about || t('infoNotProvided')}
                         </p>
                     </CardContent>
                 </Card>
@@ -114,7 +81,7 @@ function ProfileSection() {
 export default function SettingsPage() {
   const router = useRouter();
   const logout = useProfileStore((state) => state.logout);
-  const t = useTranslation(originalSettingsTexts);
+  const t = useTranslation();
 
   const { theme, setTheme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -125,21 +92,21 @@ export default function SettingsPage() {
   };
 
   const settingsItems: SettingsButtonProps[] = [
-    { icon: UserCog, text: t.accountManagement, href: "/settings/account" },
-    { icon: LifeBuoy, text: t.help, href: "/settings/help" },
-    { icon: Bell, text: t.notifications, href: "/settings/notifications" },
-    { icon: Languages, text: t.language, href: "/settings/language" },
-    { icon: Star, text: t.rateApp, href: "/settings/rate" },
-    { icon: Info, text: t.aboutApp, href: "/settings/about" },
+    { icon: UserCog, text: t('accountManagement'), href: "/settings/account" },
+    { icon: LifeBuoy, text: t('help'), href: "/settings/help" },
+    { icon: Bell, text: t('notifications'), href: "/settings/notifications" },
+    { icon: Languages, text: t('language'), href: "/settings/language" },
+    { icon: Star, text: t('rateApp'), href: "/settings/rate" },
+    { icon: Info, text: t('aboutApp'), href: "/settings/about" },
   ];
 
   const themeOptions = [
-    { value: "light", label: t.morning, icon: Sun },
-    { value: "early-morning", label: t.day, icon: Sunrise },
-    { value: "evening", label: t.evening, icon: Sunset },
-    { value: "dark", label: t.night, icon: Moon },
-    { value: "auto", label: t.auto, icon: Orbit },
-    { value: "system", label: t.system, icon: Laptop },
+    { value: "light", label: t('themeMorning'), icon: Sun },
+    { value: "early-morning", label: t('themeDay'), icon: Sunrise },
+    { value: "evening", label: t('themeEvening'), icon: Sunset },
+    { value: "dark", label: t('themeNight'), icon: Moon },
+    { value: "auto", label: t('themeAuto'), icon: Orbit },
+    { value: "system", label: t('themeSystem'), icon: Laptop },
   ];
   
   return (
@@ -156,7 +123,7 @@ export default function SettingsPage() {
                   <CollapsibleTrigger asChild>
                       <Button variant="ghost" className="w-full justify-start h-10 text-base font-normal">
                           <Palette className="mr-4 h-4 w-4 text-foreground" />
-                          {t.theme}
+                          {t('theme')}
                       </Button>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
@@ -189,7 +156,7 @@ export default function SettingsPage() {
                   )}
                 >
                   <Gem className="mr-4 h-5 w-5" />
-                  {t.premium}
+                  {t('premium')}
                 </Link>
             </div>
             <Separator />
@@ -200,7 +167,7 @@ export default function SettingsPage() {
                   onClick={handleLogout}
               >
                   <LogOut className="mr-2 h-5 w-5" />
-                  {t.logout}
+                  {t('logout')}
               </Button>
             </div>
           </div>
@@ -209,3 +176,5 @@ export default function SettingsPage() {
     </div>
   );
 }
+
+    

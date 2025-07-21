@@ -15,31 +15,13 @@ import { getConversationById, getCurrentUser } from "@/lib/mock-data";
 import { useTranslation } from "@/hooks/use-translation";
 
 
-const originalTexts = {
-  backToMap: "На карту",
-  back: "Назад",
-  chats: "Чаты",
-  profile: "Профиль",
-  editProfile: "Редактирование профиля",
-  settings: "Настройки",
-  account: "Аккаунт",
-  help: "Помощь",
-  notifications: "Уведомления",
-  language: "Язык",
-  rateApp: "Оценить приложение",
-  aboutApp: "О приложении",
-  premium: "Премиум",
-  wasRecently: "был(а) недавно",
-};
-
-
 const BackToMapButton = () => {
     const router = useRouter();
-    const t = useTranslation({ backToMap: originalTexts.backToMap });
+    const t = useTranslation();
     return (
         <Button variant="ghost" size="sm" onClick={() => router.push('/map')} className="text-foreground text-xs absolute left-4">
             <MapIcon className="h-4 w-4 mr-1" />
-            {t.backToMap}
+            {t('backToMap')}
         </Button>
     )
 };
@@ -59,9 +41,9 @@ const defaultHeader = (
     </>
 );
 
-const HeaderWithBackButton = ({ titleKey, backPath }: { titleKey: keyof typeof originalTexts, backPath?: string }) => {
+const HeaderWithBackButton = ({ titleKey, backPath }: { titleKey: string, backPath?: string }) => {
     const router = useRouter();
-    const t = useTranslation({ title: originalTexts[titleKey], back: originalTexts.back });
+    const t = useTranslation();
     const handleBack = () => {
         if (backPath) {
             router.push(backPath);
@@ -73,9 +55,9 @@ const HeaderWithBackButton = ({ titleKey, backPath }: { titleKey: keyof typeof o
          <div className="w-full h-full relative flex items-center justify-center">
              <Button variant="ghost" size="icon" onClick={handleBack} className="text-foreground absolute left-0">
                 <ArrowLeft className="h-6 w-6" />
-                <span className="sr-only">{t.back}</span>
+                <span className="sr-only">{t('back')}</span>
              </Button>
-             <span className="text-xl font-headline text-foreground">{t.title}</span>
+             <span className="text-xl font-headline text-foreground">{t(titleKey)}</span>
          </div>
     );
 };
@@ -83,7 +65,7 @@ const HeaderWithBackButton = ({ titleKey, backPath }: { titleKey: keyof typeof o
 
 const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton: boolean }) => {
     const router = useRouter();
-    const t = useTranslation({ backToMap: originalTexts.backToMap, back: originalTexts.back, wasRecently: originalTexts.wasRecently });
+    const t = useTranslation();
     
     return (
         <div className="w-full h-full relative flex items-center justify-center">
@@ -91,12 +73,12 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
                  {showMapButton ? (
                     <Button variant="ghost" size="icon" onClick={() => router.push('/map')} className="text-foreground">
                         <MapIcon className="h-6 w-6" />
-                        <span className="sr-only">{t.backToMap}</span>
+                        <span className="sr-only">{t('backToMap')}</span>
                     </Button>
                 ) : (
                     <Button variant="ghost" size="icon" onClick={() => router.back()} className="text-foreground">
                         <ArrowLeft className="h-6 w-6" />
-                        <span className="sr-only">{t.back}</span>
+                        <span className="sr-only">{t('back')}</span>
                     </Button>
                 )}
             </div>
@@ -115,7 +97,7 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
                 </Avatar>
                 <div className="flex flex-col items-start">
                      <span className="text-lg font-bold text-foreground leading-none">{chatInfo.name}</span>
-                     <span className="text-xs text-muted-foreground">{t.wasRecently}</span>
+                     <span className="text-xs text-muted-foreground">{t('wasRecently')}</span>
                 </div>
             </Link>
         </div>
@@ -130,7 +112,7 @@ export function Header() {
   const [headerContent, setHeaderContent] = React.useState(defaultHeader);
   const [mounted, setMounted] = React.useState(false);
   const showMapButton = searchParams.get('from') === 'map';
-  const t = useTranslation({ chats: originalTexts.chats, profile: originalTexts.profile, settings: originalTexts.settings });
+  const t = useTranslation();
 
   React.useEffect(() => {
     setMounted(true);
@@ -158,7 +140,7 @@ export function Header() {
             setHeaderContent(
                 <div className="w-full h-full relative flex items-center justify-center">
                     {showMapButton && <BackToMapButton />}
-                    <span className="text-xl font-headline text-foreground">{t.chats}</span>
+                    <span className="text-xl font-headline text-foreground">{t('chats')}</span>
                 </div>
             );
         } else if (pathname.startsWith('/profile/edit')) {
@@ -166,11 +148,11 @@ export function Header() {
         } else if (pathname === '/settings') {
              setHeaderContent(
                 <div className="w-full h-full relative flex items-center justify-center">
-                    <span className="text-xl font-headline text-foreground">{t.settings}</span>
+                    <span className="text-xl font-headline text-foreground">{t('settings')}</span>
                 </div>
              );
         } else if (pathname.startsWith('/settings/')) {
-            let titleKey: keyof typeof originalTexts = "settings";
+            let titleKey = "settings";
             if (pathname.includes('account')) titleKey = "account";
             if (pathname.includes('help')) titleKey = "help";
             if (pathname.includes('notifications')) titleKey = "notifications";
@@ -188,7 +170,7 @@ export function Header() {
     
     fetchChatInfo();
 
-  }, [pathname, params, mounted, showMapButton, t.chats, t.settings]);
+  }, [pathname, params, mounted, showMapButton, t]);
 
   if (!mounted) {
     return (
@@ -208,3 +190,5 @@ export function Header() {
     </header>
   );
 }
+
+    

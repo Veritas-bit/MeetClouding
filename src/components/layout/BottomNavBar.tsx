@@ -9,28 +9,23 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from "@/hooks/use-translation";
 
 const navItems = [
-  { href: "/main", icon: Cloud, translationKey: "main" },
-  { href: "/chats", icon: Send, translationKey: "chats" },
-  { href: "/settings", icon: Settings, translationKey: "settings" },
+  { href: "/main", icon: Cloud, translationKey: "navMain" },
+  { href: "/chats", icon: Send, translationKey: "navChats" },
+  { href: "/settings", icon: Settings, translationKey: "navSettings" },
 ];
 
-const originalLabels = {
-    main: "Главная",
-    chats: "Чаты",
-    settings: "Настройки",
-};
-
 function BottomNavBarPlaceholder() {
+    const t = useTranslation();
     return (
         <nav className="fixed bottom-0 left-0 right-0 h-20 bg-background border-t border-border shadow-t-lg z-50">
             <div className="flex justify-around items-center h-full max-w-lg mx-auto px-2">
-                {navItems.map((item, index) => (
+                {navItems.map((item) => (
                     <div
                         key={item.href}
                         className="flex-1 flex flex-col items-center justify-center gap-1 text-muted-foreground"
                     >
                         <item.icon className="h-6 w-6" />
-                        <span className="text-xs font-medium">{Object.values(originalLabels)[index]}</span>
+                        <span className="text-xs font-medium">{t(item.translationKey)}</span>
                     </div>
                 ))}
             </div>
@@ -42,7 +37,7 @@ function BottomNavBarPlaceholder() {
 export function BottomNavBar() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  const t = useTranslation(originalLabels);
+  const t = useTranslation();
 
   useEffect(() => {
     setMounted(true);
@@ -71,7 +66,7 @@ export function BottomNavBar() {
                 )}
               >
                 <item.icon className="h-6 w-6" />
-                <span className="text-xs font-medium">{t[item.translationKey as keyof typeof t]}</span>
+                <span className="text-xs font-medium">{t(item.translationKey)}</span>
               </div>
             </Link>
           );
@@ -80,3 +75,5 @@ export function BottomNavBar() {
     </nav>
   );
 }
+
+    
