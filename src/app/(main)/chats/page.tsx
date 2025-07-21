@@ -26,7 +26,7 @@ function transformConversationToProps(conversation: Conversation, currentUser: U
         name: otherParticipant.name,
         lastMessage: lastMessage ? lastMessage.text : "Нет сообщений",
         timestamp: lastMessage ? formatDistanceToNow(new Date(lastMessage.timestamp), { addSuffix: true, locale: ru }) : '',
-        unreadCount: unreadCount,
+        unreadCount: unreadCount > 0 ? unreadCount : undefined,
         avatarHint: "person portrait",
         isOnline: otherParticipant.isOnline,
         gender: 'unselected' // Placeholder, as mock User doesn't have gender
