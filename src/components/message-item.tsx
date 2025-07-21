@@ -32,7 +32,7 @@ function parseMessageContent(text: string) {
     return parts.map((part, index) => {
       if (!part) return null;
       if (part.match(urlRegex)) {
-        return <a key={index} href={part} target="_blank" rel="noopener noreferrer" className="underline hover:opacity-80">{part}</a>;
+        return <a key={index} href={part} target="_blank" rel="noopener noreferrer" className="underline">{part}</a>;
       }
       if (part.match(mentionRegex)) {
         return <span key={index} className="text-accent font-semibold">{part}</span>;
@@ -98,7 +98,7 @@ export function MessageItem({ message, currentUser, otherParticipant }: { messag
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/20" onClick={handleTranslate} disabled={isPending}>
+                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleTranslate} disabled={isPending}>
                       <Languages className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -116,5 +116,3 @@ export function MessageItem({ message, currentUser, otherParticipant }: { messag
     </div>
   );
 }
-
-    

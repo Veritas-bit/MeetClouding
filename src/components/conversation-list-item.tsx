@@ -1,3 +1,4 @@
+
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -19,7 +20,7 @@ export function ConversationListItem({ conversation, currentUser }: { conversati
       <div
         className={cn(
           'flex items-center space-x-4 p-3 rounded-lg transition-colors',
-          isActive ? 'bg-primary/20' : 'hover:bg-primary/5'
+          isActive ? 'bg-primary/20' : ''
         )}
       >
         <div className="relative">
