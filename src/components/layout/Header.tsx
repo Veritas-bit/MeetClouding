@@ -49,15 +49,11 @@ const defaultHeader = (
     </>
 );
 
-const HeaderWithBackButton = ({ titleKey, backPath, showMapButton }: { titleKey: string, backPath?: string, showMapButton?: boolean }) => {
+const HeaderWithBackButton = ({ titleKey, showMapButton }: { titleKey: string, showMapButton?: boolean }) => {
     const router = useRouter();
     const t = useTranslation();
     const handleBack = () => {
-        if (backPath) {
-            router.push(backPath);
-        } else {
-            router.back();
-        }
+        router.back();
     }
     return (
          <div className="w-full h-full relative flex items-center justify-center">
@@ -167,7 +163,7 @@ export function Header() {
                 </div>
             );
         } else if (pathname.startsWith('/profile/edit')) {
-            setHeaderContent(<HeaderWithBackButton titleKey="editProfile" backPath="/settings" />);
+            setHeaderContent(<HeaderWithBackButton titleKey="editProfile" />);
         } else if (pathname === '/settings') {
              setHeaderContent(
                 <HeaderWithBackButton titleKey="settings" showMapButton={shouldShowMapButton} />
@@ -182,7 +178,7 @@ export function Header() {
             if (pathname.includes('about')) titleKey = "aboutApp";
             if (pathname.includes('premium')) titleKey = "premium";
             
-            setHeaderContent(<HeaderWithBackButton titleKey={titleKey} backPath="/settings" />);
+            setHeaderContent(<HeaderWithBackButton titleKey={titleKey} />);
 
         } else {
             setHeaderContent(defaultHeader);
