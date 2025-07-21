@@ -4,7 +4,6 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import Map, { Marker } from 'react-map-gl/maplibre';
 import type { MarkerInfo } from '@/app/(main)/map/page';
-import { useTheme } from 'next-themes';
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -63,7 +62,6 @@ function CloudIcon({ color, isPremium }: { color: string, isPremium?: boolean })
 }
 
 export default function MapComponent({ center, markers = [], className }: MapProps) {
-  const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   
@@ -79,38 +77,19 @@ export default function MapComponent({ center, markers = [], className }: MapPro
     // This is a mock navigation. In a real app, you would navigate to the specific chat.
     router.push(`/chats/conv-2?from=map`);
   };
-  
-  const getEffectiveTheme = useCallback(() => {
-    if (!mounted) return 'light';
-
-    const doc = document.documentElement;
-    if (doc.classList.contains('dark') || doc.classList.contains('evening')) {
-        return 'dark';
-    }
-    return 'light';
-    
-  }, [mounted]);
-
-
-  const effectiveTheme = getEffectiveTheme();
-  const isDarkMap = effectiveTheme === 'dark';
 
   const mapApiKey = process.env.NEXT_PUBLIC_MAPTILER_KEY;
 
-  if (!mapApiKey || mapApiKey === 'GET_YOUR_OWN_KEY') {
+  if (!mapApiKey) {
     return (
         <div className="flex h-full w-full items-center justify-center bg-muted">
             <div className="text-center p-4">
                 <p className="text-lg font-semibold text-destructive">Ключ API MapTiler отсутствует</p>
-                <p className="text-sm text-muted-foreground">Пожалуйста, добавьте ваш ключ API MapTiler в файл .env.</p>
+                <p className="text-sm text-muted-foreground">Пожалуйста, добавьте ваш ключ API MapTiler в файл .env и перезапустите сервер.</p>
             </div>
         </div>
     )
   }
-
-  const mapStyleUrl = isDarkMap
-    ? `https://api.maptiler.com/maps/streets-v2-dark/style.json?key=${mapApiKey}`
-    : `https://api.maptiler.com/maps/streets-v2/style.json?key=${mapApiKey}`;
 
   const mapContainerStyle: React.CSSProperties = {
     position: 'absolute',
@@ -120,9 +99,10 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   };
 
   const doc = typeof document !== 'undefined' ? document.documentElement : null;
-  if (doc?.classList.contains('early-morning')) {
+  const themeClass = doc?.className || '';
+  if (themeClass.includes('early-morning')) {
     mapContainerStyle.filter = 'sepia(20%)';
-  } else if (doc?.classList.contains('evening')) {
+  } else if (themeClass.includes('evening') || themeClass.includes('dark')) {
     mapContainerStyle.filter = 'brightness(0.8) contrast(1.1)';
   }
 
@@ -133,14 +113,14 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   return (
     <div style={mapContainerStyle}>
         <Map
-            key={`${center.join('-')}-${effectiveTheme}`}
+            key={center.join('-')}
             initialViewState={{
                 longitude: center[1],
                 latitude: center[0],
                 zoom: 13,
             }}
-            mapStyle={mapStyleUrl}
-            mapLibreLogo={false}
+            mapStyle={`https://api.maptiler.com/maps/streets-v2/style.json`}
+            mapTilerAccessToken={mapApiKey}
             attributionControl={false}
             className={cn(className)}
             style={{ width: '100%', height: '100%' }}
