@@ -127,29 +127,29 @@ function MapContent() {
         return; // Exit effect after handling published wish
     } 
 
-    // For other cases, wait for user location
+    // For other cases, we need user location. If it's not available yet, we don't proceed.
+    // The component will re-render when location is available.
     if (!location) {
-        return; // Wait for location to be available
+        return; 
     }
 
     // Priority 2: Search results (depends on user location)
     if (isSearch) {
         const searchRadiusParam = searchParams.get('radius');
         const searchCategory = searchParams.get('category') as WishKey | null;
-
+        const searchCenter: [number, number] = [location.latitude, location.longitude];
+        
         if (searchRadiusParam) {
             const searchRadius = parseFloat(searchRadiusParam);
-            const searchCenter: [number, number] = [location.latitude, location.longitude];
-            
             if (!isNaN(searchRadius)) {
                 setCenter(searchCenter);
                 setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
             } else {
-                 setCenter([location.latitude, location.longitude]);
+                 setCenter(searchCenter);
                  setMarkers([]);
             }
         } else {
-            setCenter([location.latitude, location.longitude]);
+            setCenter(searchCenter);
             setMarkers([]);
         }
     }
