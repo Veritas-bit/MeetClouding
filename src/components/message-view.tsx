@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -13,7 +14,6 @@ export function MessageView({ initialConversation, currentUser }: { initialConve
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>(initialConversation.messages);
   const [newMessage, setNewMessage] = useState('');
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const otherParticipant = initialConversation.participants.find(p => p.id !== currentUser.id);
@@ -60,7 +60,7 @@ export function MessageView({ initialConversation, currentUser }: { initialConve
 
   return (
     <div className="flex-1 flex flex-col h-full">
-      <ScrollArea className="flex-1" ref={scrollAreaRef} viewportRef={viewportRef}>
+      <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
         <div className="p-4 space-y-6">
           {messages.map((message) => (
             <MessageItem key={message.id} message={message} currentUser={currentUser} otherParticipant={otherParticipant} />
