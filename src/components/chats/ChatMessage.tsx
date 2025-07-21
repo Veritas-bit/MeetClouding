@@ -96,7 +96,8 @@ export function ChatMessage({ message, currentUser, otherParticipant }: { messag
         onTouchEnd={() => setIsPressed(false)}
         onTouchCancel={() => setIsPressed(false)}
         className={cn(
-          'max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col',
+          'max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col cursor-pointer transition-colors',
+          'hover:brightness-95',
           messageColorClass,
           isPressed && 'brightness-90'
         )}
