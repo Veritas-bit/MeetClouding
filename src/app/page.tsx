@@ -28,6 +28,7 @@ export default function WelcomePage() {
       router.replace('/main');
     } 
     // If it's false, it means we should show the welcome screen.
+    // We trigger the animation only when we are sure the user is not registered.
     else if (isRegistered === false) {
       // Start animation for a smooth transition.
       setTimeout(() => setIsAnimating(true), 100);
@@ -35,17 +36,13 @@ export default function WelcomePage() {
   }, [isRegistered, router]);
 
   // While isRegistered is `null`, we are waiting for the store to rehydrate.
-  // Show a loader to prevent flicker.
-  if (isRegistered === null) {
-    return <FullScreenLoader text={t('loading')} />;
+  // Show a loader to prevent flicker. This also covers the brief moment
+  // before a registered user is redirected.
+  if (isRegistered === null || isRegistered === true) {
+    return <FullScreenLoader text={isRegistered ? t('signingIn') : t('loading')} />;
   }
 
-  // If isRegistered is true, we will be redirected, so we can show a loader as well.
-  if (isRegistered === true) {
-    return <FullScreenLoader text={t('signingIn')} />;
-  }
-
-  // Only render the welcome screen if the user is not registered.
+  // Only render the welcome screen if the user is not registered (isRegistered === false).
   return (
     <div className="flex h-screen w-full">
       <div className="flex-grow flex flex-col items-center justify-center">

@@ -17,7 +17,6 @@ export default function MainLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
   const { isRegistered } = useProfileStore();
   const requestLocation = useLocationStore((state) => state.requestLocation);
 
