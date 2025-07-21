@@ -104,46 +104,45 @@ function MapContent() {
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
 
-    let newCenter: [number, number] | null = null;
-    let newMarkers: MarkerInfo[] = [];
-
-    // Priority 1: Published wish from URL (does not depend on user location)
+    // Priority 1: A newly published wish. This does not depend on user location.
     if (isPublished) {
-        const lat = parseFloat(searchParams.get('lat') || '0');
-        const lon = parseFloat(searchParams.get('lon') || '0');
-        const message = decodeURIComponent(searchParams.get('message') || '');
-        const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
-        const color = searchParams.get('color') || 'hsl(var(--primary))';
+      const lat = parseFloat(searchParams.get('lat') || '0');
+      const lon = parseFloat(searchParams.get('lon') || '0');
+      const message = decodeURIComponent(searchParams.get('message') || '');
+      const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
+      const color = searchParams.get('color') || 'hsl(var(--primary))';
 
-        if (lat && lon) {
-            newCenter = [lat, lon];
-            newMarkers.push({
-                id: `user-wish-${lat}-${lon}`,
-                userId: '0', // Current user's wish
-                latitude: lat,
-                longitude: lon,
-                message,
-                categoryName,
-                color,
-                isPremium: isPremium
-            });
-        }
-    } 
-    // Priority 2 & 3: Search results or default view (depend on user location)
-    else if (location) {
-        newCenter = [location.latitude, location.longitude];
-
-        if (isSearch) {
-            const searchRadius = parseFloat(searchParams.get('radius') || '1');
-            const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-            newMarkers = generateRandomMarkers([location.latitude, location.longitude], searchCategory, searchRadius);
-        }
+      if (lat && lon) {
+        setCenter([lat, lon]);
+        setMarkers([{
+          id: `user-wish-${lat}-${lon}`,
+          userId: '0', // Current user's wish
+          latitude: lat,
+          longitude: lon,
+          message,
+          categoryName,
+          color,
+          isPremium: isPremium
+        }]);
+      }
+      return; // Exit early, as this is the highest priority
     }
 
-    if (newCenter) {
-        setCenter(newCenter);
+    // Priority 2 & 3: Search or default view. These depend on user location.
+    if (location) {
+      setCenter([location.latitude, location.longitude]);
+
+      if (isSearch) {
+        const searchRadius = parseFloat(searchParams.get('radius') || '1');
+        const searchCategory = searchParams.get('category') as WishCategoryKey | null;
+        setMarkers(generateRandomMarkers([location.latitude, location.longitude], searchCategory, searchRadius));
+      } else {
+        // Default view, no markers
+        setMarkers([]);
+      }
     }
-    setMarkers(newMarkers);
+    // If location is not yet available, we do nothing and wait for the next re-render when it is.
+    // The loading screen will be shown because `center` is still null.
     
   }, [location, searchParams, isPremium]);
 
