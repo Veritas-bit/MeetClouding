@@ -27,7 +27,7 @@ export interface MarkerInfo {
   isPremium?: boolean;
 }
 
-// Function to generate random coordinates within a given radius using a more stable method
+// Function to generate random coordinates within a given radius using a more robust method
 const generateRandomMarkers = (center: [number, number], category: WishCategoryKey | null, radiusKm: number): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
     const count = 5 + Math.floor(radiusKm / 2) * 3; 
@@ -36,29 +36,24 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
         const currentCategoryKey = category || WISH_CATEGORY_KEYS[Math.floor(Math.random() * WISH_CATEGORY_KEYS.length)];
         const categoryInfo = WISH_CATEGORIES[currentCategoryKey];
         
-        // Convert radius from km to degrees (approximate)
-        const radiusInDegrees = radiusKm / 111.32;
-        
+        const y0 = center[0];
+        const x0 = center[1];
+        // Convert radius from kilometers to degrees
+        const rd = radiusKm / 111.32;
+
         const u = Math.random();
         const v = Math.random();
-        
-        const w = radiusInDegrees * Math.sqrt(u);
+
+        const w = rd * Math.sqrt(u);
         const t = 2 * Math.PI * v;
+        const x = w * Math.cos(t);
+        const y = w * Math.sin(t);
         
-        const latOffset = w * Math.sin(t);
-        // Adjust longitude offset for latitude to avoid distortion
-        const lonOffset = w * Math.cos(t) / Math.cos(center[0] * Math.PI / 180);
-        
-        let newLat = center[0] + latOffset;
-        let newLon = center[1] + lonOffset;
+        // Adjust the x-coordinate for the shrinking of the east-west distances
+        const new_x = x / Math.cos(y0 * Math.PI / 180);
 
-        // Ensure latitude is within valid bounds
-        if (newLat > 90) newLat = 90;
-        if (newLat < -90) newLat = -90;
-
-        // Ensure longitude wraps around
-        if (newLon > 180) newLon -= 360;
-        if (newLon < -180) newLon += 360;
+        let newLat = y + y0;
+        let newLon = new_x + x0;
 
         // Final check for NaN or infinite values before pushing
         if (isNaN(newLat) || isNaN(newLon) || !isFinite(newLat) || !isFinite(newLon)) {
