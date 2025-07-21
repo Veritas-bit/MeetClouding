@@ -31,24 +31,23 @@ export interface MarkerInfo {
 const generateRandomMarkers = (center: [number, number], category: WishCategoryKey | null, radiusKm: number): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
     const count = 5 + Math.floor(radiusKm / 2) * 3;
+    
+    // Convert radius from kilometers to degrees (approximate)
+    const radiusInDegrees = radiusKm / 111.32;
 
     for (let i = 0; i < count; i++) {
         const currentCategoryKey = category || WISH_CATEGORY_KEYS[Math.floor(Math.random() * WISH_CATEGORY_KEYS.length)];
         const categoryInfo = WISH_CATEGORIES[currentCategoryKey];
         
-        // Convert radius from kilometers to degrees (approximate)
-        const radiusInDegrees = radiusKm / 111.32;
+        const [centerLat, centerLon] = center;
 
-        const y0 = center[0];
-        const x0 = center[1];
+        // Simple square bounding box generation
+        const latOffset = (Math.random() - 0.5) * 2 * radiusInDegrees;
+        const lonOffset = (Math.random() - 0.5) * 2 * radiusInDegrees;
 
-        // Generate a random point in a square box
-        const u = Math.random() * 2 - 1; // -1 to 1
-        const v = Math.random() * 2 - 1; // -1 to 1
-
-        const newLat = y0 + u * radiusInDegrees;
-        const newLon = x0 + v * (radiusInDegrees / Math.cos(y0 * Math.PI / 180));
-
+        const newLat = centerLat + latOffset;
+        const newLon = centerLon + lonOffset;
+        
         // Final check for NaN or infinite values before pushing
         if (isNaN(newLat) || isNaN(newLon) || !isFinite(newLat) || !isFinite(newLon)) {
             console.warn("Skipping invalid marker generation due to invalid coordinates.");
