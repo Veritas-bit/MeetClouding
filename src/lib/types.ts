@@ -12,6 +12,9 @@ export interface Message {
   senderId: string;
   status: 'sent' | 'delivered' | 'read';
   translation?: string;
+  image?: string;
+  video?: string;
+  source?: 'camera' | 'gallery';
 }
 
 export interface Conversation {

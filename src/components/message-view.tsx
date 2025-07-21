@@ -7,11 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageItem } from '@/components/message-item';
-import { SendHorizonal } from 'lucide-react';
+import { SendHorizonal, Paperclip } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { ChatAttachmentModal } from './chats/ChatAttachmentModal';
-import { Paperclip } from 'lucide-react';
 
 export function MessageView({ initialConversation, currentUser, className }: { initialConversation: Conversation; currentUser: User, className?: string }) {
   const { toast } = useToast();
@@ -33,7 +32,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
       status: 'sent',
       image: media?.type === 'image' ? media.src : undefined,
       video: media?.type === 'video' ? media.src : undefined,
-      source: source,
+      source: source as any, // Cast for now
     };
     
     setMessages(prev => [...prev, message]);
@@ -96,7 +95,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1"
+            className="flex-1 pr-12"
             rows={1}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
