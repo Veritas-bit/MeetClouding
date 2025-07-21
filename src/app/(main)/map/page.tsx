@@ -9,6 +9,7 @@ import { WISH_CATEGORIES, WishCategoryKey, WISH_CATEGORY_KEYS } from '@/lib/cate
 import { MapLoader } from '@/components/map/MapLoader';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { useProfileStore } from '@/lib/profile-store';
+import { useInteractionStore } from '@/lib/interaction-store';
 
 const Map = dynamic(() => import('@/components/map/Map'), {
   ssr: false,
@@ -41,8 +42,8 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
         // Use Math.sqrt on a random number to ensure uniform distribution across the area of the circle
         const distance = Math.sqrt(Math.random()) * radiusKm;
         
-        const latOffset = (distance / 111.32) * Math.cos(angle);
-        const lonOffset = (distance / (111.32 * Math.cos(center[0] * (Math.PI / 180)))) * Math.sin(angle);
+        const latOffset = parseFloat(((distance / 111.32) * Math.cos(angle)).toFixed(6));
+        const lonOffset = parseFloat(((distance / (111.32 * Math.cos(center[0] * (Math.PI / 180)))) * Math.sin(angle)).toFixed(6));
         
         // Rounding to prevent potential NaN issues with very small numbers or edge cases
         const lat = parseFloat((center[0] + latOffset).toFixed(6));
@@ -67,6 +68,7 @@ function MapContent() {
   const searchParams = useSearchParams();
   const { location } = useLocationStore();
   const { isPremium } = useProfileStore();
+  const setHasInteractedWithMap = useInteractionStore((state) => state.setHasInteractedWithMap);
   
   const [markers, setMarkers] = useState<MarkerInfo[]>([]);
   const [center, setCenter] = useState<[number, number] | null>(null);
@@ -76,6 +78,10 @@ function MapContent() {
     const isSearch = searchParams.get('search') === 'true';
     const isPublished = searchParams.get('published') === 'true';
 
+    if (isSearch || isPublished) {
+        setHasInteractedWithMap(true);
+    }
+
     // Show loader on navigation from search or publish to create a smooth transition effect
     if (isSearch || isPublished) {
       setIsLoading(true);
@@ -84,7 +90,7 @@ function MapContent() {
     } else {
       setIsLoading(false);
     }
-  }, [searchParams]);
+  }, [searchParams, setHasInteractedWithMap]);
 
   useEffect(() => {
     const latParam = searchParams.get('lat');
@@ -129,9 +135,10 @@ function MapContent() {
     else {
       setCenter([location.latitude, location.longitude]);
       setMarkers([]); // No markers by default
+      setHasInteractedWithMap(false); // Reset on default map view
     }
 
-  }, [location, searchParams, isPremium]);
+  }, [location, searchParams, isPremium, setHasInteractedWithMap]);
 
   if (!center) {
     return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;

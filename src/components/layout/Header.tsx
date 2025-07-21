@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useParams, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useParams, useRouter } from "next/navigation";
 import { GradientCloudIcon } from "@/components/icons/GradientCloudIcon";
 import React from "react";
 import { cn } from "@/lib/utils";
@@ -13,13 +13,21 @@ import Image from "next/image";
 import type { Conversation, User } from "@/lib/types";
 import { getConversationById, getCurrentUser } from "@/lib/mock-data";
 import { useTranslation } from "@/hooks/use-translation";
+import { useInteractionStore } from "@/lib/interaction-store";
 
 
 const BackToMapButton = () => {
     const router = useRouter();
     const t = useTranslation();
+    const setHasInteractedWithMap = useInteractionStore((state) => state.setHasInteractedWithMap);
+    
+    const handleClick = () => {
+        setHasInteractedWithMap(false);
+        router.push('/map');
+    }
+
     return (
-        <Button variant="ghost" size="icon" onClick={() => router.push('/map')} className="text-foreground absolute left-0">
+        <Button variant="ghost" size="icon" onClick={handleClick} className="text-foreground absolute left-0">
             <MapIcon className="h-6 w-6" />
             <span className="sr-only">{t('backToMap')}</span>
         </Button>
@@ -68,12 +76,18 @@ const HeaderWithBackButton = ({ titleKey, backPath, showMapButton }: { titleKey:
 const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton: boolean }) => {
     const router = useRouter();
     const t = useTranslation();
+    const setHasInteractedWithMap = useInteractionStore((state) => state.setHasInteractedWithMap);
+    
+    const handleBackToMap = () => {
+        setHasInteractedWithMap(false);
+        router.push('/map');
+    }
     
     return (
         <div className="w-full h-full relative flex items-center justify-center">
             <div className="absolute left-0">
                  {showMapButton ? (
-                    <Button variant="ghost" size="icon" onClick={() => router.push('/map')} className="text-foreground">
+                    <Button variant="ghost" size="icon" onClick={handleBackToMap} className="text-foreground">
                         <MapIcon className="h-6 w-6" />
                         <span className="sr-only">{t('backToMap')}</span>
                     </Button>
@@ -110,10 +124,10 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
 export function Header() {
   const pathname = usePathname();
   const params = useParams();
-  const searchParams = useSearchParams();
+  const router = useRouter();
   const [headerContent, setHeaderContent] = React.useState(defaultHeader);
   const [mounted, setMounted] = React.useState(false);
-  const showMapButton = searchParams.get('from') === 'map';
+  const { hasInteractedWithMap, setHasInteractedWithMap } = useInteractionStore();
   const t = useTranslation();
 
   React.useEffect(() => {
@@ -122,8 +136,15 @@ export function Header() {
 
   React.useEffect(() => {
     if (!mounted) return;
+
+    // Reset interaction flag if user navigates to the main page
+    if(pathname === '/main') {
+        setHasInteractedWithMap(false);
+    }
     
     const fetchChatInfo = async () => {
+        const shouldShowMapButton = hasInteractedWithMap;
+
         if (pathname.startsWith('/chats/')) {
             const chatId = params.id as string;
             const conversation = await getConversationById(chatId);
@@ -131,7 +152,7 @@ export function Header() {
             if (conversation && currentUser) {
                 const otherParticipant = conversation.participants.find(p => p.id !== currentUser.id);
                 if (otherParticipant) {
-                  setHeaderContent(<ChatHeader chatInfo={otherParticipant} showMapButton={showMapButton} />);
+                  setHeaderContent(<ChatHeader chatInfo={otherParticipant} showMapButton={shouldShowMapButton} />);
                 }
             } else {
                 setHeaderContent(defaultHeader); // Fallback
@@ -141,7 +162,7 @@ export function Header() {
         } else if (pathname === '/chats') {
             setHeaderContent(
                 <div className="w-full h-full relative flex items-center justify-center">
-                    {showMapButton && <BackToMapButton />}
+                    {shouldShowMapButton && <BackToMapButton />}
                     <span className="text-xl font-headline text-foreground">{t('chats')}</span>
                 </div>
             );
@@ -149,7 +170,7 @@ export function Header() {
             setHeaderContent(<HeaderWithBackButton titleKey="editProfile" backPath="/settings" />);
         } else if (pathname === '/settings') {
              setHeaderContent(
-                <HeaderWithBackButton titleKey="settings" showMapButton={showMapButton} />
+                <HeaderWithBackButton titleKey="settings" showMapButton={shouldShowMapButton} />
              );
         } else if (pathname.startsWith('/settings/')) {
             let titleKey = "settings";
@@ -170,7 +191,7 @@ export function Header() {
     
     fetchChatInfo();
 
-  }, [pathname, params, mounted, showMapButton, t]);
+  }, [pathname, params, mounted, hasInteractedWithMap, setHasInteractedWithMap, t]);
 
   if (!mounted) {
     return (
