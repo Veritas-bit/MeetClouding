@@ -167,9 +167,9 @@ function CategorizeWishForm() {
                                             disabled={isDisabled && !isSelected}
                                             style={{
                                                 '--category-color': cat.color,
-                                                borderColor: isSelected ? 'hsl(var(--primary))' : cat.color,
+                                                borderColor: isSelected ? cat.color : 'hsl(var(--border))',
                                                 color: isSelected ? 'hsl(var(--primary-foreground))' : cat.color,
-                                                backgroundColor: isSelected ? 'hsl(var(--primary))' : 'transparent',
+                                                backgroundColor: isSelected ? cat.color : 'transparent',
                                             } as React.CSSProperties}
                                         >
                                             <cat.icon className="h-5 w-5" />
