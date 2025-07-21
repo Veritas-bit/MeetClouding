@@ -108,13 +108,20 @@ function MapContent() {
 
     // Priority 1: Search results
     if (isSearch) {
-        const searchRadius = parseFloat(searchParams.get('radius') || '5');
-        const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-        
-        const searchCenter: [number, number] = [location.latitude, location.longitude];
-        setCenter(searchCenter);
-        // Pass category (or null if not provided) to the generator function
-        setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
+        const searchRadiusParam = searchParams.get('radius');
+        // Ensure radius is a valid number before proceeding
+        if (searchRadiusParam) {
+            const searchRadius = parseFloat(searchRadiusParam);
+            const searchCategory = searchParams.get('category') as WishKey | null;
+            
+            const searchCenter: [number, number] = [location.latitude, location.longitude];
+            setCenter(searchCenter);
+            setMarkers(generateRandomMarkers(searchCenter, searchCategory, searchRadius));
+        } else {
+            // Default behavior if radius is not provided
+            setCenter([location.latitude, location.longitude]);
+            setMarkers([]);
+        }
     }
     // Priority 2: Center on the published wish from URL
     else if (isPublished && latParam && lonParam) {
@@ -158,6 +165,9 @@ function MapContent() {
     </div>
   );
 }
+
+// Helper type, not exported
+type WishKey = WishCategoryKey;
 
 export default function MapPage() {
     return (
