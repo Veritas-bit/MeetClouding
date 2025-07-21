@@ -89,7 +89,6 @@ function CategorizeWishForm() {
                             <ClipboardCheck className="h-6 w-6 text-primary" />
                             Выберите категорию
                         </CardTitle>
-                        <CardDescription>Мы предложили категорию. С Премиум-аккаунтом вы сможете выбрать любую другую.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="grid w-full gap-4">
