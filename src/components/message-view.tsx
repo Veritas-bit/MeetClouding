@@ -10,31 +10,35 @@ import { MessageItem } from '@/components/message-item';
 import { SendHorizonal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { ChatAttachmentModal } from './chats/ChatAttachmentModal';
+import { Paperclip } from 'lucide-react';
 
 export function MessageView({ initialConversation, currentUser, className }: { initialConversation: Conversation; currentUser: User, className?: string }) {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>(initialConversation.messages);
   const [newMessage, setNewMessage] = useState('');
+  const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const otherParticipant = initialConversation.participants.find(p => p.id !== currentUser.id);
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newMessage.trim() === '') return;
+  const sendMessage = (text: string, media?: { src: string; type: 'image' | 'video' }, source?: 'camera' | 'gallery') => {
+    if (text.trim() === '' && !media) return;
 
     const message: Message = {
       id: `msg-${Date.now()}`,
-      text: newMessage,
+      text: text,
       timestamp: Date.now(),
       senderId: currentUser.id,
       status: 'sent',
+      image: media?.type === 'image' ? media.src : undefined,
+      video: media?.type === 'video' ? media.src : undefined,
+      source: source,
     };
-
+    
     setMessages(prev => [...prev, message]);
-    setNewMessage('');
 
-    // Simulate receiving a reply and show a notification
+    // Simulate receiving a reply
     setTimeout(() => {
       const reply: Message = {
         id: `msg-${Date.now() + 1}`,
@@ -51,6 +55,18 @@ export function MessageView({ initialConversation, currentUser, className }: { i
     }, 2000);
   };
 
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(newMessage);
+    setNewMessage('');
+  };
+  
+  const handleMediaSend = (media: { src: string; type: 'image' | 'video' }, source: 'camera' | 'gallery') => {
+    sendMessage('', media, source);
+    setIsAttachmentModalOpen(false);
+  };
+
+
   useEffect(() => {
     if (viewportRef.current) {
       viewportRef.current.scrollTo({ top: viewportRef.current.scrollHeight, behavior: 'smooth' });
@@ -60,6 +76,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
   if (!otherParticipant) return null;
 
   return (
+    <>
     <div className={cn("flex flex-col flex-1", className)}>
       <ScrollArea className="flex-1" viewportProps={{ ref: viewportRef }}>
         <div className="p-4 space-y-6">
@@ -71,6 +88,10 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
       <div className="p-4 border-t bg-background shrink-0">
         <form onSubmit={handleSendMessage} className="flex items-end space-x-2">
+           <Button type="button" variant="ghost" size="icon" className="shrink-0" onClick={() => setIsAttachmentModalOpen(true)}>
+             <Paperclip className="h-5 w-5" />
+             <span className="sr-only">Прикрепить файл</span>
+           </Button>
           <Textarea
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -90,5 +111,11 @@ export function MessageView({ initialConversation, currentUser, className }: { i
         </form>
       </div>
     </div>
+    <ChatAttachmentModal 
+      isOpen={isAttachmentModalOpen}
+      onClose={() => setIsAttachmentModalOpen(false)}
+      onMediaSend={handleMediaSend}
+    />
+    </>
   );
 }
