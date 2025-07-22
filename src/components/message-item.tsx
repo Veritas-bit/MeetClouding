@@ -94,11 +94,9 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
     }
   }, []);
 
-  const handlePressStart = (e: React.MouseEvent | React.TouchEvent) => {
+  const handlePressStart = (e: React.TouchEvent) => {
     clearLongPressTimer();
-    if ('touches' in e) {
-      touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    }
+    touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     pressTimer.current = setTimeout(openMenu, 700);
   };
 
@@ -137,9 +135,6 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
         <div
           ref={messageRef}
           onContextMenu={handleContextMenu}
-          onMouseDown={handlePressStart}
-          onMouseUp={handlePressEnd}
-          onMouseLeave={handlePressEnd}
           onTouchStart={handlePressStart}
           onTouchEnd={handlePressEnd}
           onTouchMove={handleTouchMove}
