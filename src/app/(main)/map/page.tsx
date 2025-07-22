@@ -8,11 +8,13 @@ import { useLocationStore } from '@/lib/location-store';
 import { WISH_CATEGORIES, WishCategoryKey, WISH_CATEGORY_KEYS } from '@/lib/categories';
 import { MapLoader } from '@/components/map/MapLoader';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
-import { useProfileStore } from '@/lib/profile-store';
+import { useProfileStore, type Gender } from '@/lib/profile-store';
 import { useInteractionStore } from '@/lib/interaction-store';
 import { WISHES } from '@/lib/wishes';
 import { useTranslation } from '@/hooks/use-translation';
 import MapComponent from '@/components/map/Map';
+import { getAllUsers } from '@/lib/mock-data';
+import type { User } from '@/lib/types';
 
 
 export interface MarkerInfo {
@@ -24,10 +26,12 @@ export interface MarkerInfo {
   categoryName?: string;
   color?: string;
   isPremium?: boolean;
+  avatarUrl: string;
+  gender: Gender;
 }
 
 // Function to generate random coordinates within a given radius using a simple and robust method
-const generateRandomMarkers = (center: [number, number], category: WishCategoryKey | null, radiusKm: number, t: (key: any) => string): MarkerInfo[] => {
+const generateRandomMarkers = (center: [number, number], category: WishCategoryKey | null, radiusKm: number, t: (key: any) => string, users: User[]): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
     const count = 5 + Math.floor(radiusKm / 2) * 3;
     
@@ -35,6 +39,7 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
     const radiusInDegrees = radiusKm / 111.32;
 
     for (let i = 0; i < count; i++) {
+        const randomUser = users[Math.floor(Math.random() * users.length)];
         const currentCategoryKey = category || WISH_CATEGORY_KEYS[Math.floor(Math.random() * WISH_CATEGORY_KEYS.length)];
         const categoryInfo = WISH_CATEGORIES[currentCategoryKey];
         const wishesForCategory = WISHES[currentCategoryKey];
@@ -58,13 +63,15 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
 
         markers.push({
             id: `search-result-${i}-${newLat}-${newLon}`,
-            userId: `${Math.floor(Math.random() * 10) + 1}`,
+            userId: randomUser.id,
             latitude: newLat,
             longitude: newLon,
             message: `${t('iWant')} ${wishText}`,
             categoryName: categoryInfo.name,
             color: categoryInfo.color,
-            isPremium: Math.random() > 0.7
+            isPremium: Math.random() > 0.7,
+            avatarUrl: randomUser.avatarUrl,
+            gender: randomUser.gender,
         });
     }
     return markers;
@@ -75,15 +82,17 @@ function MapContent() {
   const searchParams = useSearchParams();
   const t = useTranslation();
   const { location, requestLocation } = useLocationStore();
-  const { isPremium } = useProfileStore();
+  const { isPremium, avatar, gender } = useProfileStore();
   const setHasInteractedWithMap = useInteractionStore((state) => state.setHasInteractedWithMap);
   
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [markers, setMarkers] = useState<MarkerInfo[]>([]);
   const [center, setCenter] = useState<[number, number] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     requestLocation();
+    getAllUsers().then(setAllUsers);
   }, [requestLocation]);
 
   useEffect(() => {
@@ -104,6 +113,8 @@ function MapContent() {
   }, [searchParams, setHasInteractedWithMap]);
 
   useEffect(() => {
+    if (allUsers.length === 0) return; // Wait for users to be loaded
+    
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
     
@@ -124,10 +135,12 @@ function MapContent() {
         message,
         categoryName,
         color,
-        isPremium: isPremium
+        isPremium: isPremium,
+        avatarUrl: avatar,
+        gender: gender,
       };
 
-      const randomMarkers = generateRandomMarkers([lat, lon], null, 2, t);
+      const randomMarkers = generateRandomMarkers([lat, lon], null, 2, t, allUsers);
       setCenter([lat, lon]);
       setMarkers([ownWishMarker, ...randomMarkers]);
       return;
@@ -139,16 +152,16 @@ function MapContent() {
       if (isSearch) {
         const searchRadius = parseFloat(searchParams.get('radius') || '1');
         const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-        setMarkers(generateRandomMarkers([location.latitude, location.longitude], searchCategory, searchRadius, t));
+        setMarkers(generateRandomMarkers([location.latitude, location.longitude], searchCategory, searchRadius, t, allUsers));
       } else {
         // Default view: show random markers to make the world feel alive
-        setMarkers(generateRandomMarkers([location.latitude, location.longitude], null, 2, t));
+        setMarkers(generateRandomMarkers([location.latitude, location.longitude], null, 2, t, allUsers));
       }
     }
     // If location is not yet available, we do nothing and wait for the next re-render when it is.
     // The loading screen will be shown because `center` is still null.
     
-  }, [location, searchParams, isPremium, t]);
+  }, [location, searchParams, isPremium, t, allUsers, avatar, gender]);
 
   if (!center) {
     return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;

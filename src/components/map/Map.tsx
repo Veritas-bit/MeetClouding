@@ -4,17 +4,42 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import Map, { Marker } from 'react-map-gl/maplibre';
 import type { MarkerInfo } from '@/app/(main)/map/page';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Crown } from 'lucide-react';
 import { MAPTILER_KEY } from '@/lib/config';
 import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
-import { useTranslation } from '@/hooks/use-translation';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MaleIcon } from '../icons/gender/MaleIcon';
+import { FemaleIcon } from '../icons/gender/FemaleIcon';
+import { NeuterIcon } from '../icons/gender/NeuterIcon';
+import type { Gender } from '@/lib/profile-store';
 
 
-function CloudIcon({ color, isPremium, isOwn }: { color: string, isPremium?: boolean, isOwn?: boolean }) {
+interface MapProps {
+    center: [number, number];
+    markers: MarkerInfo[];
+    className?: string;
+}
+
+const GenderAvatar = ({ gender }: { gender: Gender }) => {
+    const iconProps = { className: "w-full h-full p-1.5" };
+    switch (gender) {
+        case 'male':
+            return <MaleIcon {...iconProps} />;
+        case 'female':
+            return <FemaleIcon {...iconProps} />;
+        default:
+            return <NeuterIcon {...iconProps} />;
+    }
+};
+
+
+function CloudMarker({ marker }: { marker: MarkerInfo }) {
+  const { color = '#FF7F50', isPremium, isOwn, avatarUrl, gender } = marker;
+  
   const getDarkerColor = (hslColor: string) => {
     if (!hslColor || !hslColor.startsWith('hsl')) return hslColor;
     try {
@@ -31,31 +56,41 @@ function CloudIcon({ color, isPremium, isOwn }: { color: string, isPremium?: boo
   const strokeColor = getDarkerColor(color);
 
   return (
-    <div className={cn("relative", isOwn && "animate-pulse-own-cloud")} style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))' }}>
-        {isPremium && (
-            <Crown 
-                className="absolute -top-3.5 -left-1.5 h-6 w-6 text-yellow-400 -rotate-12"
-                stroke="hsl(var(--background))"
-                strokeWidth={0.5}
-                fill="currentColor"
+    <div className="flex items-center gap-2 cursor-pointer group">
+        <div className={cn("relative transition-transform duration-200 group-hover:scale-110", isOwn && "animate-pulse-own-cloud")} style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))' }}>
+            {isPremium && (
+                <Crown 
+                    className="absolute -top-3.5 -left-1.5 h-6 w-6 text-yellow-400 -rotate-12 z-10"
+                    stroke="hsl(var(--background))"
+                    strokeWidth={0.5}
+                    fill="currentColor"
+                />
+            )}
+            <svg
+                width="40"
+                height="30"
+                viewBox="0 0 80 60"
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ overflow: 'visible' }}
+            >
+            <path
+                d="M61.5,14.5c-3.2-1.2-6.6-1.7-10-1.7c-8.9,0-16.9,4.4-21.7,11.3c-0.8-0.1-1.6-0.2-2.3-0.2c-8.3,0-15,6.7-15,15s6.7,15,15,15h34c7.2,0,13-5.8,13-13S68.7,14.5,61.5,14.5z"
+                fill={color}
+                stroke={strokeColor}
+                strokeWidth="3"
+                strokeLinejoin="round"
+                strokeMiterlimit="10"
             />
-        )}
-        <svg
-            width="40"
-            height="30"
-            viewBox="0 0 80 60"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ overflow: 'visible', cursor: 'pointer' }}
-        >
-        <path
-            d="M61.5,14.5c-3.2-1.2-6.6-1.7-10-1.7c-8.9,0-16.9,4.4-21.7,11.3c-0.8-0.1-1.6-0.2-2.3-0.2c-8.3,0-15,6.7-15,15s6.7,15,15,15h34c7.2,0,13-5.8,13-13S68.7,14.5,61.5,14.5z"
-            fill={color}
-            stroke={strokeColor}
-            strokeWidth="3"
-            strokeLinejoin="round"
-            strokeMiterlimit="10"
-        />
-        </svg>
+            </svg>
+        </div>
+        <Avatar className="h-8 w-8 bg-muted/80 border-2 border-background shadow-md transition-transform duration-200 group-hover:scale-110">
+            {avatarUrl ? (
+                <AvatarImage src={avatarUrl} alt="User Avatar" />
+            ) : null}
+            <AvatarFallback>
+                <GenderAvatar gender={gender} />
+            </AvatarFallback>
+        </Avatar>
     </div>
   );
 }
@@ -65,7 +100,6 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   const router = useRouter();
   const { theme, systemTheme } = useTheme();
   const { toast } = useToast();
-  const t = useTranslation();
   
   useEffect(() => {
     setMounted(true)
@@ -126,11 +160,7 @@ export default function MapComponent({ center, markers = [], className }: MapPro
             onClick={() => handleMarkerClick(marker)}
             style={{ zIndex: marker.isPremium || marker.userId === '0' ? 10 : 1 }}
             >
-            <CloudIcon 
-                color={marker.color || '#FF7F50'}
-                isPremium={marker.isPremium}
-                isOwn={marker.userId === '0'}
-            />
+            <CloudMarker marker={{...marker, isOwn: marker.userId === '0'}} />
             </Marker>
         ))}
         </Map>
