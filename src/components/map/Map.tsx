@@ -24,7 +24,8 @@ interface MapProps {
     onUpdate?: (location: YMapLocation) => void;
 }
 
-const getPlacemarkLayout = (color: string = '#FF7F50'): string => {
+const getPlacemarkLayout = (marker: MarkerInfo): string => {
+    const color = marker.color || '#FF7F50';
     const getDarkerColor = (hslColor: string) => {
         if (!hslColor || !hslColor.startsWith('hsl')) return hslColor;
         try {
@@ -38,16 +39,22 @@ const getPlacemarkLayout = (color: string = '#FF7F50'): string => {
         }
     };
     const strokeColor = getDarkerColor(color);
+    const avatarUrl = marker.avatarUrl || 'https://placehold.co/40x40.png'; // Fallback avatar
 
     const cloudSvg = `
-        <svg width="40" height="30" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="overflow: visible; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));">
-            <path d="M61.5,14.5c-3.2-1.2-6.6-1.7-10-1.7c-8.9,0-16.9,4.4-21.7,11.3c-0.8-0.1-1.6-0.2-2.3-0.2c-8.3,0-15,6.7-15,15s6.7,15,15,15h34c7.2,0,13-5.8,13-13S68.7,14.5,61.5,14.5z" fill="${color}" stroke="${strokeColor}" stroke-width="3" stroke-linejoin="round" stroke-miterlimit="10"/>
+        <svg width="60" height="40" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-30px, -40px); overflow: visible; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));">
+            <defs>
+                <clipPath id="avatarClip">
+                    <circle cx="15" cy="23" r="13" />
+                </clipPath>
+            </defs>
+            <path d="M49,7C46.3,4.9,42.8,3.5,39,3.5c-8.9,0-16.9,4.4-21.7,11.3C16.5,14.7,15.8,14.5,15,14.5C6.7,14.5,0,21.2,0,29.5S6.7,44.5,15,44.5h34c7.2,0,11-5.8,11-13S56.2,7,49,7z" fill="${color}" stroke="${strokeColor}" stroke-width="2.5" stroke-linejoin="round"/>
+            <circle cx="15" cy="23" r="14" fill="${strokeColor}"/>
+            <image href="${avatarUrl}" x="2" y="10" height="26" width="26" clip-path="url(#avatarClip)" />
         </svg>
     `;
-
-    const element = document.createElement('div');
-    element.innerHTML = cloudSvg;
-    return element;
+    
+    return cloudSvg;
 };
 
 export function MapComponent({ location, markers = [], className, onUpdate }: MapProps) {
@@ -92,17 +99,12 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
                 {markers.map((marker) => (
                     <YMapMarker
                         key={marker.id}
-                        coordinates={[marker.latitude, marker.longitude]}
+                        coordinates={[marker.longitude, marker.latitude]}
                         onClick={() => handleMarkerClick(marker)}
                     >
                         <div
-                            dangerouslySetInnerHTML={{ __html: getPlacemarkLayout(marker.color).innerHTML}}
+                            dangerouslySetInnerHTML={{ __html: getPlacemarkLayout(marker)}}
                             style={{
-                                width: '40px',
-                                height: '30px',
-                                position: 'relative',
-                                left: '-20px',
-                                top: '-15px',
                                 filter: marker.isPremium || marker.userId === '0' ? 'drop-shadow(0 0 5px hsl(var(--primary)))' : 'none'
                             }}
                         />
