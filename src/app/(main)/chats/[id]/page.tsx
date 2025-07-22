@@ -192,7 +192,7 @@ export default function ConversationPage() {
             "focus-within:from-primary/80 focus-within:to-secondary/80"
           )}
         >
-          <div className="relative flex items-center bg-muted/50 rounded-[7px] p-1">
+          <div className="relative flex items-center bg-muted/50 rounded-[7px]">
               <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setIsAttachmentModalOpen(true)}>
                   <Camera className="h-6 w-6 text-muted-foreground transition-colors" />
               </Button>
