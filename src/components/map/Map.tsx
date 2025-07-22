@@ -26,7 +26,7 @@ interface MapProps {
 }
 
 const getGenderIconSvg = (gender: Gender) => {
-    const iconFill = 'white'; // Changed from black to white for visibility on gradient
+    const iconFill = 'black'; // Icons should be black as per profile avatars
     switch (gender) {
         case 'male':
             return `
@@ -71,17 +71,19 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
 
     const fallbackAvatar = `
       <svg viewBox="0 0 2400 2400" x="49" y="11" height="28" width="28" xmlns="http://www.w3.org/2000/svg">
-         <circle cx="1200" cy="1200" r="1200" fill="url(#${gradientId})" />
+         <defs>
+            <linearGradient id="logo-gradient-map" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1" />
+              <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:1" />
+            </linearGradient>
+         </defs>
+         <circle cx="1200" cy="1200" r="1200" fill="url(#logo-gradient-map)" />
          ${getGenderIconSvg(marker.gender)}
       </svg>`;
 
     const cloudSvg = `
         <svg width="60" height="38" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-22px, -30px); overflow: visible;">
             <defs>
-                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:hsl(var(--primary));" />
-                  <stop offset="100%" style="stop-color:hsl(var(--secondary));" />
-                </linearGradient>
                 <clipPath id="avatarClip">
                     <circle cx="63" cy="25" r="14" />
                 </clipPath>
