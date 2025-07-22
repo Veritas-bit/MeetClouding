@@ -216,6 +216,7 @@ export default function ConversationPage() {
             onOpenMenu={handleOpenMenu}
             viewportRef={viewportRef}
             wishText={conversation.wishText}
+            wishCategory={conversation.wishCategory}
         />
       </div>
 

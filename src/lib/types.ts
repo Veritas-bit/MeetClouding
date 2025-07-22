@@ -1,3 +1,5 @@
+import { WishCategoryKey } from "./categories";
+
 export interface User {
   id: string;
   name: string;
@@ -28,4 +30,5 @@ export interface Conversation {
   participants: User[];
   messages: Message[];
   wishText?: string;
+  wishCategory?: WishCategoryKey;
 }
