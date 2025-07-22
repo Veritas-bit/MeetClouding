@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useLocationStore } from '@/lib/location-store';
@@ -168,6 +168,25 @@ function MapContent() {
     
   }, [location, searchParams, isPremium, t, allUsers, avatar, gender]);
 
+  const handleMapChange = useCallback((newCenter: [number, number]) => {
+    if (allUsers.length === 0) return;
+    
+    // Don't regenerate markers if the user is in a "published" or "search" state
+    const isSpecialView = searchParams.get('published') === 'true' || searchParams.get('search') === 'true';
+    if (isSpecialView) return;
+    
+    const newMarkers = generateRandomMarkers(newCenter, null, 2, t, allUsers);
+    
+    // To avoid replacing all markers at once and causing a flicker,
+    // we can merge new markers with existing ones, removing duplicates.
+    setMarkers(prevMarkers => {
+        const existingMarkerIds = new Set(prevMarkers.map(m => m.id));
+        const filteredNewMarkers = newMarkers.filter(m => !existingMarkerIds.has(m.id));
+        return [...prevMarkers, ...filteredNewMarkers];
+    });
+
+  }, [allUsers, t, searchParams]);
+
   if (!center) {
     return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
   }
@@ -176,7 +195,7 @@ function MapContent() {
     <div className="flex-grow w-full relative">
         <MapLoader isLoading={isLoading} />
         <div className="flex-grow w-full h-full transition-opacity duration-300" style={{ opacity: isLoading ? 0 : 1 }}>
-            <MapComponent center={center} markers={markers} className="w-full h-full" />
+            <MapComponent center={center} markers={markers} onMapChange={handleMapChange} className="w-full h-full" />
         </div>
     </div>
   );

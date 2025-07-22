@@ -3,8 +3,9 @@
 
 import 'maplibre-gl/dist/maplibre-gl.css';
 import Map, { Marker } from 'react-map-gl/maplibre';
+import type { MapRef } from 'react-map-gl/maplibre';
 import type { MarkerInfo } from '@/app/(main)/map/page';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Gem } from 'lucide-react';
@@ -22,6 +23,7 @@ interface MapProps {
     center: [number, number];
     markers: MarkerInfo[];
     className?: string;
+    onMapChange: (center: [number, number]) => void;
 }
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
@@ -38,7 +40,9 @@ const GenderAvatar = ({ gender }: { gender: Gender }) => {
 
 
 function CloudMarker({ marker }: { marker: MarkerInfo }) {
-  const { color = '#FF7F50', isPremium, isOwn, avatarUrl, gender } = marker;
+  const { color = '#FF7F50', isPremium, avatarUrl, gender } = marker;
+  // This is a new prop that we'll derive in the main component.
+  const isOwn = marker.userId === '0'; 
   
   const getDarkerColor = (hslColor: string) => {
     if (!hslColor || !hslColor.startsWith('hsl')) return hslColor;
@@ -96,11 +100,12 @@ function CloudMarker({ marker }: { marker: MarkerInfo }) {
   );
 }
 
-export default function MapComponent({ center, markers = [], className }: MapProps) {
+export default function MapComponent({ center, markers = [], className, onMapChange }: MapProps) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { theme, systemTheme } = useTheme();
   const { toast } = useToast();
+  const mapRef = useRef<MapRef>(null);
   
   useEffect(() => {
     setMounted(true)
@@ -142,11 +147,19 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   return (
     <div className="absolute inset-0">
         <Map
+            ref={mapRef}
             key={`${center.join('-')}-${mapStyle}`}
             initialViewState={{
                 longitude: center[1],
                 latitude: center[0],
                 zoom: 13,
+            }}
+            onMoveEnd={() => {
+                const map = mapRef.current?.getMap();
+                if (map) {
+                    const newCenter = map.getCenter();
+                    onMapChange([newCenter.lat, newCenter.lng]);
+                }
             }}
             mapStyle={`https://api.maptiler.com/maps/${mapStyle}/style.json?key=${mapApiKey}`}
             attributionControl={false}
@@ -161,7 +174,7 @@ export default function MapComponent({ center, markers = [], className }: MapPro
             onClick={() => handleMarkerClick(marker)}
             style={{ zIndex: marker.isPremium || marker.userId === '0' ? 10 : 1 }}
             >
-            <CloudMarker marker={{...marker, isOwn: marker.userId === '0'}} />
+            <CloudMarker marker={marker} />
             </Marker>
         ))}
         </Map>
