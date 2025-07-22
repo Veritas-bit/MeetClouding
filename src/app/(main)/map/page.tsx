@@ -12,6 +12,7 @@ import { useProfileStore } from '@/lib/profile-store';
 import { useInteractionStore } from '@/lib/interaction-store';
 import { WISHES } from '@/lib/wishes';
 import { useTranslation } from '@/hooks/use-translation';
+import MapComponent from '@/components/map/Map';
 
 
 export interface MarkerInfo {
@@ -156,7 +157,7 @@ function MapContent() {
     <div className="flex-grow w-full relative">
         <MapLoader isLoading={isLoading} />
         <div className="flex-grow w-full h-full transition-opacity duration-300" style={{ opacity: isLoading ? 0 : 1 }}>
-            <Map center={center} markers={markers} className="w-full h-full" />
+            <MapComponent center={center} markers={markers} className="w-full h-full" />
         </div>
     </div>
   );
