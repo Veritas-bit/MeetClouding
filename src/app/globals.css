@@ -218,7 +218,7 @@
   }
   
   .animate-pulse-own-cloud {
-    animation: pulse-own-cloud 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: pulse-own-cloud 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
   @keyframes pulse-own-cloud {
