@@ -17,6 +17,9 @@ interface LocationState {
 
 const MOSCOW_COORDS = { latitude: 55.7558, longitude: 37.6173 };
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
+
 export const useLocationStore = create<LocationState>((set, get) => ({
   location: null,
   error: null,
@@ -27,15 +30,19 @@ export const useLocationStore = create<LocationState>((set, get) => ({
     set({ error, location: MOSCOW_COORDS, isLoading: false }); // Fallback to Moscow
   },
   requestLocation: () => {
-    // Prevent new request only if we already have a location or an error.
-    // Allow request if it's currently loading, in case the first one fails.
-    if (get().location || get().error || get().isLoading) {
+    if (get().isLoading || get().location) {
       return;
     }
 
     set({ isLoading: true });
 
-    if (navigator.geolocation) {
+    const attemptToGetLocation = (retriesLeft: number) => {
+      if (!navigator.geolocation) {
+        console.error("Geolocation is not supported by this browser.");
+        get().setLocation(MOSCOW_COORDS); // Fallback to Moscow if API not supported
+        return;
+      }
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           get().setLocation({
@@ -44,17 +51,21 @@ export const useLocationStore = create<LocationState>((set, get) => ({
           });
         },
         (error) => {
-          get().setError(error);
+          console.warn(`Geolocation attempt failed: ${error.message}. Retries left: ${retriesLeft}`);
+          if (retriesLeft > 0) {
+            setTimeout(() => attemptToGetLocation(retriesLeft - 1), RETRY_DELAY);
+          } else {
+            get().setError(error);
+          }
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
+          timeout: 15000, // Increased timeout to 15 seconds
           maximumAge: 0,
         }
       );
-    } else {
-      console.error("Geolocation is not supported by this browser.");
-      get().setLocation(MOSCOW_COORDS); // Fallback to Moscow if API not supported
-    }
+    };
+
+    attemptToGetLocation(MAX_RETRIES - 1);
   },
 }));
