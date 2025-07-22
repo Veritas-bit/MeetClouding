@@ -63,6 +63,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   const messageRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const touchStartPos = useRef<{ x: number, y: number } | null>(null);
+  const wasLongPress = useRef(false);
 
   const handleTranslate = () => {
     if (showTranslation) {
@@ -87,20 +88,28 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   
   const openMenu = useCallback(() => {
     if (messageRef.current) {
+      wasLongPress.current = true;
       onOpenMenu(message.id, messageRef.current.getBoundingClientRect());
     }
   }, [message.id, onOpenMenu]);
 
-  const handlePressEnd = useCallback(() => {
+  const handlePressEnd = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
       pressTimer.current = null;
+    }
+    // Stop propagation if it was a long press to prevent the container's onClick from firing
+    if (wasLongPress.current) {
+        e.stopPropagation();
+        e.preventDefault();
+        wasLongPress.current = false; // Reset for next interaction
     }
     touchStartPos.current = null;
   }, []);
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent) => {
-    handlePressEnd(); // Clear any existing timers
+    wasLongPress.current = false;
+    handlePressEnd(e); // Clear any existing timers
     if ('touches' in e) {
       touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
@@ -114,7 +123,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
      const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
      const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
      if (dx > 10 || dy > 10) {
-        handlePressEnd(); // It's a scroll, not a long press
+        handlePressEnd(e); // It's a scroll, not a long press
      }
   };
 

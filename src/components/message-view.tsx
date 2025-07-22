@@ -111,17 +111,20 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
     if (!containerRect) return null;
 
+    // Check if the message bottom is too close to the container bottom
     const spaceBelow = containerRect.bottom - activeMenu.rect.bottom;
-    const isSentByCurrentUser = message.senderId === currentUser.id;
+    const isCloseToBottom = spaceBelow < menuRect.height + 20; // 20px buffer
 
     let top: number;
-    // Position below if enough space, or if there's more space below than above
-    if (spaceBelow > menuRect.height || spaceBelow > activeMenu.rect.top - containerRect.top) {
-      top = activeMenu.rect.top + activeMenu.rect.height;
+    if (isCloseToBottom) {
+        // Position above the message bubble
+        top = activeMenu.rect.top - menuRect.height;
     } else {
-      top = activeMenu.rect.top - menuRect.height;
+        // Position below the message bubble
+        top = activeMenu.rect.top + activeMenu.rect.height;
     }
     
+    const isSentByCurrentUser = message.senderId === currentUser.id;
     let left = isSentByCurrentUser ? (activeMenu.rect.left + activeMenu.rect.width - menuRect.width) : activeMenu.rect.left;
 
     // Clamp position within viewport
@@ -156,7 +159,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
   return (
     <>
-      <div className="fixed top-16 bottom-[10rem] left-0 right-0" onClick={handleCloseMenu}>
+      <div className={cn("fixed top-16 bottom-20 left-0 right-0", className)} onClick={handleCloseMenu}>
         <ScrollArea className="h-full" viewportRef={viewportRef}>
           <div className="p-4 space-y-6">
             {messages.map((message) => (
