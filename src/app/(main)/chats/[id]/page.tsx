@@ -172,7 +172,7 @@ export default function ConversationPage() {
   const isMessageEmpty = newMessage.trim() === '';
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[calc(100vh_-_8rem)]">
       <div className="flex-1 overflow-y-auto">
         <MessageView
             messages={messages}
@@ -184,34 +184,44 @@ export default function ConversationPage() {
       </div>
 
       <div className="p-4 border-t bg-background">
-        <div className="flex items-center bg-muted/50 rounded-lg p-1">
-            <Button variant="ghost" size="icon" className="shrink-0 group" onClick={() => setIsAttachmentModalOpen(true)}>
-                <Camera className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-            </Button>
-            <div className="w-px h-6 bg-border"></div>
-            <Textarea
-                placeholder="Сообщение..."
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault();
-                        handleSendMessage();
-                    }
-                }}
-                rows={1}
-                className="flex-1 max-h-24 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
-            />
-            <div className="w-px h-6 bg-border"></div>
-            <Button
-                variant="ghost"
-                size="icon"
-                className="shrink-0 group"
-                onClick={handleSendMessage}
-                disabled={isSending || isMessageEmpty}
-            >
-                <Send className={cn("h-5 w-5 text-muted-foreground", !isMessageEmpty && "text-primary", "group-hover:text-primary transition-colors")} />
-            </Button>
+        <div
+          className={cn(
+            "relative w-full rounded-lg p-px",
+            "bg-gradient-to-r from-primary/30 to-secondary/30",
+            "transition-all duration-300",
+            "focus-within:from-primary/80 focus-within:to-secondary/80",
+            "focus-within:shadow-[0_0_12px_hsl(var(--primary)/0.3)]"
+          )}
+        >
+          <div className="relative flex items-center bg-muted/50 rounded-[7px] p-1">
+              <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setIsAttachmentModalOpen(true)}>
+                  <Camera className="h-6 w-6 text-muted-foreground transition-colors" />
+              </Button>
+              <div className="w-px h-6 bg-border"></div>
+              <Textarea
+                  placeholder="Сообщение..."
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSendMessage();
+                      }
+                  }}
+                  rows={1}
+                  className="flex-1 max-h-24 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
+              />
+              <div className="w-px h-6 bg-border"></div>
+              <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 group"
+                  onClick={handleSendMessage}
+                  disabled={isSending || isMessageEmpty}
+              >
+                  <Send className={cn("h-5 w-5 text-muted-foreground", !isMessageEmpty && "text-primary", "group-hover:text-primary transition-colors")} />
+              </Button>
+          </div>
         </div>
       </div>
       
