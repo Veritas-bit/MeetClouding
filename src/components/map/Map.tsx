@@ -70,7 +70,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     const gradientId = `map-marker-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}`;
 
     const fallbackAvatar = `
-      <svg viewBox="0 0 2600 2600" x="49" y="11" height="28" width="28" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 2600 2600" x="45" y="0" height="40" width="40" xmlns="http://www.w3.org/2000/svg">
          <defs>
             <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1" />
@@ -87,7 +87,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
       </svg>`;
 
     const cloudSvg = `
-        <svg width="60" height="38" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-22px, -30px); overflow: visible;">
+        <svg width="45" height="30" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-22px, -30px); overflow: visible;">
             <defs>
                 <clipPath id="avatarClip">
                     <circle cx="63" cy="25" r="14" />
@@ -103,7 +103,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
             <g style="${marker.userId === '0' ? `filter: url(#glow);` : ''}">
               <path d="M49,7C46.3,4.9,42.8,3.5,39,3.5c-8.9,0-16.9,4.4-21.7,11.3C16.5,14.7,15.8,14.5,15,14.5C6.7,14.5,0,21.2,0,29.5S6.7,44.5,15,44.5h34c7.2,0,11-5.8,11-13S56.2,7,49,7z" fill="${color}" stroke="${strokeColor}" stroke-width="2"/>
             </g>
-            ${!avatarUrl ? fallbackAvatar : `<image href="${avatarUrl}" x="49" y="11" height="28" width="28" clip-path="url(#avatarClip)" />`}
+            ${!avatarUrl ? fallbackAvatar : `<image href="${avatarUrl}" x="45" y="0" height="40" width="40" clip-path="url(#avatarClip)" />`}
         </svg>
     `;
     
