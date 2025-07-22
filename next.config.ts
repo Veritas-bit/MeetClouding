@@ -19,9 +19,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  publicRuntimeConfig: {
-    YANDEX_MAP_API_KEY: process.env.NEXT_PUBLIC_YANDEX_MAP_API_KEY,
-  }
 };
 
 export default nextConfig;

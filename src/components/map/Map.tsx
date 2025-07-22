@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { YANDEX_MAP_API_KEY } from '@/lib/config';
 
 
 interface MapProps {
@@ -56,7 +55,7 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
   const { toast } = useToast();
   const { theme } = useTheme();
 
-  const mapApiKey = YANDEX_MAP_API_KEY;
+  const mapApiKey = process.env.NEXT_PUBLIC_YANDEX_MAP_API_KEY || "";
 
   if (!mapApiKey) {
     return (
