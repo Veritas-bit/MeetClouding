@@ -93,7 +93,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
                     <circle cx="63" cy="25" r="14" />
                 </clipPath>
                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="${color}" flood-opacity="0.7"/>
+                    <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="${color}" flood-opacity="1"/>
                 </filter>
             </defs>
             <g style="${marker.userId === '0' ? `filter: url(#glow);` : ''}">
