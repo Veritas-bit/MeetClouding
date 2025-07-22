@@ -106,32 +106,33 @@ function MapContent() {
   useEffect(() => {
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
+    
+    const locationToUse = location || { latitude: 55.7558, longitude: 37.6173 }; // Use Moscow as fallback
 
-    // Priority 1: A newly published wish. This does not depend on user location.
     if (isPublished) {
-      const lat = parseFloat(searchParams.get('lat') || '0');
-      const lon = parseFloat(searchParams.get('lon') || '0');
+      const lat = parseFloat(searchParams.get('lat') || `${locationToUse.latitude}`);
+      const lon = parseFloat(searchParams.get('lon') || `${locationToUse.longitude}`);
       const message = decodeURIComponent(searchParams.get('message') || '');
       const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
       const color = searchParams.get('color') || 'hsl(var(--primary))';
+      
+      const ownWishMarker: MarkerInfo = {
+        id: `user-wish-${lat}-${lon}`,
+        userId: '0', // Current user's wish
+        latitude: lat,
+        longitude: lon,
+        message,
+        categoryName,
+        color,
+        isPremium: isPremium
+      };
 
-      if (lat && lon) {
-        setCenter([lat, lon]);
-        setMarkers([{
-          id: `user-wish-${lat}-${lon}`,
-          userId: '0', // Current user's wish
-          latitude: lat,
-          longitude: lon,
-          message,
-          categoryName,
-          color,
-          isPremium: isPremium
-        }]);
-      }
-      return; // Exit early, as this is the highest priority
+      const randomMarkers = generateRandomMarkers([lat, lon], null, 2, t);
+      setCenter([lat, lon]);
+      setMarkers([ownWishMarker, ...randomMarkers]);
+      return;
     }
-
-    // Priority 2 & 3: Search or default view. These depend on user location.
+    
     if (location) {
       setCenter([location.latitude, location.longitude]);
 
