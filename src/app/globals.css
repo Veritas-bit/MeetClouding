@@ -194,13 +194,24 @@
     user-select: auto;
   }
   /* Hide scrollbar for Chrome, Safari and Opera */
+  .hide-scrollbar::-webkit-scrollbar,
   ::-webkit-scrollbar {
     display: none;
   }
   /* Hide scrollbar for IE, Edge and Firefox */
+  .hide-scrollbar,
   html {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Specifically target Radix Scroll Area scrollbar elements */
+  [data-radix-scroll-area-viewport] {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  [data-radix-scroll-area-viewport]::-webkit-scrollbar {
+    display: none;
   }
 }
 
