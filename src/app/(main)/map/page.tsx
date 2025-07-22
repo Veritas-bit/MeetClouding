@@ -137,8 +137,8 @@ function MapContent() {
         const searchCategory = searchParams.get('category') as WishCategoryKey | null;
         setMarkers(generateRandomMarkers([location.latitude, location.longitude], searchCategory, searchRadius));
       } else {
-        // Default view, no markers
-        setMarkers([]);
+        // Default view: show random markers to make the world feel alive
+        setMarkers(generateRandomMarkers([location.latitude, location.longitude], null, 2));
       }
     }
     // If location is not yet available, we do nothing and wait for the next re-render when it is.
