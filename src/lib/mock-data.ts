@@ -1,12 +1,12 @@
 import type { User, Conversation } from './types';
 
 const users: User[] = [
-  { id: 'user-1', name: 'You', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true, gender: 'male' },
-  { id: 'user-2', name: 'Elena Petrova', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true, gender: 'female' },
-  { id: 'user-3', name: 'Kenji Tanaka', avatarUrl: 'https://placehold.co/100x100.png', isOnline: false, gender: 'male' },
-  { id: 'user-4', name: 'Priya Sharma', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true, gender: 'female' },
-  { id: 'friend-1', name: 'Иван Друг', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true, gender: 'male' },
-  { id: 'friend-2', name: 'Мария Подруга', avatarUrl: 'https://placehold.co/100x100.png', isOnline: false, gender: 'female' },
+  { id: 'user-1', name: 'You', avatarUrl: 'https://placehold.co/100x100/E91E63/FFFFFF.png', isOnline: true, gender: 'male' },
+  { id: 'user-2', name: 'Elena Petrova', avatarUrl: 'https://placehold.co/100x100/9C27B0/FFFFFF.png', isOnline: true, gender: 'female' },
+  { id: 'user-3', name: 'Kenji Tanaka', avatarUrl: 'https://placehold.co/100x100/3F51B5/FFFFFF.png', isOnline: false, gender: 'male' },
+  { id: 'user-4', name: 'Priya Sharma', avatarUrl: 'https://placehold.co/100x100/009688/FFFFFF.png', isOnline: true, gender: 'female' },
+  { id: 'friend-1', name: 'Иван Друг', avatarUrl: 'https://placehold.co/100x100/FF9800/FFFFFF.png', isOnline: true, gender: 'male' },
+  { id: 'friend-2', name: 'Мария Подруга', avatarUrl: 'https://placehold.co/100x100/795548/FFFFFF.png', isOnline: false, gender: 'female' },
 ];
 
 const conversations: Conversation[] = [
