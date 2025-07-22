@@ -38,6 +38,7 @@ function ConversationClient({ initialConversation, currentUser }: { initialConve
     const scrollContainer = viewportRef.current;
     if (!message || !scrollContainer) return;
     
+    const isSentByCurrentUser = message.senderId === currentUser.id;
     const containerRect = scrollContainer.getBoundingClientRect();
     const menuHeight = isSentByCurrentUser ? 130 : 80;
 
@@ -54,7 +55,6 @@ function ConversationClient({ initialConversation, currentUser }: { initialConve
     // Clamp top position to be within the visible container area
     top = Math.max(containerRect.top, Math.min(top, containerRect.bottom - menuHeight));
 
-    const isSentByCurrentUser = message.senderId === currentUser.id;
     let left = isSentByCurrentUser ? rect.right - 180 : rect.left; // 180 is approx menu width
 
     // Clamp left position
