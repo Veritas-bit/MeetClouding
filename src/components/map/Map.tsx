@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { YANDEX_MAP_API_KEY } from '@/lib/config';
 import { useToast } from '@/hooks/use-toast';
+import { useTheme } from 'next-themes';
 
 
 interface MapProps {
@@ -46,6 +47,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
 export function MapComponent({ mapState, markers = [], className }: MapProps) {
   const router = useRouter();
   const { toast } = useToast();
+  const { theme } = useTheme();
   
   const handleMarkerClick = (marker: MarkerInfo) => {
     if (marker.userId === '0') {
@@ -71,6 +73,11 @@ export function MapComponent({ mapState, markers = [], className }: MapProps) {
     )
   }
 
+  const isDarkTheme = theme === 'dark' || theme === 'evening' || theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const mapOptions = {
+    preset: isDarkTheme ? 'islands#dark' : undefined
+  };
+
   return (
     <div className={cn("absolute inset-0", className)}>
         <YMaps query={{ apikey: mapApiKey, lang: 'ru_RU' }}>
@@ -78,6 +85,7 @@ export function MapComponent({ mapState, markers = [], className }: MapProps) {
                 state={mapState} 
                 width="100%" 
                 height="100%"
+                options={mapOptions}
             >
             {markers.map((marker) => (
                 <Placemark
