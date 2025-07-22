@@ -16,7 +16,7 @@ export function MaleIcon({ className }: { className?: string }) {
         </linearGradient>
       </defs>
       <circle cx="1200" cy="1200" r="1200" fill="url(#avatar-gradient)" />
-      <g transform="translate(1344 1236) scale(1, -1) translate(-1200 -1200)">
+      <g transform="translate(1152 1272) scale(1, -1) translate(-1440 -1200)">
         <path
             d="M1398 2518 c13 -13 17 -62 5 -56 -62 32 -110 49 -147 54 -25 4 -46 4 -46 1 0 -4 14 -27 32 -52 43 -61 26 -71 -25 -14 l-42 45 -1 -45 c0 -31 -19 -93 -57 -188 -85 -212 -109 -325 -72 -340 9 -3 23 -20 32 -37 l16 -31 17 116 c10 71 26 135 40 164 l23 48 111 -6 c120 -5 447 -55 457 -69 3 -4 18 -62 34 -128 l29 -119 18 29 c10 17 24 30 32 30 20 0 26 50 16 137 -12 98 -20 127 -61 203 -56 106 -178 200 -325 250 -67 23 -105 27 -86 8z"
             fill="hsl(var(--background))"
