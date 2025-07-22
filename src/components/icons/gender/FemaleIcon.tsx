@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 
 export function FemaleIcon({ className }: { className?: string }) {
@@ -26,6 +25,7 @@ export function FemaleIcon({ className }: { className?: string }) {
             fill="url(#avatar-gradient)"
         />
       </g>
+      <circle cx="1200" cy="1200" r="1180" stroke="url(#avatar-gradient)" strokeWidth="40" />
     </svg>
   );
 }
