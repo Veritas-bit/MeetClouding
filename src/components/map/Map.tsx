@@ -2,8 +2,7 @@
 'use client';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
-import Map, { Marker } from 'react-map-gl/maplibre';
-import type { MapRef } from 'react-map-gl/maplibre';
+import { Map, Marker, type MapRef } from 'react-map-gl/maplibre';
 import type { MarkerInfo } from '@/app/(main)/map/page';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -100,7 +99,7 @@ function CloudMarker({ marker }: { marker: MarkerInfo }) {
   );
 }
 
-export default function MapComponent({ center, markers = [], className, onMapChange }: MapProps) {
+export function MapComponent({ center, markers = [], className, onMapChange }: MapProps) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { theme, systemTheme } = useTheme();

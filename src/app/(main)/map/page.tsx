@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Suspense, useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useLocationStore } from '@/lib/location-store';
@@ -14,9 +14,10 @@ import { WISHES } from '@/lib/wishes';
 import { useTranslation } from '@/hooks/use-translation';
 import { getAllUsers } from '@/lib/mock-data';
 import type { User } from '@/lib/types';
+import { useDebouncedCallback } from 'use-debounce';
 
 // Lazy load the MapComponent
-const MapComponent = dynamic(() => import('@/components/map/Map'), {
+const MapComponent = dynamic(() => import('@/components/map/Map').then(mod => mod.MapComponent), {
     ssr: false,
     loading: () => <FullScreenLoader text="Загрузка карты..." />
 });
@@ -94,6 +95,7 @@ function MapContent() {
   const [markers, setMarkers] = useState<MarkerInfo[]>([]);
   const [center, setCenter] = useState<[number, number] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const mapCenterRef = useRef<[number, number] | null>(null);
 
   useEffect(() => {
     requestLocation();
@@ -148,11 +150,15 @@ function MapContent() {
       const randomMarkers = generateRandomMarkers([lat, lon], null, 2, t, allUsers);
       setCenter([lat, lon]);
       setMarkers([ownWishMarker, ...randomMarkers]);
+      mapCenterRef.current = [lat, lon];
       return;
     }
     
     if (location) {
-      setCenter([location.latitude, location.longitude]);
+      const newCenter: [number, number] = [location.latitude, location.longitude];
+      setCenter(newCenter);
+      mapCenterRef.current = newCenter;
+
 
       if (isSearch) {
         const searchRadius = parseFloat(searchParams.get('radius') || '1');
@@ -167,25 +173,27 @@ function MapContent() {
     // The loading screen will be shown because `center` is still null.
     
   }, [location, searchParams, isPremium, t, allUsers, avatar, gender]);
-
-  const handleMapChange = useCallback((newCenter: [number, number]) => {
+  
+  const handleMapChange = useDebouncedCallback((newCenter: [number, number]) => {
     if (allUsers.length === 0) return;
-    
+
     // Don't regenerate markers if the user is in a "published" or "search" state
     const isSpecialView = searchParams.get('published') === 'true' || searchParams.get('search') === 'true';
     if (isSpecialView) return;
     
-    const newMarkers = generateRandomMarkers(newCenter, null, 2, t, allUsers);
-    
-    // To avoid replacing all markers at once and causing a flicker,
-    // we can merge new markers with existing ones, removing duplicates.
-    setMarkers(prevMarkers => {
-        const existingMarkerIds = new Set(prevMarkers.map(m => m.id));
-        const filteredNewMarkers = newMarkers.filter(m => !existingMarkerIds.has(m.id));
-        return [...prevMarkers, ...filteredNewMarkers];
-    });
+    // Simple check to avoid re-generating for tiny movements
+    if (mapCenterRef.current) {
+      const [lastLat, lastLon] = mapCenterRef.current;
+      const dist = Math.sqrt(Math.pow(newCenter[0] - lastLat, 2) + Math.pow(newCenter[1] - lastLon, 2));
+      if (dist < 0.005) { // ~500m threshold, adjust as needed
+        return;
+      }
+    }
 
-  }, [allUsers, t, searchParams]);
+    const newMarkers = generateRandomMarkers(newCenter, null, 2, t, allUsers);
+    setMarkers(newMarkers);
+    mapCenterRef.current = newCenter;
+  }, 500); // Debounce to avoid excessive calls during fast panning
 
   if (!center) {
     return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
@@ -201,8 +209,6 @@ function MapContent() {
   );
 }
 
-// Helper type, not exported
-type WishKey = WishCategoryKey;
 
 export default function MapPage() {
     return (
