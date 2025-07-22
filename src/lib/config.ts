@@ -6,4 +6,4 @@
 // It's a more reliable way than directly using process.env in client components,
 // which can sometimes be optimized away or fail to update correctly.
 
-export const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY || "";
+export const YANDEX_MAP_API_KEY = process.env.NEXT_PUBLIC_YANDEX_MAP_API_KEY || "";

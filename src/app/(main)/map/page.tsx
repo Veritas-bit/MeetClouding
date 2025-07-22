@@ -4,7 +4,6 @@
 import { Suspense, useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
-import type { ViewState } from 'react-map-gl/maplibre';
 import { useLocationStore } from '@/lib/location-store';
 import { WISH_CATEGORIES, WishCategoryKey, WISH_CATEGORY_KEYS } from '@/lib/categories';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
@@ -14,6 +13,7 @@ import { WISHES } from '@/lib/wishes';
 import { useTranslation } from '@/hooks/use-translation';
 import { getAllUsers } from '@/lib/mock-data';
 import type { User } from '@/lib/types';
+import type { IMapState } from '@pbe/react-yandex-maps';
 
 // Lazy load the MapComponent
 const MapComponent = dynamic(() => import('@/components/map/Map').then(mod => mod.MapComponent), {
@@ -95,7 +95,7 @@ function MapContent() {
   const [markers, setMarkers] = useState<MarkerInfo[]>([]);
   
   // Map view state
-  const [viewState, setViewState] = useState<Partial<ViewState> | null>(null);
+  const [mapState, setMapState] = useState<IMapState | null>(null);
 
   useEffect(() => {
     requestLocation();
@@ -104,7 +104,7 @@ function MapContent() {
 
   // Effect to initialize markers and view state, runs once after location and users are fetched.
   useEffect(() => {
-    if (!location || allUsers.length === 0 || viewState) return;
+    if (!location || allUsers.length === 0 || mapState) return;
 
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
@@ -150,24 +150,19 @@ function MapContent() {
     }
     
     setMarkers(initialMarkers);
-    setViewState({ ...initialCenter, zoom: 12 });
+    setMapState({ center: [initialCenter.latitude, initialCenter.longitude], zoom: 12 });
     
-  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, viewState]);
+  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapState]);
   
-  const handleMapMove = useCallback((evt: any) => {
-    setViewState(evt.viewState);
-  }, []);
-
-  if (!viewState) {
+  if (!mapState) {
     return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
   }
 
   return (
     <div className="flex-grow w-full relative">
         <MapComponent 
-            viewState={viewState} 
+            mapState={mapState} 
             markers={markers} 
-            onMove={handleMapMove}
             className="w-full h-full" 
         />
     </div>
