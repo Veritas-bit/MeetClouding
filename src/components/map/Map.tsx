@@ -3,18 +3,10 @@
 
 import { YMaps, Map, Placemark, type IMapState } from '@pbe/react-yandex-maps';
 import type { MarkerInfo } from '@/app/(main)/map/page';
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Gem } from 'lucide-react';
 import { YANDEX_MAP_API_KEY } from '@/lib/config';
 import { useToast } from '@/hooks/use-toast';
-import { renderToStaticMarkup } from 'react-dom/server';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MaleIcon } from '../icons/gender/MaleIcon';
-import { FemaleIcon } from '../icons/gender/FemaleIcon';
-import { NeuterIcon } from '../icons/gender/NeuterIcon';
-import type { Gender } from '@/lib/profile-store';
 
 
 interface MapProps {
@@ -23,20 +15,8 @@ interface MapProps {
     className?: string;
 }
 
-const GenderAvatar = ({ gender }: { gender: Gender }) => {
-    const iconProps = { className: "w-full h-full p-1.5" };
-    switch (gender) {
-        case 'male':
-            return <MaleIcon {...iconProps} />;
-        case 'female':
-            return <FemaleIcon {...iconProps} />;
-        default:
-            return <NeuterIcon {...iconProps} />;
-    }
-};
-
-const getPlacemarkLayout = (marker: MarkerInfo) => {
-    const { color = '#FF7F50', isPremium, avatarUrl, gender } = marker;
+const getPlacemarkLayout = (marker: MarkerInfo): string => {
+    const { color = '#FF7F50', isPremium, avatarUrl } = marker;
     const isOwn = marker.userId === '0';
 
     const getDarkerColor = (hslColor: string) => {
@@ -51,7 +31,6 @@ const getPlacemarkLayout = (marker: MarkerInfo) => {
             return hslColor; // fallback
         }
     };
-
     const strokeColor = getDarkerColor(color);
     const glowFilter = isOwn ? 'drop-shadow(0 0 8px hsl(var(--primary)))' : 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))';
 
@@ -61,17 +40,7 @@ const getPlacemarkLayout = (marker: MarkerInfo) => {
         </svg>
     `;
     
-    // Yandex Maps requires a specific string format for HTML layouts
-    const layoutString = `
-        <div style="display: flex; align-items: center; gap: 4px; transform: translate(-50%, -50%);">
-            ${cloudSvg}
-            <div style="position: relative; width: 32px; height: 32px;">
-                <img src="${avatarUrl}" style="width: 100%; height: 100%; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2);" alt="avatar" />
-                ${isPremium ? `<div style="position: absolute; bottom: -2px; right: -2px; background: linear-gradient(to top right, hsl(var(--primary)), hsl(var(--secondary))); padding: 4px; border-radius: 50%;"><svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M6 5H18L12 19Z' /></svg></div>` : ''}
-            </div>
-        </div>`;
-
-    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(layoutString.replace(/(\r\n|\n|\r)/gm, ""))}`;
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(cloudSvg)}`;
 };
 
 export function MapComponent({ mapState, markers = [], className }: MapProps) {
@@ -119,7 +88,7 @@ export function MapComponent({ mapState, markers = [], className }: MapProps) {
                     options={{
                         iconLayout: 'default#image',
                         iconImageHref: getPlacemarkLayout(marker),
-                        iconImageSize: [80, 40],
+                        iconImageSize: [40, 30],
                         iconImageOffset: [-20, -15],
                     }}
                 />
