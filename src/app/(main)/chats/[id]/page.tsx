@@ -246,8 +246,8 @@ export default function ConversationPage() {
           )}
         >
           <div className="relative flex items-center bg-muted/50 rounded-[7px]">
-              <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setIsAttachmentModalOpen(true)}>
-                  <Camera className="h-6 w-6 text-muted-foreground transition-colors" />
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent" onClick={() => setIsAttachmentModalOpen(true)}>
+                  <Camera className="h-6 w-6 text-muted-foreground" />
               </Button>
               <div className="w-px h-6 bg-border"></div>
               <Textarea
@@ -268,11 +268,11 @@ export default function ConversationPage() {
               <Button
                   variant="ghost"
                   size="icon"
-                  className="shrink-0 group"
+                  className="shrink-0 hover:bg-transparent"
                   onClick={handleSendMessage}
                   disabled={isSending || isMessageEmpty}
               >
-                  <Send className={cn("h-5 w-5 text-muted-foreground", !isMessageEmpty && "text-primary", "group-hover:text-primary transition-colors")} />
+                  <Send className={cn("h-5 w-5 text-muted-foreground", !isMessageEmpty && "text-primary", "transition-colors")} />
               </Button>
           </div>
         </div>
