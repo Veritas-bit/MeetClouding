@@ -153,7 +153,9 @@ function MapContent() {
 
         const randomMarkers = generateRandomMarkers({ latitude: lat, longitude: lon }, null, 2, t, allUsers);
         setMarkers([ownWishMarker, ...randomMarkers]);
-        setViewState({ latitude: lat, longitude: lon, zoom: 13 });
+        if (!viewState) {
+            setViewState({ latitude: lat, longitude: lon, zoom: 13 });
+        }
         return;
     }
     
