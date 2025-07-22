@@ -220,7 +220,7 @@ export default function ConversationPage() {
         />
       </div>
 
-      <div className="p-4 border-t bg-background">
+      <div className="p-4 border-t bg-background flex-shrink-0">
         {replyToMessage && (
             <ReplyToView 
                 message={replyToMessage}
