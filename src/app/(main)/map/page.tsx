@@ -13,7 +13,8 @@ import { WISHES } from '@/lib/wishes';
 import { useTranslation } from '@/hooks/use-translation';
 import { getAllUsers } from '@/lib/mock-data';
 import type { User } from '@/lib/types';
-import type { IMapState } from '@pbe/react-yandex-maps';
+import type { YMapLocation } from 'ymap3-components';
+
 
 // Lazy load the MapComponent
 const MapComponent = dynamic(() => import('@/components/map/Map').then(mod => mod.MapComponent), {
@@ -95,7 +96,7 @@ function MapContent() {
   const [markers, setMarkers] = useState<MarkerInfo[]>([]);
   
   // Map view state
-  const [mapState, setMapState] = useState<IMapState | null>(null);
+  const [mapLocation, setMapLocation] = useState<YMapLocation | null>(null);
 
   useEffect(() => {
     requestLocation();
@@ -104,7 +105,7 @@ function MapContent() {
 
   // Effect to initialize markers and view state, runs once after location and users are fetched.
   useEffect(() => {
-    if (!location || allUsers.length === 0 || mapState) return;
+    if (!location || allUsers.length === 0 || mapLocation) return;
 
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
@@ -150,20 +151,25 @@ function MapContent() {
     }
     
     setMarkers(initialMarkers);
-    setMapState({ center: [initialCenter.latitude, initialCenter.longitude], zoom: 12 });
+    setMapLocation({ center: [initialCenter.longitude, initialCenter.latitude], zoom: 12 });
     
-  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapState]);
+  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapLocation]);
   
-  if (!mapState) {
+  const handleMapUpdate = useCallback((newLocation: YMapLocation) => {
+    // We can use this callback to update state if needed, e.g., for saving map position
+  }, []);
+
+  if (!mapLocation) {
     return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
   }
 
   return (
     <div className="flex-grow w-full relative">
         <MapComponent 
-            mapState={mapState} 
+            location={mapLocation} 
             markers={markers} 
-            className="w-full h-full" 
+            className="w-full h-full"
+            onUpdate={handleMapUpdate}
         />
     </div>
   );
