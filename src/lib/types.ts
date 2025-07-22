@@ -27,4 +27,5 @@ export interface Conversation {
   id:string;
   participants: User[];
   messages: Message[];
+  wishText?: string;
 }

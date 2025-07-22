@@ -14,6 +14,7 @@ const conversations: Conversation[] = [
   {
     id: 'conv-1',
     participants: [users[0], users[1]],
+    wishText: 'Я хочу попробовать самый вкусный кофе в городе',
     messages: [
       { id: 'msg-1-1', text: 'Hey Elena! How are you doing?', timestamp: Date.now() - 1000 * 60 * 5, senderId: 'user-1', status: 'read' },
       { id: 'msg-1-2', text: 'Привет! I am doing well, thank you. Just working on the new design. How about you?', timestamp: Date.now() - 1000 * 60 * 4, senderId: 'user-2', status: 'read' },
@@ -25,6 +26,7 @@ const conversations: Conversation[] = [
   {
     id: 'conv-2',
     participants: [users[0], users[2]],
+    wishText: 'Я хочу сходить в поход на один день',
     messages: [
       { id: 'msg-2-1', text: 'Hi Kenji, do you have the latest report?', timestamp: Date.now() - 1000 * 60 * 60 * 2, senderId: 'user-1', status: 'read' },
       { id: 'msg-2-2', text: 'こんにちは。Yes, I will send it to you in a moment. @channel has been notified.', timestamp: Date.now() - 1000 * 60 * 60 * 1, senderId: 'user-2', status: 'read' },
@@ -33,6 +35,7 @@ const conversations: Conversation[] = [
   {
     id: 'conv-3',
     participants: [users[0], users[3]],
+    wishText: 'Я хочу поиграть в настолки в антикафе',
     messages: [
        { id: 'msg-3-1', text: 'Hey Priya, are we still on for lunch tomorrow?', timestamp: Date.now() - 1000 * 60 * 30, senderId: 'user-1', status: 'sent' },
     ],

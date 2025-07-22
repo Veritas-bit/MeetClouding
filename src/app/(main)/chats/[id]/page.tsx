@@ -2,19 +2,43 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, useParams, useRouter } from 'next/navigation';
 import { getConversationById, getCurrentUser } from '@/lib/mock-data';
 import type { User, Conversation, Message } from '@/lib/types';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { MessageView } from '@/components/message-view';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Send, Camera, Pencil, X } from 'lucide-react';
+import { Send, Camera, Pencil, X, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
 import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
 import { cn } from '@/lib/utils';
 import { ReplyToView } from '@/components/chats/ReplyToView';
+
+
+const WishHeader = ({ wishText }: { wishText: string }) => {
+  const router = useRouter();
+  
+  const handleGoToMap = () => {
+    // This is a mock navigation. In a real app, you would pass coordinates.
+    router.push('/map?fromChat=true');
+  }
+
+  return (
+    <button onClick={handleGoToMap} className="w-full text-left">
+      <div className="p-3 bg-muted border-b">
+        <div className="flex items-center gap-3">
+          <MapPin className="h-5 w-5 text-primary" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-foreground">Желание</p>
+            <p className="text-xs text-muted-foreground truncate">{wishText}</p>
+          </div>
+        </div>
+      </div>
+    </button>
+  );
+}
 
 
 export default function ConversationPage() {
@@ -208,6 +232,7 @@ export default function ConversationPage() {
 
   return (
     <div className="flex flex-col h-full">
+      {conversation.wishText && <WishHeader wishText={conversation.wishText} />}
       <div className="flex-1 overflow-y-auto">
         <MessageView
             messages={messages}
