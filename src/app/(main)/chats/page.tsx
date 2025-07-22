@@ -30,7 +30,9 @@ function transformConversationToProps(conversation: Conversation, currentUser: U
 }
 
 
-export default async function ChatsPage() {
+export default async function ChatsPage({ searchParams }: { searchParams?: { [key: string]: string | string[] | undefined } }) {
+  const activeTab = searchParams?.tab === 'friends' ? 'friends' : 'all';
+  
   const allConversations = await getConversations();
   const currentUser = await getCurrentUser() as User;
   
@@ -40,5 +42,5 @@ export default async function ChatsPage() {
   const mainChatProps = mainConvs.map(c => transformConversationToProps(c, currentUser)).filter(Boolean) as ChatItemProps[];
   const friendChatProps = friendConvs.map(c => transformConversationToProps(c, currentUser)).filter(Boolean) as ChatItemProps[];
 
-  return <ChatList mainChats={mainChatProps} friendChats={friendChatProps} />;
+  return <ChatList mainChats={mainChatProps} friendChats={friendChatProps} activeTab={activeTab} />;
 }

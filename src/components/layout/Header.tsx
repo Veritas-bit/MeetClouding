@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useParams, useRouter } from "next/navigation";
+import { usePathname, useParams, useRouter, useSearchParams } from "next/navigation";
 import { GradientCloudIcon } from "@/components/icons/GradientCloudIcon";
 import React from "react";
 import { cn } from "@/lib/utils";
@@ -135,6 +135,7 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
 
 export function Header() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const params = useParams();
   const router = useRouter();
   const [headerContent, setHeaderContent] = React.useState(defaultHeader);
@@ -172,11 +173,21 @@ export function Header() {
         } else if (pathname.startsWith('/users/')) {
             setHeaderContent(<HeaderWithBackButton titleKey="profile" showMapButton={shouldShowMapButton} />);
         } else if (pathname === '/chats') {
+            const activeTab = searchParams.get('tab') === 'friends' ? 'friends' : 'all';
             setHeaderContent(
                 <div className="w-full h-full relative flex items-center justify-between">
-                    {shouldShowMapButton && <BackToMapButton />}
-                    <span className="text-xl font-headline text-foreground">{t('chats')}</span>
-                    <Tabs defaultValue="all" className="w-auto">
+                    <div className="flex items-center">
+                        {shouldShowMapButton && <BackToMapButton />}
+                        <span className="text-xl font-headline text-foreground">{t('chats')}</span>
+                    </div>
+                    <Tabs 
+                        defaultValue={activeTab} 
+                        value={activeTab}
+                        onValueChange={(value) => {
+                            router.push(value === 'friends' ? '/chats?tab=friends' : '/chats');
+                        }}
+                        className="w-auto"
+                    >
                         <TabsList>
                             <TabsTrigger value="all">Чаты</TabsTrigger>
                             <TabsTrigger value="friends">Друзья</TabsTrigger>
@@ -209,7 +220,7 @@ export function Header() {
     
     fetchChatInfo();
 
-  }, [pathname, params, mounted, hasInteractedWithMap, setHasInteractedWithMap, t]);
+  }, [pathname, params, mounted, hasInteractedWithMap, setHasInteractedWithMap, t, router, searchParams]);
 
   if (!mounted) {
     return (
