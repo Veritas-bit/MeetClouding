@@ -17,9 +17,10 @@ export function MaleIcon({ className }: { className?: string }) {
           <stop offset="100%" style={{ stopColor: "hsl(var(--secondary))", stopOpacity: 1 }} />
         </linearGradient>
       </defs>
-      <circle cx="10" cy="14" r="4" fill="url(#gender-gradient)" stroke="none" />
-      <path d="m14 4 6 6" stroke="url(#gender-gradient)" />
-      <path d="M14 10h6V4" stroke="url(#gender-gradient)" />
+      <circle cx="12" cy="12" r="5" stroke="url(#gender-gradient)" />
+      <path d="M17 7L12 12" stroke="url(#gender-gradient)" />
+      <path d="M17 7h-4" stroke="url(#gender-gradient)" />
+      <path d="M17 7v4" stroke="url(#gender-gradient)" />
     </svg>
   );
 }

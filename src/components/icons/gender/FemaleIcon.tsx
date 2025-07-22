@@ -17,8 +17,8 @@ export function FemaleIcon({ className }: { className?: string }) {
           <stop offset="100%" style={{ stopColor: "hsl(var(--secondary))", stopOpacity: 1 }} />
         </linearGradient>
       </defs>
-      <circle cx="12" cy="10" r="4" fill="url(#gender-gradient)" stroke="none" />
-      <path d="M12 14v8" stroke="url(#gender-gradient)" />
+      <circle cx="12" cy="8" r="5" stroke="url(#gender-gradient)" />
+      <path d="M12 13v9" stroke="url(#gender-gradient)" />
       <path d="M9 19h6" stroke="url(#gender-gradient)" />
     </svg>
   );
