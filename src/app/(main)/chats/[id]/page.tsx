@@ -12,6 +12,7 @@ import { Camera, SendHorizonal } from 'lucide-react';
 import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
+import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 
 type ActiveMenu = {
   message: Message;
@@ -152,7 +153,6 @@ function ConversationClient({ initialConversation, currentUser }: { initialConve
       handleCloseMenu();
   };
 
-
   if (!otherParticipant) {
     return <div>Собеседник не найден</div>;
   }
@@ -234,15 +234,27 @@ function ConversationClient({ initialConversation, currentUser }: { initialConve
           onClose={handleCloseMenu}
       />
     </>
-  )
+  );
 }
 
-export default async function ConversationPage({ params }: { params: { id: string } }) {
-  const conversation = await getConversationById(params.id);
-  const currentUser = await getCurrentUser();
+export default function ConversationPage({ params }: { params: { id: string } }) {
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      const [convData, currentUserData] = await Promise.all([
+        getConversationById(params.id),
+        getCurrentUser()
+      ]);
+      setConversation(convData || null);
+      setCurrentUser(currentUserData || null);
+    }
+    fetchData();
+  }, [params.id]);
 
   if (!conversation || !currentUser) {
-    notFound();
+    return <FullScreenLoader text="Загрузка чата..." />;
   }
 
   return (
