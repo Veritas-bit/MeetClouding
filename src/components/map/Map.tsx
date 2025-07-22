@@ -143,7 +143,7 @@ export function MapComponent({ initialViewState, markers = [], className, onMove
   return (
     <div className="absolute inset-0">
         <Map
-            initialViewState={initialViewState}
+            {...initialViewState}
             onMove={onMove}
             mapStyle={`https://api.maptiler.com/maps/${mapStyle}/style.json?key=${mapApiKey}`}
             attributionControl={false}

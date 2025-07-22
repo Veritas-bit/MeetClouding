@@ -104,59 +104,54 @@ function MapContent() {
 
   // Effect to initialize or update map center and markers
   useEffect(() => {
-    if (allUsers.length === 0) return; // Wait for users
+    if (allUsers.length === 0 || !location || viewState) return; // Wait for users & location, run only once
     
-    // Run only once on initial load or when params change
-    if (location && !viewState) {
-      const isPublished = searchParams.get('published') === 'true';
-      const isSearch = searchParams.get('search') === 'true';
+    const isPublished = searchParams.get('published') === 'true';
+    const isSearch = searchParams.get('search') === 'true';
 
-      if (isPublished || isSearch) {
-        setHasInteractedWithMap(true);
-      }
-      
-      const locationToUse = location;
-
-      if (isPublished) {
-          const lat = parseFloat(searchParams.get('lat') || `${locationToUse.latitude}`);
-          const lon = parseFloat(searchParams.get('lon') || `${locationToUse.longitude}`);
-          const message = decodeURIComponent(searchParams.get('message') || '');
-          const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
-          const color = searchParams.get('color') || 'hsl(var(--primary))';
-          
-          const ownWishMarker: MarkerInfo = {
-              id: `user-wish-${lat}-${lon}`,
-              userId: '0', // Current user's wish
-              latitude: lat,
-              longitude: lon,
-              message,
-              categoryName,
-              color,
-              isPremium: isPremium,
-              avatarUrl: avatar,
-              gender: gender,
-          };
-
-          const randomMarkers = generateRandomMarkers({ latitude: lat, longitude: lon }, null, 5, t, allUsers);
-          setMarkers([ownWishMarker, ...randomMarkers]);
-          setViewState({ latitude: lat, longitude: lon, zoom: 12 });
-          return;
-      }
-      
-      const newCenter = { latitude: location.latitude, longitude: location.longitude };
-      
-      if (isSearch) {
-          const searchRadius = parseFloat(searchParams.get('radius') || '5');
-          const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-          setMarkers(generateRandomMarkers(newCenter, searchCategory, searchRadius, t, allUsers));
-      } else {
-          // Default view: 5km radius
-          setMarkers(generateRandomMarkers(newCenter, null, 5, t, allUsers));
-      }
-      setViewState({ ...newCenter, zoom: 12 });
+    if (isPublished || isSearch) {
+      setHasInteractedWithMap(true);
     }
     
-  }, [location, viewState, searchParams, isPremium, t, allUsers, avatar, gender, setHasInteractedWithMap]);
+    if (isPublished) {
+        const lat = parseFloat(searchParams.get('lat') || `${location.latitude}`);
+        const lon = parseFloat(searchParams.get('lon') || `${location.longitude}`);
+        const message = decodeURIComponent(searchParams.get('message') || '');
+        const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
+        const color = searchParams.get('color') || 'hsl(var(--primary))';
+        
+        const ownWishMarker: MarkerInfo = {
+            id: `user-wish-${lat}-${lon}`,
+            userId: '0', // Current user's wish
+            latitude: lat,
+            longitude: lon,
+            message,
+            categoryName,
+            color,
+            isPremium: isPremium,
+            avatarUrl: avatar,
+            gender: gender,
+        };
+
+        const randomMarkers = generateRandomMarkers({ latitude: lat, longitude: lon }, null, 5, t, allUsers);
+        setMarkers([ownWishMarker, ...randomMarkers]);
+        setViewState({ latitude: lat, longitude: lon, zoom: 12 });
+        return;
+    }
+    
+    const newCenter = { latitude: location.latitude, longitude: location.longitude };
+    
+    if (isSearch) {
+        const searchRadius = parseFloat(searchParams.get('radius') || '5');
+        const searchCategory = searchParams.get('category') as WishCategoryKey | null;
+        setMarkers(generateRandomMarkers(newCenter, searchCategory, searchRadius, t, allUsers));
+    } else {
+        // Default view: 5km radius
+        setMarkers(generateRandomMarkers(newCenter, null, 5, t, allUsers));
+    }
+    setViewState({ ...newCenter, zoom: 12 });
+    
+  }, [location, searchParams, isPremium, t, allUsers, avatar, gender, setHasInteractedWithMap, viewState]);
   
   const handleMapMove = useCallback((evt: any) => {
     setViewState(evt.viewState);
