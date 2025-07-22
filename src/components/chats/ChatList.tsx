@@ -16,7 +16,7 @@ export function ChatList({ mainChats, friendChats }: ChatListProps) {
   return (
     <div className="container mx-auto p-0 sm:p-4 pb-24 flex-grow flex flex-col">
       <Tabs defaultValue="all" className="w-full flex flex-col flex-grow">
-        <div className="flex justify-center p-2 sticky top-0 bg-background z-10">
+        <div className="flex-shrink-0 flex justify-center p-2 bg-background z-10">
             <TabsList>
                 <TabsTrigger value="all">Чаты</TabsTrigger>
                 <TabsTrigger value="friends">Друзья</TabsTrigger>
