@@ -244,8 +244,9 @@ export default function ConversationPage({ params }: { params: { id: string } })
 
   useEffect(() => {
     async function fetchData() {
+      const convId = params.id;
       const [convData, currentUserData] = await Promise.all([
-        getConversationById(params.id),
+        getConversationById(convId),
         getCurrentUser()
       ]);
       setConversation(convData || null);
