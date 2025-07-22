@@ -9,16 +9,23 @@ export function MaleIcon({ className }: { className?: string }) {
       className={cn("", className)}
     >
       <circle cx="40" cy="40" r="40" fill="hsl(var(--muted))" />
-      <path
-        d="M54.5 61C54.5 55.4333 50.6333 51 45.5 51H34.5C29.3667 51 25.5 55.4333 25.5 61H54.5Z"
-        fill="hsl(var(--primary))" 
-        fillOpacity="0.4" 
-      />
-      <path
-        d="M48.5 30C48.5 34.6944 44.6944 38.5 40 38.5C35.3056 38.5 31.5 34.6944 31.5 30C31.5 25.3056 35.3056 21.5 40 21.5C44.6944 21.5 48.5 25.3056 48.5 30Z"
-        fill="hsl(var(--primary))"
-        fillOpacity="0.4"
-      />
+      <g clipPath="url(#clip0_2003_10)">
+        <path
+          d="M40 46C46.6274 46 52 40.6274 52 34C52 27.3726 46.6274 22 40 22C33.3726 22 28 27.3726 28 34C28 40.6274 33.3726 46 40 46Z"
+          fill="hsl(var(--primary))"
+          fillOpacity="0.4"
+        />
+        <path
+          d="M58 64C58 56.268 51.732 50 44 50H36C28.268 50 22 56.268 22 64H58Z"
+          fill="hsl(var(--primary))"
+          fillOpacity="0.4"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_2003_10">
+          <rect width="48" height="48" fill="white" transform="translate(16 16)" />
+        </clipPath>
+      </defs>
     </svg>
   );
 }
