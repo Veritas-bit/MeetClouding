@@ -1,263 +1,267 @@
 
-"use client";
-
 import { getConversationById, getCurrentUser } from '@/lib/mock-data';
-import { MessageView } from '@/components/message-view';
 import { notFound } from 'next/navigation';
 import type { Conversation, Message, User } from '@/lib/types';
-import { useEffect, useState, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Camera, SendHorizonal } from 'lucide-react';
-import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
+import { Send, Smile, Paperclip, X } from 'lucide-react';
+import { MessageItem, ChatMessageMenu } from '@/components/message-item';
+import { MessageView } from '@/components/message-view';
 import { useToast } from '@/hooks/use-toast';
-import { ChatMessageMenu } from '@/components/message-item';
-import { FullScreenLoader } from '@/components/common/FullScreenLoader';
+import { useTranslation } from '@/hooks/use-translation';
+import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
 
-type ActiveMenu = {
-  message: Message;
-  position: { top: number; left: number };
-};
 
-// We create a new client component to contain all the chat logic.
-function ConversationClient({ initialConversation, currentUser }: { initialConversation: Conversation; currentUser: User }) {
-  const { toast } = useToast();
-  const [messages, setMessages] = useState<Message[]>(initialConversation.messages);
-  const [newMessage, setNewMessage] = useState('');
-  const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
-  const [activeMenu, setActiveMenu] = useState<ActiveMenu | null>(null);
+// =====================================================================
+// Client Component: Handles all state, interactions, and UI rendering
+// =====================================================================
+"use client";
 
-  const viewportRef = useRef<HTMLDivElement>(null);
+interface ConversationClientProps {
+  initialConversation: Conversation;
+  currentUser: User;
+}
+
+function ConversationClient({ initialConversation, currentUser }: ConversationClientProps) {
   const otherParticipant = initialConversation.participants.find(p => p.id !== currentUser.id);
 
-  const handleCloseMenu = useCallback(() => {
-    setActiveMenu(null);
-  }, []);
+  const [messages, setMessages] = useState<Message[]>(initialConversation.messages);
+  const [newMessage, setNewMessage] = useState('');
+  const { toast } = useToast();
+  const t = useTranslation();
+  const viewportRef = useRef<HTMLDivElement>(null);
   
-  const handleOpenMenu = useCallback((messageId: string, rect: DOMRect) => {
-    const message = messages.find(m => m.id === messageId);
-    const scrollContainer = viewportRef.current;
-    if (!message || !scrollContainer) return;
-    
-    const isSentByCurrentUser = message.senderId === currentUser.id;
-    const containerRect = scrollContainer.getBoundingClientRect();
-    const menuHeight = isSentByCurrentUser ? 130 : 80;
+  // State for context menu
+  const [menuState, setMenuState] = useState<{ messageId: string | null; position: { top: number; left: number } | null }>({ messageId: null, position: null });
+  
+  // State for message actions
+  const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+  const [replyingTo, setReplyingTo] = useState<Message | null>(null);
 
-    let top: number;
-    // Check if there's enough space below the message inside the container
-    if (rect.bottom + menuHeight > containerRect.bottom) {
-        // Not enough space below, position above
-        top = rect.top - menuHeight;
-    } else {
-        // Enough space below, position below
-        top = rect.top + rect.height;
-    }
+  // State for attachment modal
+  const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
 
-    // Clamp top position to be within the visible container area
-    top = Math.max(containerRect.top, Math.min(top, containerRect.bottom - menuHeight));
-
-    let left = isSentByCurrentUser ? rect.right - 180 : rect.left; // 180 is approx menu width
-
-    // Clamp left position
-    left = Math.max(8, Math.min(left, window.innerWidth - 180 - 8));
-
-    setActiveMenu({ message, position: { top, left } });
-  }, [messages, currentUser.id]);
-
-  useEffect(() => {
-    const scrollContainer = viewportRef.current;
-    if (scrollContainer) {
-        scrollContainer.addEventListener('scroll', handleCloseMenu);
-        window.addEventListener('resize', handleCloseMenu);
-        return () => {
-            scrollContainer.removeEventListener('scroll', handleCloseMenu);
-            window.removeEventListener('resize', handleCloseMenu);
-        };
-    }
-  }, [handleCloseMenu]);
-
+  // Scroll to bottom when messages change
   useEffect(() => {
     if (viewportRef.current) {
-        setTimeout(() => {
-            viewportRef.current?.scrollTo({ top: viewportRef.current.scrollHeight, behavior: 'smooth' });
-        }, 0);
+      viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
     }
   }, [messages]);
-  
-  const sendMessage = (text: string, media?: { src: string; type: 'image' | 'video' }, source?: 'camera' | 'gallery') => {
-    if (text.trim() === '' && !media) return;
 
-    const message: Message = {
-      id: `msg-${Date.now()}`,
-      text: text,
-      timestamp: Date.now(),
-      senderId: currentUser.id,
-      status: 'sent',
-      image: media?.type === 'image' ? media.src : undefined,
-      video: media?.type === 'video' ? media.src : undefined,
-      source: source as any,
-    };
-    
-    setMessages(prev => [...prev, message]);
+  // Set focus on textarea when editing
+  useEffect(() => {
+    if (editingMessage) {
+        document.getElementById('message-input')?.focus();
+    }
+  }, [editingMessage]);
 
-    setTimeout(() => {
-      if (!otherParticipant) return;
-      const reply: Message = {
-        id: `msg-${Date.now() + 1}`,
-        text: 'This is an automated reply!',
-        timestamp: Date.now() + 1000,
-        senderId: otherParticipant.id,
-        status: 'delivered',
+
+  const handleSendMessage = () => {
+    if (newMessage.trim() === '' && !editingMessage) return;
+
+    if (editingMessage) {
+      // Edit existing message
+      setMessages(messages.map(msg => 
+        msg.id === editingMessage.id ? { ...msg, text: newMessage } : msg
+      ));
+      toast({ title: "Сообщение изменено" });
+      setEditingMessage(null);
+    } else {
+      // Add new message
+      const message: Message = {
+        id: `msg-${Date.now()}`,
+        text: newMessage,
+        timestamp: Date.now(),
+        senderId: currentUser.id,
+        status: 'sent',
       };
-      setMessages(prev => [...prev, reply]);
-      toast({
-        title: `New message from ${otherParticipant.name}`,
-        description: reply.text,
-      });
-    }, 2000);
-  };
+      setMessages([...messages, message]);
+    }
 
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    sendMessage(newMessage);
     setNewMessage('');
+    setReplyingTo(null);
   };
   
-  const handleMediaSend = (media: { src: string; type: 'image' | 'video' }, source: 'camera' | 'gallery') => {
-    sendMessage('', media, source);
-    setIsAttachmentModalOpen(false);
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleOpenMenu = useCallback((messageId: string, rect: DOMRect) => {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+
+      const viewportRect = viewport.getBoundingClientRect();
+      const menuHeight = 180; // Approximate height of the menu
+
+      let top = rect.bottom + 8; // Default position below the message
+      
+      // If there's not enough space below, show it above
+      if (rect.bottom + menuHeight > viewportRect.bottom) {
+        top = rect.top - menuHeight - 8;
+      }
+      // Clamp the top position to be within the viewport
+      top = Math.max(viewportRect.top, Math.min(top, viewportRect.bottom - menuHeight));
+
+
+      setMenuState({
+          messageId,
+          position: { top: top, left: rect.left }
+      });
+  }, []);
+
+  const handleCloseMenu = useCallback(() => {
+    setMenuState({ messageId: null, position: null });
+  }, []);
+
+  const selectedMessage = messages.find(m => m.id === menuState.messageId);
+
+  const handleReply = (message: Message) => {
+    setReplyingTo(message);
+    setEditingMessage(null); // Cancel editing if any
   };
 
   const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      toast({ title: 'Скопировано', description: 'Текст сообщения скопирован в буфер обмена.' });
-    });
-    handleCloseMenu();
-  };
-
-  const handleDelete = (messageId: string) => {
-    setMessages(prev => prev.filter(m => m.id !== messageId));
-    toast({ title: 'Сообщение удалено', variant: 'destructive' });
-    handleCloseMenu();
+    navigator.clipboard.writeText(text);
+    toast({ title: "Текст скопирован" });
   };
   
   const handleEdit = (message: Message) => {
-      // Mock implementation
-      toast({ title: 'Редактирование', description: `Выбрано для редактирования: "${message.text}"` });
-      handleCloseMenu();
+    setEditingMessage(message);
+    setReplyingTo(null); // Cancel replying if any
+    setNewMessage(message.text);
+  };
+  
+  const handleDelete = (messageId: string) => {
+    setMessages(messages.filter(msg => msg.id !== messageId));
+    toast({ title: "Сообщение удалено", variant: "destructive" });
   };
 
-  const handleReply = (message: Message) => {
-      // Mock implementation
-      toast({ title: 'Ответ', description: `Выбран ответ на: "${message.text}"` });
-      handleCloseMenu();
+  const handleMediaSend = (media: { src: string, type: 'image' | 'video' }, source: 'camera' | 'gallery') => {
+      const message: Message = {
+          id: `msg-${Date.now()}`,
+          text: '',
+          timestamp: Date.now(),
+          senderId: currentUser.id,
+          status: 'sent',
+          image: media.type === 'image' ? media.src : undefined,
+          video: media.type === 'video' ? media.src : undefined,
+          source,
+      };
+      setMessages([...messages, message]);
+      setIsAttachmentModalOpen(false);
   };
 
   if (!otherParticipant) {
-    return <div>Собеседник не найден</div>;
+    return (
+      <div className="flex-1 flex items-center justify-center">
+        <p>Собеседник не найден.</p>
+      </div>
+    );
   }
 
   return (
-    <>
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex flex-col h-full w-full">
+      <div className="flex-1 flex flex-col min-h-0 relative">
         <MessageView
-          messages={messages}
-          currentUser={currentUser}
-          otherParticipant={otherParticipant}
-          onOpenMenu={handleOpenMenu}
-          viewportRef={viewportRef}
+            messages={messages}
+            currentUser={currentUser}
+            otherParticipant={otherParticipant}
+            onOpenMenu={handleOpenMenu}
+            viewportRef={viewportRef}
         />
-        <div className="p-4 border-t bg-background">
-          <form onSubmit={handleSendMessage} className="relative w-full flex items-center">
-            <Textarea
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Сообщение..."
-              className="w-full pl-12 pr-12 py-3"
-              rows={1}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSendMessage(e);
-                }
-              }}
+        {menuState.position && selectedMessage && (
+            <ChatMessageMenu
+                message={selectedMessage}
+                isSentByCurrentUser={selectedMessage.senderId === currentUser.id}
+                position={menuState.position}
+                onClose={handleCloseMenu}
+                onReply={handleReply}
+                onCopy={handleCopy}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
             />
-            <div className="absolute left-0 top-0 bottom-0 flex items-center">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-full w-10 hover:bg-transparent"
-                onClick={() => setIsAttachmentModalOpen(true)}
-              >
-                <Camera className="h-5 w-5 text-muted-foreground" />
-                <span className="sr-only">Открыть камеру</span>
-              </Button>
-            </div>
+        )}
+      </div>
 
-            <div className="absolute left-10 top-0 bottom-0 flex items-center">
-              <div className="h-6 w-px bg-border" />
+      <div className="px-4 py-2 border-t bg-background">
+        {replyingTo && (
+            <div className="text-xs p-2 mb-2 rounded-md bg-muted text-muted-foreground border-l-4 border-primary">
+                <div className="flex justify-between items-center">
+                    <span className="font-bold">{t('Ответ на сообщение')}</span>
+                    <button onClick={() => setReplyingTo(null)}><X className="h-4 w-4" /></button>
+                </div>
+                <p className="truncate italic mt-1">"{replyingTo.text}"</p>
             </div>
+        )}
+        {editingMessage && (
+            <div className="text-xs p-2 mb-2 rounded-md bg-muted text-muted-foreground border-l-4 border-accent">
+                <div className="flex justify-between items-center">
+                    <span className="font-bold text-accent">{t('Редактирование')}</span>
+                    <button onClick={() => { setEditingMessage(null); setNewMessage(''); }}><X className="h-4 w-4" /></button>
+                </div>
+                <p className="truncate italic mt-1">"{editingMessage.text}"</p>
+            </div>
+        )}
 
-            <div className="absolute right-10 top-0 bottom-0 flex items-center">
-              <div className="h-6 w-px bg-border" />
-            </div>
-
-            <div className="absolute right-0 top-0 bottom-0 flex items-center">
-              <Button
-                type="submit"
-                size="icon"
-                variant="ghost"
-                aria-label="Send Message"
-                className="h-full w-10 hover:bg-transparent"
-                disabled={!newMessage.trim()}
-              >
-                <SendHorizonal className="h-5 w-5 text-muted-foreground" />
-              </Button>
-            </div>
-          </form>
+        <div className="relative flex items-center">
+          <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setIsAttachmentModalOpen(true)}>
+            <Paperclip className="h-5 w-5" />
+            <span className="sr-only">Прикрепить файл</span>
+          </Button>
+          <Textarea
+            id="message-input"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Напишите сообщение..."
+            rows={1}
+            className="flex-1 border-none focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none bg-transparent max-h-24 resize-none"
+          />
+          <Button variant="ghost" size="icon" className="shrink-0">
+            <Smile className="h-5 w-5" />
+            <span className="sr-only">Добавить эмодзи</span>
+          </Button>
+          <Button size="icon" className="shrink-0 rounded-full" onClick={handleSendMessage} disabled={!newMessage.trim()}>
+            <Send className="h-5 w-5" />
+            <span className="sr-only">Отправить</span>
+          </Button>
         </div>
       </div>
-      <ChatAttachmentModal
-        isOpen={isAttachmentModalOpen}
-        onClose={() => setIsAttachmentModalOpen(false)}
-        onMediaSend={handleMediaSend}
+      <ChatAttachmentModal 
+          isOpen={isAttachmentModalOpen}
+          onClose={() => setIsAttachmentModalOpen(false)}
+          onMediaSend={handleMediaSend}
       />
-      <ChatMessageMenu
-          message={activeMenu?.message || null}
-          position={activeMenu?.position || null}
-          isSentByCurrentUser={activeMenu?.message?.senderId === currentUser.id}
-          onReply={handleReply}
-          onCopy={handleCopy}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onClose={handleCloseMenu}
-      />
-    </>
+    </div>
   );
 }
 
-export default function ConversationPage({ params }: { params: { id: string } }) {
-  const [conversation, setConversation] = useState<Conversation | null>(null);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    async function fetchData() {
-      const [convData, currentUserData] = await Promise.all([
-        getConversationById(params.id),
-        getCurrentUser()
-      ]);
-      setConversation(convData || null);
-      setCurrentUser(currentUserData || null);
-    }
-    fetchData();
-  }, [params.id]);
+// =====================================================================
+// Server Component: Fetches data and passes it to the Client Component
+// =====================================================================
 
+export default async function ConversationPage({ params }: { params: { id: string } }) {
+  const conversationId = params.id;
+  
+  // Fetch data on the server
+  const [conversation, currentUser] = await Promise.all([
+    getConversationById(conversationId),
+    getCurrentUser()
+  ]);
+
+  // Handle case where conversation or user is not found
   if (!conversation || !currentUser) {
-    return <FullScreenLoader text="Загрузка чата..." />;
+    notFound();
   }
 
+  // Render the client component with the fetched data
   return (
     <ConversationClient initialConversation={conversation} currentUser={currentUser} />
   );
 }
+
