@@ -16,7 +16,7 @@ interface MapProps {
 }
 
 const getPlacemarkLayout = (marker: MarkerInfo): string => {
-    const { color = '#FF7F50', isPremium, avatarUrl } = marker;
+    const { color = '#FF7F50', isPremium } = marker;
     const isOwn = marker.userId === '0';
 
     const getDarkerColor = (hslColor: string) => {
@@ -78,7 +78,6 @@ export function MapComponent({ mapState, markers = [], className }: MapProps) {
                 state={mapState} 
                 width="100%" 
                 height="100%"
-                modules={["layout.ImageWithContent"]}
             >
             {markers.map((marker) => (
                 <Placemark
@@ -88,9 +87,8 @@ export function MapComponent({ mapState, markers = [], className }: MapProps) {
                     options={{
                         iconLayout: 'default#image',
                         iconImageHref: getPlacemarkLayout(marker),
-                        iconImageSize: [40, 30],
-                        iconImageOffset: [-20, -15],
-                        pane: 'overlaps', // This prevents the icon from scaling on zoom
+                        iconImageSize: [50, 38], // Base size, will be scaled by the map
+                        iconImageOffset: [-25, -19],
                     }}
                 />
             ))}
