@@ -64,6 +64,27 @@ export function MessageView({ initialConversation, currentUser, className }: { i
     setIsAttachmentModalOpen(false);
   };
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast({ title: 'Скопировано', description: 'Текст сообщения скопирован в буфер обмена.' });
+    });
+  };
+
+  const handleDelete = (messageId: string) => {
+    setMessages(prev => prev.filter(m => m.id !== messageId));
+    toast({ title: 'Сообщение удалено', variant: 'destructive' });
+  };
+  
+  const handleEdit = (message: Message) => {
+      // Mock implementation
+      toast({ title: 'Редактирование', description: `Выбрано для редактирования: "${message.text}"` });
+  };
+
+  const handleReply = (message: Message) => {
+      // Mock implementation
+      toast({ title: 'Ответ', description: `Выбран ответ на: "${message.text}"` });
+  };
+
 
   useEffect(() => {
     if (viewportRef.current) {
@@ -81,7 +102,16 @@ export function MessageView({ initialConversation, currentUser, className }: { i
         <ScrollArea className="h-full" viewportProps={{ ref: viewportRef }}>
           <div className="p-4 space-y-6">
             {messages.map((message) => (
-              <MessageItem key={message.id} message={message} currentUser={currentUser} otherParticipant={otherParticipant} />
+              <MessageItem 
+                key={message.id} 
+                message={message} 
+                currentUser={currentUser} 
+                otherParticipant={otherParticipant} 
+                onDelete={handleDelete}
+                onCopy={handleCopy}
+                onEdit={handleEdit}
+                onReply={handleReply}
+              />
             ))}
           </div>
         </ScrollArea>
