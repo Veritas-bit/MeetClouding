@@ -39,14 +39,17 @@ export const useProfileStore = create<ProfileState>()(
       
       // Check registration status from storage
       checkRegistration: () => {
-        // The `persist` middleware automatically rehydrates the state.
-        // We just need to check if the rehydrated state has a nickname,
-        // which we consider as a sign of registration.
-        // We use a short timeout to allow the rehydration to complete.
-        setTimeout(() => {
+        // The `persist` middleware automatically rehydrates the state from localStorage.
+        // This function's job is to check the rehydrated state and update our
+        // `isRegistered` flag accordingly. We don't need a timeout, as the store
+        // is already rehydrated by the time this is called from a component.
+        const hasRehydrated = useProfileStore.persist.hasHydrated();
+
+        // We only proceed if rehydration has happened and `isRegistered` is still null.
+        if (hasRehydrated && get().isRegistered === null) {
           const registered = !!get().nickname;
           set({ isRegistered: registered });
-        }, 50);
+        }
       },
 
       logout: () => {
@@ -64,6 +67,11 @@ export const useProfileStore = create<ProfileState>()(
     {
       name: 'meetcloud-profile-storage', // name of the item in the storage (must be unique)
       storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+            state.isRegistered = null;
+        }
+      },
       partialize: (state) =>
         Object.fromEntries(
           Object.entries(state).filter(([key]) => !['isRegistered'].includes(key))

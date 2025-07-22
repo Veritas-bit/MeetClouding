@@ -19,8 +19,15 @@ export default function MainLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { isRegistered } = useProfileStore();
+  const { isRegistered, checkRegistration } = useProfileStore();
   const requestLocation = useLocationStore((state) => state.requestLocation);
+
+  useEffect(() => {
+    // This is the key change: ensure we check registration status
+    // when any page within this layout is loaded.
+    checkRegistration();
+  }, [checkRegistration]);
+
 
   useEffect(() => {
     // Request location only when user is in the main part of the app
