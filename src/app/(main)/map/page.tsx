@@ -40,7 +40,7 @@ export interface MarkerInfo {
 // Function to generate random coordinates within a given radius using a simple and robust method
 const generateRandomMarkers = (center: { latitude: number, longitude: number }, category: WishCategoryKey | null, radiusKm: number, t: (key: any) => string, users: User[]): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
-    const count = 5 + Math.floor(radiusKm / 2) * 3;
+    const count = 20 + Math.floor(radiusKm) * 5; // More markers for a larger area
     
     // Convert radius from kilometers to degrees (approximate)
     const radiusInDegrees = radiusKm / 111.32;
@@ -124,7 +124,7 @@ function MapContent() {
 
   // Effect to initialize or update map center and markers
   useEffect(() => {
-    if (allUsers.length === 0) return; // Wait for users to be loaded
+    if (allUsers.length === 0 || viewState) return; // Wait for users, run only once
     
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
@@ -151,44 +151,32 @@ function MapContent() {
             gender: gender,
         };
 
-        const randomMarkers = generateRandomMarkers({ latitude: lat, longitude: lon }, null, 2, t, allUsers);
+        const randomMarkers = generateRandomMarkers({ latitude: lat, longitude: lon }, null, 5, t, allUsers);
         setMarkers([ownWishMarker, ...randomMarkers]);
-        if (!viewState) {
-            setViewState({ latitude: lat, longitude: lon, zoom: 13 });
-        }
+        setViewState({ latitude: lat, longitude: lon, zoom: 12 });
         return;
     }
     
-    if (location && !viewState) { // Only set initial viewState if it's not already set
+    if (location) {
         const newCenter = { latitude: location.latitude, longitude: location.longitude };
-        setViewState({ ...newCenter, zoom: 13 });
-
+        
         if (isSearch) {
-            const searchRadius = parseFloat(searchParams.get('radius') || '1');
+            const searchRadius = parseFloat(searchParams.get('radius') || '5');
             const searchCategory = searchParams.get('category') as WishCategoryKey | null;
             setMarkers(generateRandomMarkers(newCenter, searchCategory, searchRadius, t, allUsers));
         } else {
-            setMarkers(generateRandomMarkers(newCenter, null, 2, t, allUsers));
+            // Default view: 5km radius
+            setMarkers(generateRandomMarkers(newCenter, null, 5, t, allUsers));
         }
+        setViewState({ ...newCenter, zoom: 12 });
     }
     
   }, [location, searchParams, isPremium, t, allUsers, avatar, gender, viewState]);
   
-  const debouncedMarkerGeneration = useDebouncedCallback((newViewState: ViewState) => {
-    if (allUsers.length === 0) return;
-    
-    const isSpecialView = searchParams.get('published') === 'true' || searchParams.get('search') === 'true';
-    if (isSpecialView) return;
-
-    const newMarkers = generateRandomMarkers({ latitude: newViewState.latitude, longitude: newViewState.longitude }, null, 2, t, allUsers);
-    setMarkers(newMarkers);
-  }, 500);
-
   const handleMapMove = useCallback((evt: any) => {
     const newViewState = evt.viewState;
     setViewState(newViewState);
-    debouncedMarkerGeneration(newViewState);
-  }, [debouncedMarkerGeneration]);
+  }, []);
 
   if (!viewState) {
     return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
