@@ -54,10 +54,12 @@ function CloudMarker({ marker }: { marker: MarkerInfo }) {
   };
   
   const strokeColor = getDarkerColor(color);
+  const glowStyle = isOwn ? { filter: 'drop-shadow(0 0 0.5rem hsl(var(--primary)))' } : {};
+
 
   return (
     <div className="flex items-center gap-2 cursor-pointer group">
-        <div className={cn("relative transition-transform duration-200 group-hover:scale-110", isOwn && "animate-pulse-own-cloud")} style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))' }}>
+        <div className="relative transition-transform duration-200 group-hover:scale-110" style={{ ...glowStyle, filter: `${glowStyle.filter || ''} drop-shadow(0px 2px 4px rgba(0,0,0,0.2))` }}>
             {isPremium && (
                 <Crown 
                     className="absolute -top-3.5 -left-1.5 h-6 w-6 text-yellow-400 -rotate-12 z-10"
