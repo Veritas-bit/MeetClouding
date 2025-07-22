@@ -237,27 +237,12 @@ function ConversationClient({ initialConversation, currentUser }: { initialConve
   )
 }
 
-
-export default function ConversationPage({ params }: { params: { id: string } }) {
-  const [conversation, setConversation] = useState<Conversation | null>(null);
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    async function fetchData() {
-      const convId = params.id;
-      const [convData, currentUserData] = await Promise.all([
-        getConversationById(convId),
-        getCurrentUser()
-      ]);
-      setConversation(convData || null);
-      setCurrentUser(currentUserData || null);
-    }
-    fetchData();
-  }, [params.id]);
+export default async function ConversationPage({ params }: { params: { id: string } }) {
+  const conversation = await getConversationById(params.id);
+  const currentUser = await getCurrentUser();
 
   if (!conversation || !currentUser) {
-    // You can return a loading spinner here
-    return null;
+    notFound();
   }
 
   return (
