@@ -16,7 +16,6 @@ import { SettingsButton, type SettingsButtonProps } from "@/components/settings/
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useProfileStore, type Gender } from "@/lib/profile-store";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/use-translation";
 import { ScrollArea } from "@/components/ui/scroll-area";

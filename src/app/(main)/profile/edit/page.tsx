@@ -16,6 +16,22 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { cn } from "@/lib/utils";
 import { maleNicknames, femaleNicknames, neutralNicknames } from "@/lib/nicknames";
 import { useTranslation } from "@/hooks/use-translation";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MaleIcon } from "@/components/icons/gender/MaleIcon";
+import { FemaleIcon } from "@/components/icons/gender/FemaleIcon";
+import { NeuterIcon } from "@/components/icons/gender/NeuterIcon";
+
+const GenderAvatar = ({ gender }: { gender: Gender }) => {
+    const iconProps = { className: "w-full h-full p-1.5" };
+    switch (gender) {
+        case 'male':
+            return <MaleIcon {...iconProps} />;
+        case 'female':
+            return <FemaleIcon {...iconProps} />;
+        default:
+            return <NeuterIcon {...iconProps} />;
+    }
+};
 
 export default function EditProfilePage() {
   const { toast } = useToast();
@@ -116,7 +132,7 @@ export default function EditProfilePage() {
       nickname,
       about,
       gender,
-      avatar: avatarPreview || storeAvatar,
+      avatar: avatarPreview || '',
     });
 
     toast({
@@ -138,14 +154,14 @@ export default function EditProfilePage() {
     <>
     <div className="container mx-auto p-4 py-6 flex flex-col items-center pb-24">
       <div className="relative mb-2">
-        <Image
-          src={avatarPreview || "https://placehold.co/80x80.png"}
-          alt="User Avatar"
-          width={80}
-          height={80}
-          className="rounded-full border-4 border-background object-cover aspect-square"
-          data-ai-hint="person portrait"
-        />
+        <Avatar className="h-20 w-20 border-4 border-background bg-muted/50">
+            {avatarPreview ? (
+                <AvatarImage src={avatarPreview} alt="User Avatar" />
+            ) : null}
+            <AvatarFallback>
+                <GenderAvatar gender={gender} />
+            </AvatarFallback>
+        </Avatar>
         <input
           type="file"
           ref={fileInputRef}
