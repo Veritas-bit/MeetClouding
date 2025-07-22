@@ -184,11 +184,11 @@ export default function ConversationPage() {
       </div>
 
       <div className="p-4 border-t bg-background">
-        <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1 pr-2">
+        <div className="flex items-center bg-muted/50 rounded-lg p-1">
             <Button variant="ghost" size="icon" className="shrink-0 group" onClick={() => setIsAttachmentModalOpen(true)}>
                 <Camera className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
             </Button>
-            <div className="w-px h-6 bg-border mx-1"></div>
+            <div className="w-px h-6 bg-border"></div>
             <Textarea
                 placeholder="Сообщение..."
                 value={newMessage}
@@ -202,7 +202,7 @@ export default function ConversationPage() {
                 rows={1}
                 className="flex-1 max-h-24 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
             />
-            <div className="w-px h-6 bg-border mx-1"></div>
+            <div className="w-px h-6 bg-border"></div>
             <Button
                 variant="ghost"
                 size="icon"
