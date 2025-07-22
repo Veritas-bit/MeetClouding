@@ -21,6 +21,7 @@ interface MessageItemProps {
   onCopy: (text: string) => void;
   onEdit: (message: Message) => void;
   onReply: (message: Message) => void;
+  scrollContainerRef: React.RefObject<HTMLDivElement>;
 }
 
 function MessageStatus({ status }: { status: Message['status'] }) {
@@ -109,7 +110,7 @@ function ChatMessageMenu({ isSentByCurrentUser, onReply, onCopy, onEdit, onDelet
 }
 
 
-export function MessageItem({ message, currentUser, otherParticipant, onDelete, onCopy, onEdit, onReply }: MessageItemProps) {
+export function MessageItem({ message, currentUser, otherParticipant, onDelete, onCopy, onEdit, onReply, scrollContainerRef }: MessageItemProps) {
   const [isPending, startTransition] = useTransition();
   const [translatedText, setTranslatedText] = useState<string | null>(message.translation || null);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -118,7 +119,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   const t = useTranslation();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
+  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 0, height: 0 });
   const messageRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const touchStartPos = useRef<{ x: number, y: number } | null>(null);
@@ -198,22 +199,26 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
       const [style, setStyle] = useState<React.CSSProperties>({ opacity: 0 });
 
       useEffect(() => {
-        if (menuRef.current) {
+        if (menuRef.current && scrollContainerRef.current) {
           const menuRect = menuRef.current.getBoundingClientRect();
-          const menuHeight = menuRect.height;
-          const spaceBelow = window.innerHeight - position.top - position.height;
-          
-          let top = position.top + position.height + 4; // Position below by default
-          if (spaceBelow < menuHeight && position.top > menuHeight) {
-            top = position.top - menuHeight - 4; // Position above if not enough space below
+          const containerRect = scrollContainerRef.current.getBoundingClientRect();
+
+          const spaceBelow = containerRect.bottom - position.top - position.height;
+          const spaceAbove = position.top - containerRect.top;
+
+          let top;
+          if (spaceBelow > menuRect.height || spaceBelow > spaceAbove) {
+            top = position.top + position.height; // Position below
+          } else {
+            top = position.top - menuRect.height; // Position above
           }
           
           let left = position.left;
-          if(left + menuRect.width > window.innerWidth) {
+          if (left + menuRect.width > window.innerWidth) {
             left = window.innerWidth - menuRect.width - 8;
           }
 
-          setStyle({ top, left, opacity: 1 });
+          setStyle({ top: top, left: left, opacity: 1 });
         }
       }, [position]);
 

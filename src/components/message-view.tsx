@@ -99,7 +99,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
   return (
     <>
       <div className="fixed top-16 bottom-[10rem] left-0 right-0">
-        <ScrollArea className="h-full" viewportProps={{ ref: viewportRef }}>
+        <ScrollArea className="h-full" viewportRef={viewportRef}>
           <div className="p-4 space-y-6">
             {messages.map((message) => (
               <MessageItem 
@@ -111,6 +111,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
                 onCopy={handleCopy}
                 onEdit={handleEdit}
                 onReply={handleReply}
+                scrollContainerRef={viewportRef}
               />
             ))}
           </div>
