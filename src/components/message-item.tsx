@@ -19,6 +19,7 @@ interface MessageItemProps {
   currentUser: User;
   otherParticipant: User;
   onOpenMenu: (messageId: string, rect: DOMRect) => void;
+  // The 'key' prop is managed by React, so we don't need to define it here.
 }
 
 function MessageStatus({ status }: { status: Message['status'] }) {
