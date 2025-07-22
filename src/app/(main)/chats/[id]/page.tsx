@@ -1,4 +1,6 @@
 
+"use client";
+
 import { getConversationById, getCurrentUser } from '@/lib/mock-data';
 import { notFound } from 'next/navigation';
 import type { Conversation, Message, User } from '@/lib/types';
@@ -16,8 +18,6 @@ import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
 // =====================================================================
 // Client Component: Handles all state, interactions, and UI rendering
 // =====================================================================
-"use client";
-
 interface ConversationClientProps {
   initialConversation: Conversation;
   currentUser: User;
@@ -264,4 +264,3 @@ export default async function ConversationPage({ params }: { params: { id: strin
     <ConversationClient initialConversation={conversation} currentUser={currentUser} />
   );
 }
-
