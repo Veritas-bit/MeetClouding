@@ -82,9 +82,9 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
   };
 
   return (
-    <div className={cn("absolute inset-0", className)}>
+    <div className={cn("w-full h-full", className)}>
         <YMapComponentsProvider apiKey={mapApiKey} lang="ru_RU">
-            <YMap location={location} mode="vector" theme={isDarkTheme ? 'dark' : 'light'}>
+            <YMap location={location} mode="vector" theme={isDarkTheme ? 'dark' : 'light'} className="w-full h-full">
                 <YMapDefaultSchemeLayer />
                 <YMapDefaultFeaturesLayer />
                 {onUpdate && <YMapListener onUpdate={({location}) => onUpdate(location)} />}
