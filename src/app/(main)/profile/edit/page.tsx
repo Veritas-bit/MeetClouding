@@ -210,7 +210,7 @@ export default function EditProfilePage() {
                     <span className="text-muted-foreground">...</span>
                   </Button>
                 </CollapsibleTrigger>
-                <CollapsibleContent className="absolute w-full z-10">
+                <CollapsibleContent className="absolute w-full z-50">
                     <Card className="mt-2">
                         <CardContent className="p-2 space-y-1">
                            {genderOptions.map((option) => (
