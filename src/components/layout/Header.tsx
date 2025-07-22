@@ -97,14 +97,16 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
             
             <Link href={`/users/${chatInfo.id}`} className="flex items-center">
                 <Avatar className="h-8 w-8 mr-2">
-                    <Image
-                        src={chatInfo.avatarUrl}
-                        alt={chatInfo.name}
-                        width={32}
-                        height={32}
-                        className="rounded-full object-cover"
-                        data-ai-hint={"person portrait"}
-                    />
+                    {chatInfo.avatarUrl && (
+                        <Image
+                            src={chatInfo.avatarUrl}
+                            alt={chatInfo.name}
+                            width={32}
+                            height={32}
+                            className="rounded-full object-cover"
+                            data-ai-hint={"person portrait"}
+                        />
+                    )}
                     <AvatarFallback>{chatInfo.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start">
