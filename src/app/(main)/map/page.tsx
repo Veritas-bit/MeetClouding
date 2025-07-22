@@ -104,18 +104,24 @@ function MapContent() {
 
   // Effect to initialize or update map center and markers
   useEffect(() => {
-    if (allUsers.length === 0 || !location || viewState) return; // Wait for users & location, run only once
-    
+    // Run this effect only when location or users are available, and viewState is not yet set.
+    if (!location || allUsers.length === 0 || viewState) return;
+
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
 
     if (isPublished || isSearch) {
       setHasInteractedWithMap(true);
     }
-    
+
+    let newCenter = { latitude: location.latitude, longitude: location.longitude };
+    let newMarkers: MarkerInfo[] = [];
+
     if (isPublished) {
         const lat = parseFloat(searchParams.get('lat') || `${location.latitude}`);
         const lon = parseFloat(searchParams.get('lon') || `${location.longitude}`);
+        newCenter = { latitude: lat, longitude: lon };
+
         const message = decodeURIComponent(searchParams.get('message') || '');
         const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
         const color = searchParams.get('color') || 'hsl(var(--primary))';
@@ -132,26 +138,22 @@ function MapContent() {
             avatarUrl: avatar,
             gender: gender,
         };
-
-        const randomMarkers = generateRandomMarkers({ latitude: lat, longitude: lon }, null, 5, t, allUsers);
-        setMarkers([ownWishMarker, ...randomMarkers]);
-        setViewState({ latitude: lat, longitude: lon, zoom: 12 });
-        return;
+        newMarkers.push(ownWishMarker);
     }
-    
-    const newCenter = { latitude: location.latitude, longitude: location.longitude };
     
     if (isSearch) {
         const searchRadius = parseFloat(searchParams.get('radius') || '5');
         const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-        setMarkers(generateRandomMarkers(newCenter, searchCategory, searchRadius, t, allUsers));
+        newMarkers.push(...generateRandomMarkers(newCenter, searchCategory, searchRadius, t, allUsers));
     } else {
-        // Default view: 5km radius
-        setMarkers(generateRandomMarkers(newCenter, null, 5, t, allUsers));
+        // Default view or published view: add random markers
+        newMarkers.push(...generateRandomMarkers(newCenter, null, 5, t, allUsers));
     }
+    
+    setMarkers(newMarkers);
     setViewState({ ...newCenter, zoom: 12 });
     
-  }, [location, searchParams, isPremium, t, allUsers, avatar, gender, setHasInteractedWithMap, viewState]);
+  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, viewState]);
   
   const handleMapMove = useCallback((evt: any) => {
     setViewState(evt.viewState);
