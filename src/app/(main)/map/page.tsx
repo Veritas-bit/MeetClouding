@@ -12,9 +12,14 @@ import { useProfileStore, type Gender } from '@/lib/profile-store';
 import { useInteractionStore } from '@/lib/interaction-store';
 import { WISHES } from '@/lib/wishes';
 import { useTranslation } from '@/hooks/use-translation';
-import MapComponent from '@/components/map/Map';
 import { getAllUsers } from '@/lib/mock-data';
 import type { User } from '@/lib/types';
+
+// Lazy load the MapComponent
+const MapComponent = dynamic(() => import('@/components/map/Map'), {
+    ssr: false,
+    loading: () => <FullScreenLoader text="Загрузка карты..." />
+});
 
 
 export interface MarkerInfo {
