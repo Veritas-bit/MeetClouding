@@ -164,7 +164,7 @@ function MapContent() {
   return (
     <div className="flex-grow w-full relative">
         <MapComponent 
-            initialViewState={viewState} 
+            viewState={viewState} 
             markers={markers} 
             onMove={handleMapMove}
             className="w-full h-full" 

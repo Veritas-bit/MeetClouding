@@ -19,7 +19,7 @@ import type { Gender } from '@/lib/profile-store';
 
 
 interface MapProps {
-    initialViewState: Partial<ViewState>;
+    viewState: Partial<ViewState>;
     markers: MarkerInfo[];
     className?: string;
     onMove: (evt: any) => void;
@@ -98,7 +98,7 @@ function CloudMarker({ marker }: { marker: MarkerInfo }) {
   );
 }
 
-export function MapComponent({ initialViewState, markers = [], className, onMove }: MapProps) {
+export function MapComponent({ viewState, markers = [], className, onMove }: MapProps) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { theme, systemTheme } = useTheme();
@@ -143,7 +143,7 @@ export function MapComponent({ initialViewState, markers = [], className, onMove
   return (
     <div className="absolute inset-0">
         <Map
-            {...initialViewState}
+            {...viewState}
             onMove={onMove}
             mapStyle={`https://api.maptiler.com/maps/${mapStyle}/style.json?key=${mapApiKey}`}
             attributionControl={false}
