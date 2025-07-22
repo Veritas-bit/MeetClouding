@@ -1,0 +1,25 @@
+import { cn } from "@/lib/utils";
+
+export function MaleIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={cn("", className)}
+    >
+      <defs>
+        <linearGradient id="gender-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{ stopColor: "hsl(var(--primary))", stopOpacity: 1 }} />
+          <stop offset="100%" style={{ stopColor: "hsl(var(--secondary))", stopOpacity: 1 }} />
+        </linearGradient>
+      </defs>
+      <circle cx="10" cy="14" r="4" fill="url(#gender-gradient)" stroke="none" />
+      <path d="m14 4 6 6" stroke="url(#gender-gradient)" />
+      <path d="M14 10h6V4" stroke="url(#gender-gradient)" />
+    </svg>
+  );
+}

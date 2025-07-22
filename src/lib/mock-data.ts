@@ -2,12 +2,12 @@
 import type { User, Conversation } from './types';
 
 const users: User[] = [
-  { id: 'user-1', name: 'You', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
-  { id: 'user-2', name: 'Elena Petrova', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
-  { id: 'user-3', name: 'Kenji Tanaka', avatarUrl: 'https://placehold.co/100x100.png', isOnline: false },
-  { id: 'user-4', name: 'Priya Sharma', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
-  { id: 'friend-1', name: 'Иван Друг', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true },
-  { id: 'friend-2', name: 'Мария Подруга', avatarUrl: 'https://placehold.co/100x100.png', isOnline: false },
+  { id: 'user-1', name: 'You', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true, gender: 'male' },
+  { id: 'user-2', name: 'Elena Petrova', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true, gender: 'female' },
+  { id: 'user-3', name: 'Kenji Tanaka', avatarUrl: '', isOnline: false, gender: 'male' },
+  { id: 'user-4', name: 'Priya Sharma', avatarUrl: '', isOnline: true, gender: 'female' },
+  { id: 'friend-1', name: 'Иван Друг', avatarUrl: 'https://placehold.co/100x100.png', isOnline: true, gender: 'male' },
+  { id: 'friend-2', name: 'Мария Подруга', avatarUrl: '', isOnline: false, gender: 'female' },
 ];
 
 const conversations: Conversation[] = [

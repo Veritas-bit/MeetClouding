@@ -25,7 +25,7 @@ function transformConversationToProps(conversation: Conversation, currentUser: U
         unreadCount: unreadCount > 0 ? unreadCount : undefined,
         avatarHint: "person portrait",
         isOnline: otherParticipant.isOnline,
-        gender: 'unselected' // Placeholder, as mock User doesn't have gender
+        gender: otherParticipant.gender
     };
 }
 

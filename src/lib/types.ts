@@ -1,10 +1,12 @@
 import { WishCategoryKey } from "./categories";
+import { Gender } from "./profile-store";
 
 export interface User {
   id: string;
   name: string;
   avatarUrl: string;
   isOnline: boolean;
+  gender: Gender;
 }
 
 export interface Message {
