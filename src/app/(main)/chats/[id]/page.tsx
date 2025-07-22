@@ -13,6 +13,7 @@ import { Send, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
 import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
+import { cn } from '@/lib/utils';
 
 
 export default function ConversationPage() {
@@ -168,6 +169,8 @@ export default function ConversationPage() {
     notFound();
   }
 
+  const isMessageEmpty = newMessage.trim() === '';
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
@@ -201,12 +204,13 @@ export default function ConversationPage() {
             />
             <div className="w-px h-6 bg-border mx-1"></div>
             <Button
+                variant="ghost"
                 size="icon"
-                className="shrink-0"
+                className="shrink-0 group"
                 onClick={handleSendMessage}
-                disabled={isSending || newMessage.trim() === ''}
+                disabled={isSending || isMessageEmpty}
             >
-                <Send className="h-5 w-5" />
+                <Send className={cn("h-5 w-5 text-muted-foreground", !isMessageEmpty && "text-primary", "group-hover:text-primary transition-colors")} />
             </Button>
         </div>
       </div>
