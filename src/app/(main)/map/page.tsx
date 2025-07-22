@@ -102,9 +102,8 @@ function MapContent() {
     getAllUsers().then(setAllUsers);
   }, [requestLocation]);
 
-  // Effect to initialize or update map center and markers
+  // Effect to initialize markers and view state, runs once after location and users are fetched.
   useEffect(() => {
-    // Run this effect only when location or users are available, and viewState is not yet set.
     if (!location || allUsers.length === 0 || viewState) return;
 
     const isPublished = searchParams.get('published') === 'true';
@@ -114,13 +113,13 @@ function MapContent() {
       setHasInteractedWithMap(true);
     }
 
-    let newCenter = { latitude: location.latitude, longitude: location.longitude };
-    let newMarkers: MarkerInfo[] = [];
+    let initialCenter = { latitude: location.latitude, longitude: location.longitude };
+    let initialMarkers: MarkerInfo[] = [];
 
     if (isPublished) {
         const lat = parseFloat(searchParams.get('lat') || `${location.latitude}`);
         const lon = parseFloat(searchParams.get('lon') || `${location.longitude}`);
-        newCenter = { latitude: lat, longitude: lon };
+        initialCenter = { latitude: lat, longitude: lon };
 
         const message = decodeURIComponent(searchParams.get('message') || '');
         const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
@@ -138,20 +137,20 @@ function MapContent() {
             avatarUrl: avatar,
             gender: gender,
         };
-        newMarkers.push(ownWishMarker);
+        initialMarkers.push(ownWishMarker);
     }
     
     if (isSearch) {
         const searchRadius = parseFloat(searchParams.get('radius') || '5');
         const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-        newMarkers.push(...generateRandomMarkers(newCenter, searchCategory, searchRadius, t, allUsers));
+        initialMarkers.push(...generateRandomMarkers(initialCenter, searchCategory, searchRadius, t, allUsers));
     } else {
         // Default view or published view: add random markers
-        newMarkers.push(...generateRandomMarkers(newCenter, null, 5, t, allUsers));
+        initialMarkers.push(...generateRandomMarkers(initialCenter, null, 5, t, allUsers));
     }
     
-    setMarkers(newMarkers);
-    setViewState({ ...newCenter, zoom: 12 });
+    setMarkers(initialMarkers);
+    setViewState({ ...initialCenter, zoom: 12 });
     
   }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, viewState]);
   
