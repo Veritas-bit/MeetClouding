@@ -22,7 +22,7 @@ export default function MainPage() {
   const t = useTranslation();
 
   return (
-    <div className="flex-grow flex flex-col justify-center items-center p-4">
+    <div className="h-full flex flex-col justify-center items-center p-4">
       <div className="relative flex flex-col items-center justify-center text-center text-foreground">
         
         <p className="text-[1.1rem] font-headline mb-4 max-w-md text-foreground">
