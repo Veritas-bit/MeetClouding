@@ -58,10 +58,9 @@ interface MessageMenuProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onClose: () => void;
-  position: { top: number; left: number };
 }
 
-function ChatMessageMenu({ isSentByCurrentUser, onReply, onCopy, onEdit, onDelete, onClose, position }: MessageMenuProps) {
+function ChatMessageMenu({ isSentByCurrentUser, onReply, onCopy, onEdit, onDelete, onClose }: MessageMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -88,7 +87,6 @@ function ChatMessageMenu({ isSentByCurrentUser, onReply, onCopy, onEdit, onDelet
   return (
     <div
       ref={menuRef}
-      style={{ top: position.top, left: position.left }}
       className="fixed z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
     >
       {menuItems.map((item, index) => (
@@ -148,29 +146,11 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   };
   
   const openMenu = useCallback(() => {
-    if (!messageRef.current) return;
-
-    const rect = messageRef.current.getBoundingClientRect();
-    const menuWidth = 180;
-    const menuHeight = 150; // Approximate height of the menu
-
-    let top = rect.bottom + 8 + window.scrollY;
-    let left = rect.left + window.scrollX;
-
-    // Adjust vertical position
-    if (rect.top + rect.height + menuHeight > window.innerHeight) {
-        // Not enough space below, position above
-        top = rect.top - menuHeight - 8 + window.scrollY;
+    if (messageRef.current) {
+      const rect = messageRef.current.getBoundingClientRect();
+      setMenuPosition({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
+      setIsMenuOpen(true);
     }
-
-    // Adjust horizontal position
-    if (rect.left + menuWidth > window.innerWidth) {
-        // Not enough space to the right, align to the right edge
-        left = rect.right - menuWidth + window.scrollX;
-    }
-
-    setMenuPosition({ top, left });
-    setIsMenuOpen(true);
   }, []);
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent) => {
@@ -209,6 +189,51 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   const sender = isSentByCurrentUser ? currentUser : otherParticipant;
   const textToShow = showTranslation && translatedText ? translatedText : message.text;
   const messageColorClass = isSentByCurrentUser ? 'bg-primary text-primary-foreground' : 'bg-card border';
+  
+  const renderMenu = () => {
+    if (!isMenuOpen) return null;
+
+    const MenuWithPosition = ({ position }: { position: { top: number, left: number, width: number, height: number } }) => {
+      const menuRef = useRef<HTMLDivElement>(null);
+      const [style, setStyle] = useState<React.CSSProperties>({ opacity: 0 });
+
+      useEffect(() => {
+        if (menuRef.current) {
+          const menuRect = menuRef.current.getBoundingClientRect();
+          const menuHeight = menuRect.height;
+          const spaceBelow = window.innerHeight - position.top - position.height;
+          
+          let top = position.top + position.height + 4; // Position below by default
+          if (spaceBelow < menuHeight && position.top > menuHeight) {
+            top = position.top - menuHeight - 4; // Position above if not enough space below
+          }
+          
+          let left = position.left;
+          if(left + menuRect.width > window.innerWidth) {
+            left = window.innerWidth - menuRect.width - 8;
+          }
+
+          setStyle({ top, left, opacity: 1 });
+        }
+      }, [position]);
+
+
+      return (
+        <div ref={menuRef} style={style} className="fixed z-50">
+          <ChatMessageMenu
+            isSentByCurrentUser={isSentByCurrentUser}
+            onReply={() => onReply(message)}
+            onCopy={() => onCopy(message.text)}
+            onEdit={() => onEdit(message)}
+            onDelete={() => onDelete(message.id)}
+            onClose={() => setIsMenuOpen(false)}
+          />
+        </div>
+      );
+    };
+
+    return <MenuWithPosition position={menuPosition} />;
+  };
 
   return (
     <>
@@ -255,17 +280,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
           {error && <p className="text-xs text-destructive mt-1">{error}</p>}
         </div>
       </div>
-      {isMenuOpen && (
-        <ChatMessageMenu
-          isSentByCurrentUser={isSentByCurrentUser}
-          onReply={() => onReply(message)}
-          onCopy={() => onCopy(message.text)}
-          onEdit={() => onEdit(message)}
-          onDelete={() => onDelete(message.id)}
-          onClose={() => setIsMenuOpen(false)}
-          position={menuPosition}
-        />
-      )}
+      {renderMenu()}
     </>
   );
 }
