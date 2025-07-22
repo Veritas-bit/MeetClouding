@@ -3,24 +3,18 @@ import { cn } from "@/lib/utils";
 export function MaleIcon({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox="0 0 80 80"
       fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
       className={cn("", className)}
     >
-      <defs>
-        <linearGradient id="gender-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style={{ stopColor: "hsl(var(--primary))", stopOpacity: 1 }} />
-          <stop offset="100%" style={{ stopColor: "hsl(var(--secondary))", stopOpacity: 1 }} />
-        </linearGradient>
-      </defs>
-      <circle cx="12" cy="12" r="5" stroke="url(#gender-gradient)" />
-      <path d="M17 7L12 12" stroke="url(#gender-gradient)" />
-      <path d="M17 7h-4" stroke="url(#gender-gradient)" />
-      <path d="M17 7v4" stroke="url(#gender-gradient)" />
+      <path d="M40 80C62.0914 80 80 62.0914 80 40C80 17.9086 62.0914 0 40 0C17.9086 0 0 17.9086 0 40C0 62.0914 17.9086 80 40 80Z" fill="#E0E0E0"/>
+      <g>
+        <path d="M54.8 54.3411V58.7444H25.2V54.3411C25.2 51.5833 25.8356 47.9333 28.3922 45.4111C29.6205 44.2022 33.2784 43.1 36.4648 43.1H43.535C46.7214 43.1 50.3793 44.2022 51.6076 45.4111C54.1642 47.9333 54.8 51.5833 54.8 54.3411Z" fill="#E57373"/>
+        <path d="M40 44.1C45.5228 44.1 50 39.6228 50 34.1C50 28.5772 45.5228 24.1 40 24.1C34.4772 24.1 30 28.5772 30 34.1C30 39.6228 34.4772 44.1 40 44.1Z" fill="#F0D7D1"/>
+        <path d="M48.5 21C47.45 20.2 44.6 18.5 40 18.5C35.4 18.5 32.55 20.2 31.5 21C30.45 21.8 30.45 23.3 31.5 24.1C32.55 24.9 35.4 26.6 40 26.6C44.6 26.6 47.45 24.9 48.5 24.1C49.55 23.3 49.55 21.8 48.5 21Z" fill="#424242"/>
+        <path d="M44.808 43.1H35.1922L36.4649 40.5H43.5352L44.808 43.1Z" fill="#FFFFFF"/>
+      </g>
     </svg>
   );
 }
