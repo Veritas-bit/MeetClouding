@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { getTranslation } from '@/lib/actions';
 import { useLanguageStore } from '@/lib/language-store';
 import { useTranslation } from '@/hooks/use-translation';
+import Image from 'next/image';
 
 interface MessageItemProps {
   message: Message;
@@ -45,6 +46,32 @@ function parseMessageContent(text: string) {
     }
     return part;
   });
+}
+
+function MediaContent({ message }: { message: Message }) {
+  if (message.image) {
+    return (
+      <div className="relative w-full max-w-[250px] aspect-square mt-2">
+        <Image
+          src={message.image}
+          alt="Attached image"
+          layout="fill"
+          objectFit="cover"
+          className="rounded-lg"
+        />
+      </div>
+    );
+  }
+  if (message.video) {
+     return (
+        <video 
+            src={message.video} 
+            controls 
+            className="w-full max-w-[250px] rounded-lg mt-2" 
+        />
+     )
+  }
+  return null;
 }
 
 
@@ -145,6 +172,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
             {parseMessageContent(textToShow)}
             {showTranslation && <p className="text-xs opacity-70 mt-2 pt-2 border-t border-t-white/20">{t('original')}: {message.text}</p>}
           </div>
+           <MediaContent message={message} />
           <div className={cn("flex items-center gap-2 mt-2 self-end text-xs", isSentByCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
             {isPending && <Loader2 className="h-3 w-3 animate-spin" />}
             <TooltipProvider>

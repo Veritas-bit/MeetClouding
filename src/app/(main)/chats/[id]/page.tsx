@@ -9,9 +9,10 @@ import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { MessageView } from '@/components/message-view';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Send, Smile } from 'lucide-react';
+import { Send, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
+import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
 
 
 export default function ConversationPage() {
@@ -27,6 +28,7 @@ export default function ConversationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
   
   // Context Menu State
   const [menuState, setMenuState] = useState<{
@@ -60,6 +62,31 @@ export default function ConversationPage() {
       viewportRef.current.scrollTop = viewportRef.current.scrollHeight;
     }
   }, [messages]);
+  
+  const handleMediaSend = (media: { src: string; type: 'image' | 'video' }, source: 'camera' | 'gallery') => {
+    if (!currentUser || !conversation) return;
+
+    const mediaMessage: Message = {
+      id: `msg-${Date.now()}`,
+      text: media.type === 'image' ? 'Изображение' : 'Видео',
+      timestamp: Date.now(),
+      senderId: currentUser.id,
+      status: 'sent',
+      [media.type]: media.src, // image: '...' or video: '...'
+      source,
+    };
+
+    setMessages(prev => [...prev, mediaMessage]);
+    setIsAttachmentModalOpen(false);
+
+    // Simulate network delay and auto-reply
+    setTimeout(() => {
+        setMessages(prev => prev.map(m => m.id === mediaMessage.id ? {...m, status: 'delivered'} : m));
+        setTimeout(() => {
+            setMessages(prev => prev.map(m => m.id === mediaMessage.id ? {...m, status: 'read'} : m));
+        }, 1000);
+    }, 500);
+  };
 
   const handleSendMessage = async () => {
     if (newMessage.trim() === '' || !currentUser || !conversation) return;
@@ -154,32 +181,34 @@ export default function ConversationPage() {
       </div>
 
       <div className="p-4 border-t bg-background">
-          <div className="relative flex items-end gap-2">
-              <Button variant="ghost" size="icon" className="shrink-0 group">
-                  <Smile className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
-              </Button>
-              <Textarea
-                  placeholder="Сообщение..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey) {
-                          e.preventDefault();
-                          handleSendMessage();
-                      }
-                  }}
-                  rows={1}
-                  className="flex-1 pr-2 py-2.5 max-h-24 bg-muted/50"
-              />
-              <Button
-                  size="icon"
-                  className="shrink-0"
-                  onClick={handleSendMessage}
-                  disabled={isSending || newMessage.trim() === ''}
-              >
-                  <Send className="h-5 w-5" />
-              </Button>
-          </div>
+        <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1 pr-2">
+            <Button variant="ghost" size="icon" className="shrink-0 group" onClick={() => setIsAttachmentModalOpen(true)}>
+                <Camera className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
+            </Button>
+            <div className="w-px h-6 bg-border mx-1"></div>
+            <Textarea
+                placeholder="Сообщение..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                    }
+                }}
+                rows={1}
+                className="flex-1 max-h-24 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
+            />
+            <div className="w-px h-6 bg-border mx-1"></div>
+            <Button
+                size="icon"
+                className="shrink-0"
+                onClick={handleSendMessage}
+                disabled={isSending || newMessage.trim() === ''}
+            >
+                <Send className="h-5 w-5" />
+            </Button>
+        </div>
       </div>
       
       <ChatMessageMenu
@@ -191,6 +220,12 @@ export default function ConversationPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onClose={handleCloseMenu}
+      />
+
+      <ChatAttachmentModal
+        isOpen={isAttachmentModalOpen}
+        onClose={() => setIsAttachmentModalOpen(false)}
+        onMediaSend={handleMediaSend}
       />
     </div>
   );
