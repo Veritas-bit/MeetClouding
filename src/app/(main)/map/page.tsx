@@ -166,7 +166,9 @@ type WishKey = WishCategoryKey;
 export default function MapPage() {
     return (
         <Suspense fallback={<FullScreenLoader text="Загрузка карты..." />}>
-            <MapContent />
+            <div className="flex flex-col flex-grow">
+                <MapContent />
+            </div>
         </Suspense>
     )
 }
