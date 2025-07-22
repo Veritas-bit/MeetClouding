@@ -42,7 +42,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     const avatarUrl = marker.avatarUrl || 'https://placehold.co/40x40.png'; // Fallback avatar
 
     const cloudSvg = `
-        <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-30px, -40px); overflow: visible;">
+        <svg width="60" height="38" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-22px, -30px); overflow: visible;">
             <defs>
                 <clipPath id="avatarClip">
                     <circle cx="63" cy="25" r="14" />
