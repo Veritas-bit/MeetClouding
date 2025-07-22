@@ -6,17 +6,24 @@ import type { Conversation, User, Message } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageItem } from './message-item';
+import { MessageItem, ChatMessageMenu } from './message-item';
 import { SendHorizonal, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { ChatAttachmentModal } from './chats/ChatAttachmentModal';
+
+type ActiveMenu = {
+  messageId: string;
+  rect: DOMRect;
+};
 
 export function MessageView({ initialConversation, currentUser, className }: { initialConversation: Conversation; currentUser: User, className?: string }) {
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>(initialConversation.messages);
   const [newMessage, setNewMessage] = useState('');
   const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
+  const [activeMenu, setActiveMenu] = useState<ActiveMenu | null>(null);
+
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const otherParticipant = initialConversation.participants.find(p => p.id !== currentUser.id);
@@ -85,6 +92,57 @@ export function MessageView({ initialConversation, currentUser, className }: { i
       toast({ title: 'Ответ', description: `Выбран ответ на: "${message.text}"` });
   };
 
+  const handleOpenMenu = (messageId: string, rect: DOMRect) => {
+    setActiveMenu({ messageId, rect });
+  };
+
+  const handleCloseMenu = () => {
+    setActiveMenu(null);
+  };
+
+  const renderMenu = () => {
+    if (!activeMenu) return null;
+
+    const message = messages.find(m => m.id === activeMenu.messageId);
+    if (!message) return null;
+
+    const menuRect = { width: 180, height: 150 }; // Approximate menu size
+    const containerRect = viewportRef.current?.getBoundingClientRect();
+
+    if (!containerRect) return null;
+
+    const spaceBelow = containerRect.bottom - activeMenu.rect.bottom;
+    const isSentByCurrentUser = message.senderId === currentUser.id;
+
+    let top: number;
+    // Position below if enough space, or if there's more space below than above
+    if (spaceBelow > menuRect.height || spaceBelow > activeMenu.rect.top - containerRect.top) {
+      top = activeMenu.rect.top + activeMenu.rect.height;
+    } else {
+      top = activeMenu.rect.top - menuRect.height;
+    }
+    
+    let left = isSentByCurrentUser ? (activeMenu.rect.left + activeMenu.rect.width - menuRect.width) : activeMenu.rect.left;
+
+    // Clamp position within viewport
+    top = Math.max(containerRect.top, Math.min(top, containerRect.bottom - menuRect.height));
+    left = Math.max(8, Math.min(left, window.innerWidth - menuRect.width - 8));
+
+    return (
+        <div style={{ top: top, left: left }} className="fixed z-50">
+            <ChatMessageMenu
+                isSentByCurrentUser={isSentByCurrentUser}
+                message={message}
+                onReply={handleReply}
+                onCopy={handleCopy}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onClose={handleCloseMenu}
+            />
+        </div>
+    );
+  };
+
 
   useEffect(() => {
     if (viewportRef.current) {
@@ -98,7 +156,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
   return (
     <>
-      <div className="fixed top-16 bottom-[10rem] left-0 right-0">
+      <div className="fixed top-16 bottom-[10rem] left-0 right-0" onClick={handleCloseMenu}>
         <ScrollArea className="h-full" viewportRef={viewportRef}>
           <div className="p-4 space-y-6">
             {messages.map((message) => (
@@ -111,12 +169,14 @@ export function MessageView({ initialConversation, currentUser, className }: { i
                 onCopy={handleCopy}
                 onEdit={handleEdit}
                 onReply={handleReply}
-                scrollContainerRef={viewportRef}
+                onOpenMenu={handleOpenMenu}
               />
             ))}
           </div>
         </ScrollArea>
       </div>
+
+      {renderMenu()}
 
       <div className="fixed bottom-20 left-0 right-0 z-10">
           <div className="p-4 border-t bg-background">

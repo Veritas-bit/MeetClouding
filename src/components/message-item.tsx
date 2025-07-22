@@ -21,7 +21,7 @@ interface MessageItemProps {
   onCopy: (text: string) => void;
   onEdit: (message: Message) => void;
   onReply: (message: Message) => void;
-  scrollContainerRef: React.RefObject<HTMLDivElement>;
+  onOpenMenu: (messageId: string, rect: DOMRect) => void;
 }
 
 function MessageStatus({ status }: { status: Message['status'] }) {
@@ -51,66 +51,8 @@ function parseMessageContent(text: string) {
   });
 }
 
-// Custom Menu Component
-interface MessageMenuProps {
-  isSentByCurrentUser: boolean;
-  onReply: () => void;
-  onCopy: () => void;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onClose: () => void;
-}
 
-function ChatMessageMenu({ isSentByCurrentUser, onReply, onCopy, onEdit, onDelete, onClose }: MessageMenuProps) {
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [onClose]);
-
-  const menuItems = [
-    { label: 'Ответить', icon: MessageSquareReply, action: onReply, a: 's' },
-    { label: 'Копировать', icon: Copy, action: onCopy },
-    ...(isSentByCurrentUser ? [
-      { label: 'Изменить', icon: Pencil, action: onEdit! },
-      { label: 'Удалить', icon: Trash2, action: onDelete!, className: 'text-destructive' },
-    ] : [])
-  ];
-
-  return (
-    <div
-      ref={menuRef}
-      className="fixed z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
-    >
-      {menuItems.map((item, index) => (
-        <React.Fragment key={item.label}>
-          <button
-            onClick={() => { item.action(); onClose(); }}
-            className={cn(
-              "relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground",
-              item.className
-            )}
-          >
-            <item.icon className="h-4 w-4" />
-            <span>{item.label}</span>
-          </button>
-          {item.label === 'Копировать' && isSentByCurrentUser && <div className="-mx-1 my-1 h-px bg-muted" />}
-        </React.Fragment>
-      ))}
-    </div>
-  );
-}
-
-
-export function MessageItem({ message, currentUser, otherParticipant, onDelete, onCopy, onEdit, onReply, scrollContainerRef }: MessageItemProps) {
+export function MessageItem({ message, currentUser, otherParticipant, onDelete, onCopy, onEdit, onReply, onOpenMenu }: MessageItemProps) {
   const [isPending, startTransition] = useTransition();
   const [translatedText, setTranslatedText] = useState<string | null>(message.translation || null);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -118,12 +60,9 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   const { language: targetLanguage } = useLanguageStore();
   const t = useTranslation();
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 0, height: 0 });
   const messageRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const touchStartPos = useRef<{ x: number, y: number } | null>(null);
-
 
   const handleTranslate = () => {
     if (showTranslation) {
@@ -148,27 +87,26 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   
   const openMenu = useCallback(() => {
     if (messageRef.current) {
-      const rect = messageRef.current.getBoundingClientRect();
-      setMenuPosition({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
-      setIsMenuOpen(true);
+      onOpenMenu(message.id, messageRef.current.getBoundingClientRect());
     }
+  }, [message.id, onOpenMenu]);
+
+  const handlePressEnd = useCallback(() => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
+    touchStartPos.current = null;
   }, []);
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent) => {
+    handlePressEnd(); // Clear any existing timers
     if ('touches' in e) {
       touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
     pressTimer.current = setTimeout(() => {
       openMenu();
     }, 700);
-  };
-  
-  const handlePressEnd = () => {
-    if (pressTimer.current) {
-      clearTimeout(pressTimer.current);
-      pressTimer.current = null;
-    }
-    touchStartPos.current = null;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -191,57 +129,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   const textToShow = showTranslation && translatedText ? translatedText : message.text;
   const messageColorClass = isSentByCurrentUser ? 'bg-primary text-primary-foreground' : 'bg-card border';
   
-  const renderMenu = () => {
-    if (!isMenuOpen) return null;
-
-    const MenuWithPosition = ({ position }: { position: { top: number, left: number, width: number, height: number } }) => {
-      const menuRef = useRef<HTMLDivElement>(null);
-      const [style, setStyle] = useState<React.CSSProperties>({ opacity: 0 });
-
-      useEffect(() => {
-        if (menuRef.current && scrollContainerRef.current) {
-          const menuRect = menuRef.current.getBoundingClientRect();
-          const containerRect = scrollContainerRef.current.getBoundingClientRect();
-
-          const spaceBelow = containerRect.bottom - position.top - position.height;
-          const spaceAbove = position.top - containerRect.top;
-
-          let top;
-          if (spaceBelow > menuRect.height || spaceBelow > spaceAbove) {
-            top = position.top + position.height; // Position below
-          } else {
-            top = position.top - menuRect.height; // Position above
-          }
-          
-          let left = position.left;
-          if (left + menuRect.width > window.innerWidth) {
-            left = window.innerWidth - menuRect.width - 8;
-          }
-
-          setStyle({ top: top, left: left, opacity: 1 });
-        }
-      }, [position]);
-
-
-      return (
-        <div ref={menuRef} style={style} className="fixed z-50">
-          <ChatMessageMenu
-            isSentByCurrentUser={isSentByCurrentUser}
-            onReply={() => onReply(message)}
-            onCopy={() => onCopy(message.text)}
-            onEdit={() => onEdit(message)}
-            onDelete={() => onDelete(message.id)}
-            onClose={() => setIsMenuOpen(false)}
-          />
-        </div>
-      );
-    };
-
-    return <MenuWithPosition position={menuPosition} />;
-  };
-
   return (
-    <>
       <div className={cn('flex items-end space-x-3', isSentByCurrentUser ? 'justify-end' : '')}>
         {!isSentByCurrentUser && (
           <Avatar className="h-8 w-8 shrink-0">
@@ -285,7 +173,64 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
           {error && <p className="text-xs text-destructive mt-1">{error}</p>}
         </div>
       </div>
-      {renderMenu()}
-    </>
+  );
+}
+
+// Custom Menu Component
+interface ChatMessageMenuProps {
+  message: Message;
+  isSentByCurrentUser: boolean;
+  onReply: (message: Message) => void;
+  onCopy: (text: string) => void;
+  onEdit: (message: Message) => void;
+  onDelete: (messageId: string) => void;
+  onClose: () => void;
+}
+
+export function ChatMessageMenu({ message, isSentByCurrentUser, onReply, onCopy, onEdit, onDelete, onClose }: ChatMessageMenuProps) {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]);
+
+  const menuItems = [
+    { label: 'Ответить', icon: MessageSquareReply, action: () => onReply(message) },
+    { label: 'Копировать', icon: Copy, action: () => onCopy(message.text) },
+    ...(isSentByCurrentUser ? [
+      { label: 'Изменить', icon: Pencil, action: () => onEdit(message) },
+      { label: 'Удалить', icon: Trash2, action: () => onDelete(message.id), className: 'text-destructive' },
+    ] : [])
+  ];
+
+  return (
+    <div
+      ref={menuRef}
+      className="z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+    >
+      {menuItems.map((item, index) => (
+        <React.Fragment key={item.label}>
+          <button
+            onClick={() => { item.action(); onClose(); }}
+            className={cn(
+              "relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground",
+              item.className
+            )}
+          >
+            <item.icon className="h-4 w-4" />
+            <span>{item.label}</span>
+          </button>
+          {item.label === 'Копировать' && isSentByCurrentUser && <div className="-mx-1 my-1 h-px bg-muted" />}
+        </React.Fragment>
+      ))}
+    </div>
   );
 }
