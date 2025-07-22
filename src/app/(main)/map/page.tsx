@@ -4,6 +4,7 @@
 import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
+import type { ViewState } from 'react-map-gl/maplibre';
 import { useLocationStore } from '@/lib/location-store';
 import { WISH_CATEGORIES, WishCategoryKey, WISH_CATEGORY_KEYS } from '@/lib/categories';
 import { MapLoader } from '@/components/map/MapLoader';
@@ -37,7 +38,7 @@ export interface MarkerInfo {
 }
 
 // Function to generate random coordinates within a given radius using a simple and robust method
-const generateRandomMarkers = (center: [number, number], category: WishCategoryKey | null, radiusKm: number, t: (key: any) => string, users: User[]): MarkerInfo[] => {
+const generateRandomMarkers = (center: { latitude: number, longitude: number }, category: WishCategoryKey | null, radiusKm: number, t: (key: any) => string, users: User[]): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
     const count = 5 + Math.floor(radiusKm / 2) * 3;
     
@@ -52,7 +53,8 @@ const generateRandomMarkers = (center: [number, number], category: WishCategoryK
         const randomWishKey = wishesForCategory[Math.floor(Math.random() * wishesForCategory.length)];
         const wishText = t(randomWishKey as any);
         
-        const [centerLat, centerLon] = center;
+        const centerLat = center.latitude;
+        const centerLon = center.longitude;
 
         // Simple square bounding box generation
         const latOffset = (Math.random() - 0.5) * 2 * radiusInDegrees;
@@ -93,9 +95,10 @@ function MapContent() {
   
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [markers, setMarkers] = useState<MarkerInfo[]>([]);
-  const [center, setCenter] = useState<[number, number] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const mapCenterRef = useRef<[number, number] | null>(null);
+
+  // Map view state
+  const [viewState, setViewState] = useState<Partial<ViewState> | null>(null);
 
   useEffect(() => {
     requestLocation();
@@ -119,6 +122,7 @@ function MapContent() {
     }
   }, [searchParams, setHasInteractedWithMap]);
 
+  // Effect to initialize or update map center and markers
   useEffect(() => {
     if (allUsers.length === 0) return; // Wait for users to be loaded
     
@@ -128,74 +132,63 @@ function MapContent() {
     const locationToUse = location || { latitude: 55.7558, longitude: 37.6173 }; // Use Moscow as fallback
 
     if (isPublished) {
-      const lat = parseFloat(searchParams.get('lat') || `${locationToUse.latitude}`);
-      const lon = parseFloat(searchParams.get('lon') || `${locationToUse.longitude}`);
-      const message = decodeURIComponent(searchParams.get('message') || '');
-      const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
-      const color = searchParams.get('color') || 'hsl(var(--primary))';
-      
-      const ownWishMarker: MarkerInfo = {
-        id: `user-wish-${lat}-${lon}`,
-        userId: '0', // Current user's wish
-        latitude: lat,
-        longitude: lon,
-        message,
-        categoryName,
-        color,
-        isPremium: isPremium,
-        avatarUrl: avatar,
-        gender: gender,
-      };
+        const lat = parseFloat(searchParams.get('lat') || `${locationToUse.latitude}`);
+        const lon = parseFloat(searchParams.get('lon') || `${locationToUse.longitude}`);
+        const message = decodeURIComponent(searchParams.get('message') || '');
+        const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
+        const color = searchParams.get('color') || 'hsl(var(--primary))';
+        
+        const ownWishMarker: MarkerInfo = {
+            id: `user-wish-${lat}-${lon}`,
+            userId: '0', // Current user's wish
+            latitude: lat,
+            longitude: lon,
+            message,
+            categoryName,
+            color,
+            isPremium: isPremium,
+            avatarUrl: avatar,
+            gender: gender,
+        };
 
-      const randomMarkers = generateRandomMarkers([lat, lon], null, 2, t, allUsers);
-      setCenter([lat, lon]);
-      setMarkers([ownWishMarker, ...randomMarkers]);
-      mapCenterRef.current = [lat, lon];
-      return;
+        const randomMarkers = generateRandomMarkers({ latitude: lat, longitude: lon }, null, 2, t, allUsers);
+        setMarkers([ownWishMarker, ...randomMarkers]);
+        setViewState({ latitude: lat, longitude: lon, zoom: 13 });
+        return;
     }
     
-    if (location) {
-      const newCenter: [number, number] = [location.latitude, location.longitude];
-      setCenter(newCenter);
-      mapCenterRef.current = newCenter;
+    if (location && !viewState) { // Only set initial viewState if it's not already set
+        const newCenter = { latitude: location.latitude, longitude: location.longitude };
+        setViewState({ ...newCenter, zoom: 13 });
 
-
-      if (isSearch) {
-        const searchRadius = parseFloat(searchParams.get('radius') || '1');
-        const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-        setMarkers(generateRandomMarkers([location.latitude, location.longitude], searchCategory, searchRadius, t, allUsers));
-      } else {
-        // Default view: show random markers to make the world feel alive
-        setMarkers(generateRandomMarkers([location.latitude, location.longitude], null, 2, t, allUsers));
-      }
+        if (isSearch) {
+            const searchRadius = parseFloat(searchParams.get('radius') || '1');
+            const searchCategory = searchParams.get('category') as WishCategoryKey | null;
+            setMarkers(generateRandomMarkers(newCenter, searchCategory, searchRadius, t, allUsers));
+        } else {
+            setMarkers(generateRandomMarkers(newCenter, null, 2, t, allUsers));
+        }
     }
-    // If location is not yet available, we do nothing and wait for the next re-render when it is.
-    // The loading screen will be shown because `center` is still null.
     
-  }, [location, searchParams, isPremium, t, allUsers, avatar, gender]);
+  }, [location, searchParams, isPremium, t, allUsers, avatar, gender, viewState]);
   
-  const handleMapChange = useDebouncedCallback((newCenter: [number, number]) => {
+  const debouncedMarkerGeneration = useDebouncedCallback((newViewState: ViewState) => {
     if (allUsers.length === 0) return;
-
-    // Don't regenerate markers if the user is in a "published" or "search" state
+    
     const isSpecialView = searchParams.get('published') === 'true' || searchParams.get('search') === 'true';
     if (isSpecialView) return;
-    
-    // Simple check to avoid re-generating for tiny movements
-    if (mapCenterRef.current) {
-      const [lastLat, lastLon] = mapCenterRef.current;
-      const dist = Math.sqrt(Math.pow(newCenter[0] - lastLat, 2) + Math.pow(newCenter[1] - lastLon, 2));
-      if (dist < 0.005) { // ~500m threshold, adjust as needed
-        return;
-      }
-    }
 
-    const newMarkers = generateRandomMarkers(newCenter, null, 2, t, allUsers);
+    const newMarkers = generateRandomMarkers({ latitude: newViewState.latitude, longitude: newViewState.longitude }, null, 2, t, allUsers);
     setMarkers(newMarkers);
-    mapCenterRef.current = newCenter;
-  }, 500); // Debounce to avoid excessive calls during fast panning
+  }, 500);
 
-  if (!center) {
+  const handleMapMove = useCallback((evt: any) => {
+    const newViewState = evt.viewState;
+    setViewState(newViewState);
+    debouncedMarkerGeneration(newViewState);
+  }, [debouncedMarkerGeneration]);
+
+  if (!viewState) {
     return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
   }
 
@@ -203,7 +196,12 @@ function MapContent() {
     <div className="flex-grow w-full relative">
         <MapLoader isLoading={isLoading} />
         <div className="flex-grow w-full h-full transition-opacity duration-300" style={{ opacity: isLoading ? 0 : 1 }}>
-            <MapComponent center={center} markers={markers} onMapChange={handleMapChange} className="w-full h-full" />
+            <MapComponent 
+                initialViewState={viewState} 
+                markers={markers} 
+                onMove={handleMapMove}
+                className="w-full h-full" 
+            />
         </div>
     </div>
   );

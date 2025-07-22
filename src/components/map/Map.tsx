@@ -2,7 +2,7 @@
 'use client';
 
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { Map, Marker, type MapRef } from 'react-map-gl/maplibre';
+import { Map, Marker, type MapRef, type ViewState } from 'react-map-gl/maplibre';
 import type { MarkerInfo } from '@/app/(main)/map/page';
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -19,10 +19,10 @@ import type { Gender } from '@/lib/profile-store';
 
 
 interface MapProps {
-    center: [number, number];
+    initialViewState: Partial<ViewState>;
     markers: MarkerInfo[];
     className?: string;
-    onMapChange: (center: [number, number]) => void;
+    onMove: (evt: any) => void;
 }
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
@@ -40,7 +40,6 @@ const GenderAvatar = ({ gender }: { gender: Gender }) => {
 
 function CloudMarker({ marker }: { marker: MarkerInfo }) {
   const { color = '#FF7F50', isPremium, avatarUrl, gender } = marker;
-  // This is a new prop that we'll derive in the main component.
   const isOwn = marker.userId === '0'; 
   
   const getDarkerColor = (hslColor: string) => {
@@ -99,12 +98,11 @@ function CloudMarker({ marker }: { marker: MarkerInfo }) {
   );
 }
 
-export function MapComponent({ center, markers = [], className, onMapChange }: MapProps) {
+export function MapComponent({ initialViewState, markers = [], className, onMove }: MapProps) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { theme, systemTheme } = useTheme();
   const { toast } = useToast();
-  const mapRef = useRef<MapRef>(null);
   
   useEffect(() => {
     setMounted(true)
@@ -118,7 +116,6 @@ export function MapComponent({ center, markers = [], className, onMapChange }: M
       });
       return;
     }
-    // This is a mock navigation. In a real app, you would navigate to the specific chat.
     router.push(`/chats/conv-2?from=map`);
   };
 
@@ -146,20 +143,8 @@ export function MapComponent({ center, markers = [], className, onMapChange }: M
   return (
     <div className="absolute inset-0">
         <Map
-            ref={mapRef}
-            key={`${center.join('-')}-${mapStyle}`}
-            initialViewState={{
-                longitude: center[1],
-                latitude: center[0],
-                zoom: 13,
-            }}
-            onMoveEnd={() => {
-                const map = mapRef.current?.getMap();
-                if (map) {
-                    const newCenter = map.getCenter();
-                    onMapChange([newCenter.lat, newCenter.lng]);
-                }
-            }}
+            initialViewState={initialViewState}
+            onMove={onMove}
             mapStyle={`https://api.maptiler.com/maps/${mapStyle}/style.json?key=${mapApiKey}`}
             attributionControl={false}
             className={cn(className)}
