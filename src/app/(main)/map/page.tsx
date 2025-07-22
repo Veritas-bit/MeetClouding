@@ -1,13 +1,12 @@
 
 "use client";
 
-import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
+import { Suspense, useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import type { ViewState } from 'react-map-gl/maplibre';
 import { useLocationStore } from '@/lib/location-store';
 import { WISH_CATEGORIES, WishCategoryKey, WISH_CATEGORY_KEYS } from '@/lib/categories';
-import { MapLoader } from '@/components/map/MapLoader';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { useProfileStore, type Gender } from '@/lib/profile-store';
 import { useInteractionStore } from '@/lib/interaction-store';
@@ -15,7 +14,6 @@ import { WISHES } from '@/lib/wishes';
 import { useTranslation } from '@/hooks/use-translation';
 import { getAllUsers } from '@/lib/mock-data';
 import type { User } from '@/lib/types';
-import { useDebouncedCallback } from 'use-debounce';
 
 // Lazy load the MapComponent
 const MapComponent = dynamic(() => import('@/components/map/Map').then(mod => mod.MapComponent), {
@@ -40,7 +38,7 @@ export interface MarkerInfo {
 // Function to generate random coordinates within a given radius using a simple and robust method
 const generateRandomMarkers = (center: { latitude: number, longitude: number }, category: WishCategoryKey | null, radiusKm: number, t: (key: any) => string, users: User[]): MarkerInfo[] => {
     const markers: MarkerInfo[] = [];
-    const count = 20 + Math.floor(radiusKm) * 5; // More markers for a larger area
+    const count = 25 + Math.floor(radiusKm) * 10; // More markers for a larger area
     
     // Convert radius from kilometers to degrees (approximate)
     const radiusInDegrees = radiusKm / 111.32;
@@ -95,8 +93,7 @@ function MapContent() {
   
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [markers, setMarkers] = useState<MarkerInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
+  
   // Map view state
   const [viewState, setViewState] = useState<Partial<ViewState> | null>(null);
 
@@ -105,77 +102,64 @@ function MapContent() {
     getAllUsers().then(setAllUsers);
   }, [requestLocation]);
 
-  useEffect(() => {
-    const isSearch = searchParams.get('search') === 'true';
-    const isPublished = searchParams.get('published') === 'true';
-
-    if (isSearch || isPublished) {
-        setHasInteractedWithMap(true);
-    }
-
-    if (isSearch || isPublished) {
-      setIsLoading(true);
-      const timer = setTimeout(() => setIsLoading(false), 1500);
-      return () => clearTimeout(timer);
-    } else {
-      setIsLoading(false);
-    }
-  }, [searchParams, setHasInteractedWithMap]);
-
   // Effect to initialize or update map center and markers
   useEffect(() => {
-    if (allUsers.length === 0 || viewState) return; // Wait for users, run only once
+    if (allUsers.length === 0) return; // Wait for users
     
-    const isPublished = searchParams.get('published') === 'true';
-    const isSearch = searchParams.get('search') === 'true';
-    
-    const locationToUse = location || { latitude: 55.7558, longitude: 37.6173 }; // Use Moscow as fallback
+    // Run only once on initial load or when params change
+    if (location && !viewState) {
+      const isPublished = searchParams.get('published') === 'true';
+      const isSearch = searchParams.get('search') === 'true';
 
-    if (isPublished) {
-        const lat = parseFloat(searchParams.get('lat') || `${locationToUse.latitude}`);
-        const lon = parseFloat(searchParams.get('lon') || `${locationToUse.longitude}`);
-        const message = decodeURIComponent(searchParams.get('message') || '');
-        const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
-        const color = searchParams.get('color') || 'hsl(var(--primary))';
-        
-        const ownWishMarker: MarkerInfo = {
-            id: `user-wish-${lat}-${lon}`,
-            userId: '0', // Current user's wish
-            latitude: lat,
-            longitude: lon,
-            message,
-            categoryName,
-            color,
-            isPremium: isPremium,
-            avatarUrl: avatar,
-            gender: gender,
-        };
+      if (isPublished || isSearch) {
+        setHasInteractedWithMap(true);
+      }
+      
+      const locationToUse = location;
 
-        const randomMarkers = generateRandomMarkers({ latitude: lat, longitude: lon }, null, 5, t, allUsers);
-        setMarkers([ownWishMarker, ...randomMarkers]);
-        setViewState({ latitude: lat, longitude: lon, zoom: 12 });
-        return;
+      if (isPublished) {
+          const lat = parseFloat(searchParams.get('lat') || `${locationToUse.latitude}`);
+          const lon = parseFloat(searchParams.get('lon') || `${locationToUse.longitude}`);
+          const message = decodeURIComponent(searchParams.get('message') || '');
+          const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
+          const color = searchParams.get('color') || 'hsl(var(--primary))';
+          
+          const ownWishMarker: MarkerInfo = {
+              id: `user-wish-${lat}-${lon}`,
+              userId: '0', // Current user's wish
+              latitude: lat,
+              longitude: lon,
+              message,
+              categoryName,
+              color,
+              isPremium: isPremium,
+              avatarUrl: avatar,
+              gender: gender,
+          };
+
+          const randomMarkers = generateRandomMarkers({ latitude: lat, longitude: lon }, null, 5, t, allUsers);
+          setMarkers([ownWishMarker, ...randomMarkers]);
+          setViewState({ latitude: lat, longitude: lon, zoom: 12 });
+          return;
+      }
+      
+      const newCenter = { latitude: location.latitude, longitude: location.longitude };
+      
+      if (isSearch) {
+          const searchRadius = parseFloat(searchParams.get('radius') || '5');
+          const searchCategory = searchParams.get('category') as WishCategoryKey | null;
+          setMarkers(generateRandomMarkers(newCenter, searchCategory, searchRadius, t, allUsers));
+      } else {
+          // Default view: 5km radius
+          setMarkers(generateRandomMarkers(newCenter, null, 5, t, allUsers));
+      }
+      setViewState({ ...newCenter, zoom: 12 });
     }
     
-    if (location) {
-        const newCenter = { latitude: location.latitude, longitude: location.longitude };
-        
-        if (isSearch) {
-            const searchRadius = parseFloat(searchParams.get('radius') || '5');
-            const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-            setMarkers(generateRandomMarkers(newCenter, searchCategory, searchRadius, t, allUsers));
-        } else {
-            // Default view: 5km radius
-            setMarkers(generateRandomMarkers(newCenter, null, 5, t, allUsers));
-        }
-        setViewState({ ...newCenter, zoom: 12 });
-    }
-    
-  }, [location, searchParams, isPremium, t, allUsers, avatar, gender, viewState]);
+  }, [location, viewState, searchParams, isPremium, t, allUsers, avatar, gender, setHasInteractedWithMap]);
   
   const handleMapMove = useCallback((evt: any) => {
-    const newViewState = evt.viewState;
-    setViewState(newViewState);
+    setViewState(evt.viewState);
   }, []);
 
   if (!viewState) {
@@ -184,15 +168,12 @@ function MapContent() {
 
   return (
     <div className="flex-grow w-full relative">
-        <MapLoader isLoading={isLoading} />
-        <div className="flex-grow w-full h-full transition-opacity duration-300" style={{ opacity: isLoading ? 0 : 1 }}>
-            <MapComponent 
-                initialViewState={viewState} 
-                markers={markers} 
-                onMove={handleMapMove}
-                className="w-full h-full" 
-            />
-        </div>
+        <MapComponent 
+            initialViewState={viewState} 
+            markers={markers} 
+            onMove={handleMapMove}
+            className="w-full h-full" 
+        />
     </div>
   );
 }
