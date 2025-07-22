@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Crown } from 'lucide-react';
 import { MAPTILER_KEY } from '@/lib/config';
+import { useTheme } from 'next-themes';
 
 interface MapProps {
   center: [number, number];
@@ -65,6 +66,7 @@ function CloudIcon({ color, isPremium }: { color: string, isPremium?: boolean })
 export default function MapComponent({ center, markers = [], className }: MapProps) {
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const { theme, systemTheme } = useTheme();
   
   useEffect(() => {
     setMounted(true)
@@ -91,10 +93,9 @@ export default function MapComponent({ center, markers = [], className }: MapPro
         </div>
     )
   }
-
-  const doc = typeof document !== 'undefined' ? document.documentElement : null;
-  const themeClass = doc?.className || '';
-  const isDark = themeClass.includes('dark') || themeClass.includes('evening');
+  
+  const currentTheme = theme === 'system' ? systemTheme : theme;
+  const isDark = currentTheme === 'dark' || currentTheme === 'evening';
   const mapStyle = isDark ? "streets-v2-dark" : "streets-v2";
 
   if (!mounted) {
@@ -104,7 +105,7 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   return (
     <div className="absolute inset-0">
         <Map
-            key={center.join('-')}
+            key={`${center.join('-')}-${mapStyle}`}
             initialViewState={{
                 longitude: center[1],
                 latitude: center[0],
