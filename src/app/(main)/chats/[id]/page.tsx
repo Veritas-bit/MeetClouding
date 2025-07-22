@@ -67,8 +67,10 @@ function ConversationClient({ initialConversation, currentUser }: { initialConve
     const scrollContainer = viewportRef.current;
     if (scrollContainer) {
         scrollContainer.addEventListener('scroll', handleCloseMenu);
+        window.addEventListener('resize', handleCloseMenu);
         return () => {
             scrollContainer.removeEventListener('scroll', handleCloseMenu);
+            window.removeEventListener('resize', handleCloseMenu);
         };
     }
   }, [handleCloseMenu]);
@@ -129,21 +131,25 @@ function ConversationClient({ initialConversation, currentUser }: { initialConve
     navigator.clipboard.writeText(text).then(() => {
       toast({ title: 'Скопировано', description: 'Текст сообщения скопирован в буфер обмена.' });
     });
+    handleCloseMenu();
   };
 
   const handleDelete = (messageId: string) => {
     setMessages(prev => prev.filter(m => m.id !== messageId));
     toast({ title: 'Сообщение удалено', variant: 'destructive' });
+    handleCloseMenu();
   };
   
   const handleEdit = (message: Message) => {
       // Mock implementation
       toast({ title: 'Редактирование', description: `Выбрано для редактирования: "${message.text}"` });
+      handleCloseMenu();
   };
 
   const handleReply = (message: Message) => {
       // Mock implementation
       toast({ title: 'Ответ', description: `Выбран ответ на: "${message.text}"` });
+      handleCloseMenu();
   };
 
 
