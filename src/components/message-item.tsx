@@ -13,6 +13,11 @@ import { getTranslation } from '@/lib/actions';
 import { useLanguageStore } from '@/lib/language-store';
 import { useTranslation } from '@/hooks/use-translation';
 import Image from 'next/image';
+import type { Gender } from '@/lib/profile-store';
+import { MaleIcon } from '@/components/icons/gender/MaleIcon';
+import { FemaleIcon } from '@/components/icons/gender/FemaleIcon';
+import { NeuterIcon } from '@/components/icons/gender/NeuterIcon';
+
 
 interface MessageItemProps {
   message: Message;
@@ -20,6 +25,18 @@ interface MessageItemProps {
   otherParticipant: User;
   onOpenMenu: (messageId: string, rect: DOMRect) => void;
 }
+
+const GenderAvatar = ({ gender }: { gender: Gender }) => {
+    const iconProps = { className: "w-full h-full p-1.5" };
+    switch (gender) {
+        case 'male':
+            return <MaleIcon {...iconProps} />;
+        case 'female':
+            return <FemaleIcon {...iconProps} />;
+        default:
+            return <NeuterIcon {...iconProps} />;
+    }
+};
 
 function MessageStatus({ status }: { status: Message['status'] }) {
   if (status === 'read') {
@@ -168,9 +185,13 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   return (
       <div className={cn('flex items-end space-x-3', isSentByCurrentUser ? 'justify-end' : '')}>
         {!isSentByCurrentUser && (
-          <Avatar className="h-8 w-8 shrink-0">
-            <AvatarImage src={sender.avatarUrl} alt={sender.name} data-ai-hint="person portrait" />
-            <AvatarFallback>{sender.name.charAt(0)}</AvatarFallback>
+          <Avatar className="h-8 w-8 shrink-0 bg-muted/50">
+            {sender.avatarUrl ? (
+                <AvatarImage src={sender.avatarUrl} alt={sender.name} />
+            ) : null}
+            <AvatarFallback>
+                <GenderAvatar gender={sender.gender} />
+            </AvatarFallback>
           </Avatar>
         )}
         <div

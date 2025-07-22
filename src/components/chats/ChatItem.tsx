@@ -38,17 +38,11 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
       <div className="relative">
         <Avatar className="h-12 w-12 bg-muted/50">
             {avatarUrl ? (
-                <Image 
+                <AvatarImage 
                     src={avatarUrl} 
                     alt={name} 
-                    width={48} 
-                    height={48} 
-                    className="rounded-full object-cover"
-                    data-ai-hint={avatarHint}
                 />
-            ) : (
-                <GenderAvatar gender={gender} />
-            )}
+            ) : null}
             <AvatarFallback>
                 <GenderAvatar gender={gender} />
             </AvatarFallback>

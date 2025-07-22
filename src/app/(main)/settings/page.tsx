@@ -15,12 +15,27 @@ import { useRouter } from "next/navigation";
 import { SettingsButton, type SettingsButtonProps } from "@/components/settings/SettingsButton";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { useProfileStore } from "@/lib/profile-store";
+import { useProfileStore, type Gender } from "@/lib/profile-store";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/hooks/use-translation";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MaleIcon } from "@/components/icons/gender/MaleIcon";
+import { FemaleIcon } from "@/components/icons/gender/FemaleIcon";
+import { NeuterIcon } from "@/components/icons/gender/NeuterIcon";
 
+const GenderAvatar = ({ gender }: { gender: Gender }) => {
+    const iconProps = { className: "w-full h-full p-1.5" };
+    switch (gender) {
+        case 'male':
+            return <MaleIcon {...iconProps} />;
+        case 'female':
+            return <FemaleIcon {...iconProps} />;
+        default:
+            return <NeuterIcon {...iconProps} />;
+    }
+};
 
 function ProfileSection() {
     const { nickname, about, gender, avatar, isPremium } = useProfileStore();
@@ -48,14 +63,14 @@ function ProfileSection() {
             </Link>
             <CardContent className="p-4 flex flex-col items-center">
                  <div className="relative mt-8">
-                    <Image
-                    src={avatar || "https://placehold.co/64x64.png"}
-                    alt={nickname || "User Avatar"}
-                    width={64}
-                    height={64}
-                    className="rounded-full border-2 border-background object-cover aspect-square"
-                    data-ai-hint="person portrait"
-                    />
+                    <Avatar className="h-16 w-16 bg-muted/50 border-2 border-background">
+                        {avatar ? (
+                            <AvatarImage src={avatar} alt={nickname || "User Avatar"} />
+                        ) : null}
+                        <AvatarFallback>
+                           <GenderAvatar gender={gender} />
+                        </AvatarFallback>
+                    </Avatar>
                 </div>
 
                 <div className="text-center mt-2 mb-2">

@@ -8,13 +8,28 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import { ArrowLeft, MapIcon } from "lucide-react";
 import { Button } from "../ui/button";
-import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Image from "next/image";
 import type { Conversation, User } from "@/lib/types";
 import { getConversationById, getCurrentUser } from "@/lib/mock-data";
 import { useTranslation } from "@/hooks/use-translation";
 import { useInteractionStore } from "@/lib/interaction-store";
+import type { Gender } from "@/lib/profile-store";
+import { MaleIcon } from "@/components/icons/gender/MaleIcon";
+import { FemaleIcon } from "@/components/icons/gender/FemaleIcon";
+import { NeuterIcon } from "@/components/icons/gender/NeuterIcon";
 
+const GenderAvatar = ({ gender }: { gender: Gender }) => {
+    const iconProps = { className: "w-full h-full p-1.5" };
+    switch (gender) {
+        case 'male':
+            return <MaleIcon {...iconProps} />;
+        case 'female':
+            return <FemaleIcon {...iconProps} />;
+        default:
+            return <NeuterIcon {...iconProps} />;
+    }
+};
 
 const BackToMapButton = () => {
     const router = useRouter();
@@ -96,18 +111,16 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
             </div>
             
             <Link href={`/users/${chatInfo.id}`} className="flex items-center">
-                <Avatar className="h-8 w-8 mr-2">
-                    {chatInfo.avatarUrl && (
-                        <Image
+                <Avatar className="h-8 w-8 mr-2 bg-muted/50">
+                    {chatInfo.avatarUrl ? (
+                        <AvatarImage
                             src={chatInfo.avatarUrl}
                             alt={chatInfo.name}
-                            width={32}
-                            height={32}
-                            className="rounded-full object-cover"
-                            data-ai-hint={"person portrait"}
                         />
-                    )}
-                    <AvatarFallback>{chatInfo.name.charAt(0)}</AvatarFallback>
+                    ) : null}
+                    <AvatarFallback>
+                        <GenderAvatar gender={chatInfo.gender} />
+                    </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col items-start">
                      <span className="text-lg font-bold text-foreground leading-none">{chatInfo.name}</span>
