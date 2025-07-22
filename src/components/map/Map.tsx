@@ -90,6 +90,7 @@ export function MapComponent({ mapState, markers = [], className }: MapProps) {
                         iconImageHref: getPlacemarkLayout(marker),
                         iconImageSize: [40, 30],
                         iconImageOffset: [-20, -15],
+                        pane: 'overlaps', // This prevents the icon from scaling on zoom
                     }}
                 />
             ))}
