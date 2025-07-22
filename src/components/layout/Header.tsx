@@ -18,6 +18,7 @@ import type { Gender } from "@/lib/profile-store";
 import { MaleIcon } from "@/components/icons/gender/MaleIcon";
 import { FemaleIcon } from "@/components/icons/gender/FemaleIcon";
 import { NeuterIcon } from "@/components/icons/gender/NeuterIcon";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
     const iconProps = { className: "w-full h-full p-1.5" };
@@ -172,9 +173,15 @@ export function Header() {
             setHeaderContent(<HeaderWithBackButton titleKey="profile" showMapButton={shouldShowMapButton} />);
         } else if (pathname === '/chats') {
             setHeaderContent(
-                <div className="w-full h-full relative flex items-center justify-center">
+                <div className="w-full h-full relative flex items-center justify-between">
                     {shouldShowMapButton && <BackToMapButton />}
                     <span className="text-xl font-headline text-foreground">{t('chats')}</span>
+                    <Tabs defaultValue="all" className="w-auto">
+                        <TabsList>
+                            <TabsTrigger value="all">Чаты</TabsTrigger>
+                            <TabsTrigger value="friends">Друзья</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
                 </div>
             );
         } else if (pathname.startsWith('/profile/edit')) {
