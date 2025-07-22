@@ -89,7 +89,7 @@ function ChatMessageMenu({ isSentByCurrentUser, onReply, onCopy, onEdit, onDelet
     <div
       ref={menuRef}
       style={{ top: position.top, left: position.left }}
-      className="absolute z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+      className="fixed z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
     >
       {menuItems.map((item, index) => (
         <React.Fragment key={item.label}>
@@ -149,13 +149,27 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   
   const openMenu = useCallback(() => {
     if (!messageRef.current) return;
+
     const rect = messageRef.current.getBoundingClientRect();
-    const menuHeight = 150; 
-    let top = rect.bottom + 8;
-    if (rect.top > window.innerHeight / 2 && rect.top - menuHeight > 0) {
-      top = rect.top - menuHeight - 8;
+    const menuWidth = 180;
+    const menuHeight = 150; // Approximate height of the menu
+
+    let top = rect.bottom + 8 + window.scrollY;
+    let left = rect.left + window.scrollX;
+
+    // Adjust vertical position
+    if (rect.top + rect.height + menuHeight > window.innerHeight) {
+        // Not enough space below, position above
+        top = rect.top - menuHeight - 8 + window.scrollY;
     }
-    setMenuPosition({ top: top + window.scrollY, left: rect.left + window.scrollX });
+
+    // Adjust horizontal position
+    if (rect.left + menuWidth > window.innerWidth) {
+        // Not enough space to the right, align to the right edge
+        left = rect.right - menuWidth + window.scrollX;
+    }
+
+    setMenuPosition({ top, left });
     setIsMenuOpen(true);
   }, []);
 
