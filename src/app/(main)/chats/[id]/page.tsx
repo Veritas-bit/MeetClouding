@@ -172,7 +172,7 @@ export default function ConversationPage() {
   const isMessageEmpty = newMessage.trim() === '';
 
   return (
-    <div className="flex flex-col h-[calc(100vh_-_8rem)]">
+    <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
         <MessageView
             messages={messages}
@@ -189,8 +189,7 @@ export default function ConversationPage() {
             "relative w-full rounded-lg p-px",
             "bg-gradient-to-r from-primary/30 to-secondary/30",
             "transition-all duration-300",
-            "focus-within:from-primary/80 focus-within:to-secondary/80",
-            "focus-within:shadow-[0_0_12px_hsl(var(--primary)/0.3)]"
+            "focus-within:from-primary/80 focus-within:to-secondary/80"
           )}
         >
           <div className="relative flex items-center bg-muted/50 rounded-[7px] p-1">
