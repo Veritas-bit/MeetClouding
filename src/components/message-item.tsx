@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useRef, useTransition, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useTransition, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import type { Message, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,10 +17,6 @@ interface MessageItemProps {
   message: Message;
   currentUser: User;
   otherParticipant: User;
-  onDelete: (messageId: string) => void;
-  onCopy: (text: string) => void;
-  onEdit: (message: Message) => void;
-  onReply: (message: Message) => void;
   onOpenMenu: (messageId: string, rect: DOMRect) => void;
 }
 
@@ -52,7 +48,7 @@ function parseMessageContent(text: string) {
 }
 
 
-export function MessageItem({ message, currentUser, otherParticipant, onDelete, onCopy, onEdit, onReply, onOpenMenu }: MessageItemProps) {
+export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu }: MessageItemProps) {
   const [isPending, startTransition] = useTransition();
   const [translatedText, setTranslatedText] = useState<string | null>(message.translation || null);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -63,7 +59,6 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   const messageRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const touchStartPos = useRef<{ x: number, y: number } | null>(null);
-  const wasLongPress = useRef(false);
 
   const handleTranslate = () => {
     if (showTranslation) {
@@ -88,34 +83,27 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   
   const openMenu = useCallback(() => {
     if (messageRef.current) {
-      wasLongPress.current = true;
       onOpenMenu(message.id, messageRef.current.getBoundingClientRect());
     }
   }, [message.id, onOpenMenu]);
 
-  const handlePressEnd = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+  const clearLongPressTimer = useCallback(() => {
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
       pressTimer.current = null;
     }
-    // Stop propagation if it was a long press to prevent the container's onClick from firing
-    if (wasLongPress.current) {
-        e.stopPropagation();
-        e.preventDefault();
-        wasLongPress.current = false; // Reset for next interaction
-    }
-    touchStartPos.current = null;
   }, []);
 
   const handlePressStart = (e: React.MouseEvent | React.TouchEvent) => {
-    wasLongPress.current = false;
-    handlePressEnd(e); // Clear any existing timers
+    clearLongPressTimer();
     if ('touches' in e) {
       touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     }
-    pressTimer.current = setTimeout(() => {
-      openMenu();
-    }, 700);
+    pressTimer.current = setTimeout(openMenu, 700);
+  };
+
+  const handlePressEnd = () => {
+    clearLongPressTimer();
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -123,7 +111,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
      const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
      const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
      if (dx > 10 || dy > 10) {
-        handlePressEnd(e); // It's a scroll, not a long press
+        clearLongPressTimer();
      }
   };
 
@@ -155,6 +143,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
           onTouchStart={handlePressStart}
           onTouchEnd={handlePressEnd}
           onTouchMove={handleTouchMove}
+          onTouchCancel={handlePressEnd}
           className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}
         >
           <div className="text-sm whitespace-pre-wrap break-words">
@@ -187,8 +176,9 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
 
 // Custom Menu Component
 interface ChatMessageMenuProps {
-  message: Message;
+  message: Message | null;
   isSentByCurrentUser: boolean;
+  position: { top: number; left: number } | null;
   onReply: (message: Message) => void;
   onCopy: (text: string) => void;
   onEdit: (message: Message) => void;
@@ -196,20 +186,24 @@ interface ChatMessageMenuProps {
   onClose: () => void;
 }
 
-export function ChatMessageMenu({ message, isSentByCurrentUser, onReply, onCopy, onEdit, onDelete, onClose }: ChatMessageMenuProps) {
+export function ChatMessageMenu({ message, isSentByCurrentUser, position, onReply, onCopy, onEdit, onDelete, onClose }: ChatMessageMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    if (position) {
+        document.addEventListener('mousedown', handleClickOutside);
+    }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [onClose]);
+  }, [position, onClose]);
+
+  if (!position || !message) return null;
 
   const menuItems = [
     { label: 'Ответить', icon: MessageSquareReply, action: () => onReply(message) },
@@ -223,12 +217,13 @@ export function ChatMessageMenu({ message, isSentByCurrentUser, onReply, onCopy,
   return (
     <div
       ref={menuRef}
-      className="z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+      style={{ top: position.top, left: position.left }}
+      className="fixed z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
     >
       {menuItems.map((item, index) => (
         <React.Fragment key={item.label}>
           <button
-            onClick={() => { item.action(); onClose(); }}
+            onClick={(e) => { e.stopPropagation(); item.action(); onClose(); }}
             className={cn(
               "relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground",
               item.className

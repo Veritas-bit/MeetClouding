@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import type { Conversation, User, Message } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,8 +13,8 @@ import { cn } from '@/lib/utils';
 import { ChatAttachmentModal } from './chats/ChatAttachmentModal';
 
 type ActiveMenu = {
-  messageId: string;
-  rect: DOMRect;
+  message: Message;
+  position: { top: number; left: number };
 };
 
 export function MessageView({ initialConversation, currentUser, className }: { initialConversation: Conversation; currentUser: User, className?: string }) {
@@ -27,6 +27,51 @@ export function MessageView({ initialConversation, currentUser, className }: { i
   const viewportRef = useRef<HTMLDivElement>(null);
 
   const otherParticipant = initialConversation.participants.find(p => p.id !== currentUser.id);
+
+  const handleCloseMenu = useCallback(() => {
+    setActiveMenu(null);
+  }, []);
+
+  useEffect(() => {
+    const scrollContainer = viewportRef.current;
+    if (scrollContainer) {
+        scrollContainer.addEventListener('scroll', handleCloseMenu);
+        return () => {
+            scrollContainer.removeEventListener('scroll', handleCloseMenu);
+        };
+    }
+  }, [handleCloseMenu]);
+
+  const handleOpenMenu = useCallback((messageId: string, rect: DOMRect) => {
+    const message = messages.find(m => m.id === messageId);
+    const scrollContainer = viewportRef.current;
+    if (!message || !scrollContainer) return;
+    
+    const containerRect = scrollContainer.getBoundingClientRect();
+    const menuHeight = 150; // Approximate height of the menu
+
+    let top: number;
+    // Check if there's enough space below the message inside the container
+    if (rect.bottom + menuHeight > containerRect.bottom) {
+        // Not enough space below, position above
+        top = rect.top - menuHeight;
+    } else {
+        // Enough space below, position below
+        top = rect.top + rect.height;
+    }
+
+    // Clamp top position to be within the visible container area
+    top = Math.max(containerRect.top, Math.min(top, containerRect.bottom - menuHeight));
+
+    const isSentByCurrentUser = message.senderId === currentUser.id;
+    let left = isSentByCurrentUser ? rect.right - 180 : rect.left; // 180 is approx menu width
+
+    // Clamp left position
+    left = Math.max(8, Math.min(left, window.innerWidth - 180 - 8));
+
+    setActiveMenu({ message, position: { top, left } });
+  }, [messages]);
+
 
   const sendMessage = (text: string, media?: { src: string; type: 'image' | 'video' }, source?: 'camera' | 'gallery') => {
     if (text.trim() === '' && !media) return;
@@ -92,60 +137,6 @@ export function MessageView({ initialConversation, currentUser, className }: { i
       toast({ title: 'Ответ', description: `Выбран ответ на: "${message.text}"` });
   };
 
-  const handleOpenMenu = (messageId: string, rect: DOMRect) => {
-    setActiveMenu({ messageId, rect });
-  };
-
-  const handleCloseMenu = () => {
-    setActiveMenu(null);
-  };
-
-  const renderMenu = () => {
-    if (!activeMenu) return null;
-
-    const message = messages.find(m => m.id === activeMenu.messageId);
-    if (!message) return null;
-
-    const menuRect = { width: 180, height: 150 }; // Approximate menu size
-    const containerRect = viewportRef.current?.getBoundingClientRect();
-
-    if (!containerRect) return null;
-
-    // Check if the message bottom is too close to the container bottom
-    const spaceBelow = containerRect.bottom - activeMenu.rect.bottom;
-    const isCloseToBottom = spaceBelow < menuRect.height + 20; // 20px buffer
-
-    let top: number;
-    if (isCloseToBottom) {
-        // Position above the message bubble
-        top = activeMenu.rect.top - menuRect.height;
-    } else {
-        // Position below the message bubble
-        top = activeMenu.rect.top + activeMenu.rect.height;
-    }
-    
-    const isSentByCurrentUser = message.senderId === currentUser.id;
-    let left = isSentByCurrentUser ? (activeMenu.rect.left + activeMenu.rect.width - menuRect.width) : activeMenu.rect.left;
-
-    // Clamp position within viewport
-    top = Math.max(containerRect.top, Math.min(top, containerRect.bottom - menuRect.height));
-    left = Math.max(8, Math.min(left, window.innerWidth - menuRect.width - 8));
-
-    return (
-        <div style={{ top: top, left: left }} className="fixed z-50">
-            <ChatMessageMenu
-                isSentByCurrentUser={isSentByCurrentUser}
-                message={message}
-                onReply={handleReply}
-                onCopy={handleCopy}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onClose={handleCloseMenu}
-            />
-        </div>
-    );
-  };
-
 
   useEffect(() => {
     if (viewportRef.current) {
@@ -159,7 +150,7 @@ export function MessageView({ initialConversation, currentUser, className }: { i
 
   return (
     <>
-      <div className={cn("fixed top-16 bottom-20 left-0 right-0", className)} onClick={handleCloseMenu}>
+      <div className={cn("fixed top-16 bottom-20 left-0 right-0", className)}>
         <ScrollArea className="h-full" viewportRef={viewportRef}>
           <div className="p-4 space-y-6">
             {messages.map((message) => (
@@ -168,10 +159,6 @@ export function MessageView({ initialConversation, currentUser, className }: { i
                 message={message} 
                 currentUser={currentUser} 
                 otherParticipant={otherParticipant} 
-                onDelete={handleDelete}
-                onCopy={handleCopy}
-                onEdit={handleEdit}
-                onReply={handleReply}
                 onOpenMenu={handleOpenMenu}
               />
             ))}
@@ -179,7 +166,16 @@ export function MessageView({ initialConversation, currentUser, className }: { i
         </ScrollArea>
       </div>
 
-      {renderMenu()}
+      <ChatMessageMenu
+          message={activeMenu?.message || null}
+          position={activeMenu?.position || null}
+          isSentByCurrentUser={activeMenu?.message?.senderId === currentUser.id}
+          onReply={handleReply}
+          onCopy={handleCopy}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onClose={handleCloseMenu}
+      />
 
       <div className="fixed bottom-20 left-0 right-0 z-10">
           <div className="p-4 border-t bg-background">
