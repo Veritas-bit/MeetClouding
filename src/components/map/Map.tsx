@@ -7,7 +7,7 @@ import type { MarkerInfo } from '@/app/(main)/map/page';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Crown } from 'lucide-react';
+import { Gem } from 'lucide-react';
 import { MAPTILER_KEY } from '@/lib/config';
 import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
@@ -58,16 +58,8 @@ function CloudMarker({ marker }: { marker: MarkerInfo }) {
 
 
   return (
-    <div className="flex items-center gap-2 cursor-pointer group">
+    <div className="flex items-center gap-1 cursor-pointer group">
         <div className="relative transition-transform duration-200 group-hover:scale-110" style={{ ...glowStyle, filter: `${glowStyle.filter || ''} drop-shadow(0px 2px 4px rgba(0,0,0,0.2))` }}>
-            {isPremium && (
-                <Crown 
-                    className="absolute -top-3.5 -left-1.5 h-6 w-6 text-yellow-400 -rotate-12 z-10"
-                    stroke="hsl(var(--background))"
-                    strokeWidth={0.5}
-                    fill="currentColor"
-                />
-            )}
             <svg
                 width="40"
                 height="30"
@@ -85,14 +77,21 @@ function CloudMarker({ marker }: { marker: MarkerInfo }) {
             />
             </svg>
         </div>
-        <Avatar className="h-8 w-8 bg-muted/80 border-2 border-background shadow-md transition-transform duration-200 group-hover:scale-110">
-            {avatarUrl ? (
-                <AvatarImage src={avatarUrl} alt="User Avatar" />
-            ) : null}
-            <AvatarFallback>
-                <GenderAvatar gender={gender} />
-            </AvatarFallback>
-        </Avatar>
+        <div className="relative transition-transform duration-200 group-hover:scale-110">
+            <Avatar className="h-8 w-8 bg-muted/80 border-2 border-background shadow-md">
+                {avatarUrl ? (
+                    <AvatarImage src={avatarUrl} alt="User Avatar" />
+                ) : null}
+                <AvatarFallback>
+                    <GenderAvatar gender={gender} />
+                </AvatarFallback>
+            </Avatar>
+            {isPremium && (
+                <div className="absolute -bottom-1 -right-1 bg-gradient-to-tr from-primary to-secondary p-1 rounded-full">
+                    <Gem className="h-2 w-2 text-primary-foreground" />
+                </div>
+            )}
+        </div>
     </div>
   );
 }
