@@ -154,7 +154,7 @@ export function Header() {
                 setHeaderContent(defaultHeader); // Fallback
             }
         } else if (pathname.startsWith('/users/')) {
-            setHeaderContent(<HeaderWithBackButton titleKey="profile" />);
+            setHeaderContent(<HeaderWithBackButton titleKey="profile" showMapButton={shouldShowMapButton} />);
         } else if (pathname === '/chats') {
             setHeaderContent(
                 <div className="w-full h-full relative flex items-center justify-center">
