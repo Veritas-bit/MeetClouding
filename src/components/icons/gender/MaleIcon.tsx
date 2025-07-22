@@ -9,21 +9,15 @@ export function MaleIcon({ className }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
       className={cn("", className)}
     >
-      <defs>
-        <linearGradient id="avatar-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style={{ stopColor: "hsl(var(--primary))" }} />
-            <stop offset="100%" style={{ stopColor: "hsl(var(--secondary))" }} />
-        </linearGradient>
-      </defs>
-      <circle cx="1200" cy="1200" r="1200" fill="url(#avatar-gradient)" />
+      <circle cx="1200" cy="1200" r="1200" fill="black" />
       <g transform="translate(1152 1320) scale(1, -1) translate(-1440 -1200)">
         <path
             d="M1398 2518 c13 -13 17 -62 5 -56 -62 32 -110 49 -147 54 -25 4 -46 4 -46 1 0 -4 14 -27 32 -52 43 -61 26 -71 -25 -14 l-42 45 -1 -45 c0 -31 -19 -93 -57 -188 -85 -212 -109 -325 -72 -340 9 -3 23 -20 32 -37 l16 -31 17 116 c10 71 26 135 40 164 l23 48 111 -6 c120 -5 447 -55 457 -69 3 -4 18 -62 34 -128 l29 -119 18 29 c10 17 24 30 32 30 20 0 26 50 16 137 -12 98 -20 127 -61 203 -56 106 -178 200 -325 250 -67 23 -105 27 -86 8z"
-            fill="hsl(var(--background))"
+            fill="white"
         />
         <path
             d="M875 1111 c-220 -70 -319 -111 -399 -165 -78 -52 -118 -127 -141 -265 -19 -110 -22 -102 87 -216 176 -186 413 -321 678 -386 85 -21 117 -24 305 -23 203 1 214 2 326 32 309 83 549 241 741 487 64 82 70 93 65 127 -8 56 -46 124 -98 173 -60 56 -162 107 -384 190 -99 37 -195 75 -214 85 l-34 17 -29 -57 c-33 -67 -110 -143 -171 -170 -129 -57 -304 -34 -421 55 -39 30 -91 106 -101 148 -4 15 -12 27 -19 27 -6 -1 -92 -27 -191 -59z"
-            fill="hsl(var(--background))"
+            fill="white"
         />
       </g>
     </svg>
