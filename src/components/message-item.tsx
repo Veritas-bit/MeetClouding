@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useRef, useTransition, useEffect } from 'react';
+import React, { useState, useRef, useTransition } from 'react';
 import { cn } from '@/lib/utils';
 import type { Message, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -65,11 +65,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
   const [error, setError] = useState<string | null>(null);
   const { language: targetLanguage } = useLanguageStore();
   const t = useTranslation();
-
-  const longPressTimer = useRef<NodeJS.Timeout>();
-  const touchStartPos = useRef({ x: 0, y: 0 });
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
 
   const isSentByCurrentUser = message.senderId === currentUser.id;
   const sender = isSentByCurrentUser ? currentUser : otherParticipant;
@@ -98,29 +94,6 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
     });
   };
 
-  const handlePressStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    longPressTimer.current = setTimeout(() => {
-        setIsMenuOpen(true);
-    }, 700);
-  };
-  
-  const handlePressMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
-    const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
-    if (dx > 10 || dy > 10) {
-      if (longPressTimer.current) {
-        clearTimeout(longPressTimer.current);
-      }
-    }
-  };
-
-  const handlePressEnd = () => {
-      if (longPressTimer.current) {
-          clearTimeout(longPressTimer.current);
-      }
-  };
-
   const textToShow = showTranslation && translatedText ? translatedText : message.text;
   const messageColorClass = isSentByCurrentUser ? 'bg-primary text-primary-foreground' : 'bg-card border';
 
@@ -135,13 +108,11 @@ export function MessageItem({ message, currentUser, otherParticipant, onDelete, 
       <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
         <DropdownMenuTrigger asChild>
             <div
-                onTouchStart={handlePressStart}
-                onTouchMove={handlePressMove}
-                onTouchEnd={handlePressEnd}
                 onContextMenu={(e) => {
                     e.preventDefault();
                     setIsMenuOpen(true);
                 }}
+                onDoubleClick={() => setIsMenuOpen(true)}
                 className={cn(
                     'max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', 
                     'transition-colors active:brightness-75',
