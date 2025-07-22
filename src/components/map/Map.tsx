@@ -72,12 +72,13 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     const fallbackAvatar = `
       <svg viewBox="0 0 2400 2400" x="49" y="11" height="28" width="28" xmlns="http://www.w3.org/2000/svg">
          <defs>
-            <linearGradient id="logo-gradient-map" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1" />
               <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:1" />
             </linearGradient>
          </defs>
-         <circle cx="1200" cy="1200" r="1200" fill="url(#logo-gradient-map)" />
+         <circle cx="1200" cy="1200" r="1200" fill="black" />
+         <circle cx="1200" cy="1200" r="1100" fill="url(#${gradientId})" />
          ${getGenderIconSvg(marker.gender)}
       </svg>`;
 
