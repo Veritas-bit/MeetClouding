@@ -111,7 +111,7 @@ export default function SettingsPage() {
   ];
   
   return (
-    <ScrollArea className="flex-1">
+    <ScrollArea className="h-full">
         <div className="container mx-auto p-4 pb-24">
         <ProfileSection />
         <Card className="w-full max-w-md mx-auto">
