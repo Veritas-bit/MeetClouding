@@ -74,6 +74,20 @@ function MediaContent({ message }: { message: Message }) {
   return null;
 }
 
+function ReplyContent({ message, isSentByCurrentUser }: { message: Message, isSentByCurrentUser: boolean }) {
+  if (!message.replyTo) return null;
+
+  return (
+    <div className={cn(
+        "p-2 rounded-lg mb-2 border-l-2",
+        isSentByCurrentUser ? "border-white/50 bg-white/10" : "border-primary bg-primary/10"
+    )}>
+        <p className="text-xs font-semibold">{message.replyTo.senderName}</p>
+        <p className="text-xs opacity-80 truncate">{message.replyTo.text}</p>
+    </div>
+  )
+}
+
 
 export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu }: MessageItemProps) {
   const [isPending, startTransition] = useTransition();
@@ -168,12 +182,14 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
           onTouchCancel={handlePressEnd}
           className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}
         >
+          <ReplyContent message={message} isSentByCurrentUser={isSentByCurrentUser} />
           <div className="text-sm whitespace-pre-wrap break-words">
             {parseMessageContent(textToShow)}
             {showTranslation && <p className="text-xs opacity-70 mt-2 pt-2 border-t border-t-white/20">{t('original')}: {message.text}</p>}
           </div>
            <MediaContent message={message} />
           <div className={cn("flex items-center gap-2 mt-2 self-end text-xs", isSentByCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+            {message.edited && <span className="text-xs opacity-70">изменено</span>}
             {isPending && <Loader2 className="h-3 w-3 animate-spin" />}
             <TooltipProvider>
               <Tooltip>

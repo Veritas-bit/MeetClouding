@@ -15,6 +15,12 @@ export interface Message {
   image?: string;
   video?: string;
   source?: 'camera' | 'gallery';
+  replyTo?: {
+    messageId: string;
+    senderName: string;
+    text: string;
+  };
+  edited?: boolean;
 }
 
 export interface Conversation {

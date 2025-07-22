@@ -9,11 +9,12 @@ import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { MessageView } from '@/components/message-view';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Send, Camera } from 'lucide-react';
+import { Send, Camera, Pencil, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
 import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
 import { cn } from '@/lib/utils';
+import { ReplyToView } from '@/components/chats/ReplyToView';
 
 
 export default function ConversationPage() {
@@ -36,8 +37,13 @@ export default function ConversationPage() {
     message: Message | null;
     position: { top: number; left: number } | null;
   }>({ message: null, position: null });
+
+  // Reply/Edit State
+  const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
+  const [editMessage, setEditMessage] = useState<Message | null>(null);
   
   const viewportRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Initial data fetch
   useEffect(() => {
@@ -94,37 +100,63 @@ export default function ConversationPage() {
 
     setIsSending(true);
 
-    const sentMessage: Message = {
-      id: `msg-${Date.now()}`,
-      text: newMessage.trim(),
-      timestamp: Date.now(),
-      senderId: currentUser.id,
-      status: 'sent',
-    };
+    if (editMessage) {
+      // Logic for editing a message
+      setMessages(prev => prev.map(m => 
+        m.id === editMessage.id ? { ...m, text: newMessage.trim(), edited: true } : m
+      ));
+      toast({ title: 'Сообщение изменено' });
+      cancelEdit();
+    } else {
+      // Logic for sending a new message
+      const sentMessage: Message = {
+        id: `msg-${Date.now()}`,
+        text: newMessage.trim(),
+        timestamp: Date.now(),
+        senderId: currentUser.id,
+        status: 'sent',
+        replyTo: replyToMessage ? { 
+          messageId: replyToMessage.id, 
+          text: replyToMessage.text, 
+          senderName: replyToMessage.senderId === currentUser.id ? currentUser.name : otherParticipant?.name || 'User' 
+        } : undefined,
+      };
 
-    setMessages(prev => [...prev, sentMessage]);
-    setNewMessage('');
+      setMessages(prev => [...prev, sentMessage]);
+      
+      // Simulate network delay and auto-reply
+      setTimeout(() => {
+          setMessages(prev => prev.map(m => m.id === sentMessage.id ? {...m, status: 'delivered'} : m));
+          
+          setTimeout(() => {
+              setMessages(prev => prev.map(m => m.id === sentMessage.id ? {...m, status: 'read'} : m));
+              if (otherParticipant) {
+                  const replyMessage: Message = {
+                      id: `msg-${Date.now() + 1}`,
+                      text: `Это автоматический ответ на ваше сообщение: "${sentMessage.text}"`,
+                      timestamp: Date.now(),
+                      senderId: otherParticipant.id,
+                      status: 'sent', // from other's perspective
+                  };
+                  setMessages(prev => [...prev, replyMessage]);
+              }
+          }, 1000);
+
+      }, 500);
+    }
     
-    // Simulate network delay and auto-reply
-    setTimeout(() => {
-        setMessages(prev => prev.map(m => m.id === sentMessage.id ? {...m, status: 'delivered'} : m));
-        
-        setTimeout(() => {
-             setMessages(prev => prev.map(m => m.id === sentMessage.id ? {...m, status: 'read'} : m));
-             if (otherParticipant) {
-                 const replyMessage: Message = {
-                    id: `msg-${Date.now() + 1}`,
-                    text: `Это автоматический ответ на ваше сообщение: "${sentMessage.text}"`,
-                    timestamp: Date.now(),
-                    senderId: otherParticipant.id,
-                    status: 'sent', // from other's perspective
-                 };
-                 setMessages(prev => [...prev, replyMessage]);
-             }
-             setIsSending(false);
-        }, 1000);
+    setNewMessage('');
+    setReplyToMessage(null);
+    setIsSending(false);
+  };
 
-    }, 500);
+  const cancelReply = () => {
+    setReplyToMessage(null);
+  };
+  
+  const cancelEdit = () => {
+    setEditMessage(null);
+    setNewMessage('');
   };
   
   // --- Context Menu Logic ---
@@ -144,16 +176,19 @@ export default function ConversationPage() {
   };
   
   const handleReply = (message: Message) => {
-    console.log('Replying to:', message.text);
-    toast({ title: 'Функция "Ответить" в разработке' });
+    setEditMessage(null); // Cancel edit if active
+    setReplyToMessage(message);
+    textareaRef.current?.focus();
   };
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: 'Скопировано!', description: 'Текст сообщения скопирован в буфер обмена.' });
   };
   const handleEdit = (message: Message) => {
-    console.log('Editing:', message.text);
-    toast({ title: 'Функция "Изменить" в разработке' });
+    setReplyToMessage(null); // Cancel reply if active
+    setEditMessage(message);
+    setNewMessage(message.text);
+    textareaRef.current?.focus();
   };
   const handleDelete = (messageId: string) => {
     setMessages(prev => prev.filter(m => m.id !== messageId));
@@ -184,6 +219,24 @@ export default function ConversationPage() {
       </div>
 
       <div className="p-4 border-t bg-background">
+        {replyToMessage && (
+            <ReplyToView 
+                message={replyToMessage}
+                isSentByCurrentUser={replyToMessage.senderId === currentUser.id}
+                onCancel={cancelReply}
+            />
+        )}
+        {editMessage && (
+            <div className="p-2 mb-2 rounded-md bg-muted flex justify-between items-center">
+                <div className="flex items-center gap-2 text-sm">
+                    <Pencil className="h-4 w-4 text-primary" />
+                    <p className="font-semibold">Редактирование</p>
+                </div>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={cancelEdit}>
+                    <X className="h-4 w-4" />
+                </Button>
+            </div>
+        )}
         <div
           className={cn(
             "relative w-full rounded-lg p-px",
@@ -198,6 +251,7 @@ export default function ConversationPage() {
               </Button>
               <div className="w-px h-6 bg-border"></div>
               <Textarea
+                  ref={textareaRef}
                   placeholder="Сообщение..."
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
@@ -226,7 +280,7 @@ export default function ConversationPage() {
       
       <ChatMessageMenu
         message={menuState.message}
-        isSentByCurrentUser={menuState.message?.senderId === currentUser.id}
+        isSentByCurrentUser={!!menuState.message && menuState.message.senderId === currentUser.id}
         position={menuState.position}
         onReply={handleReply}
         onCopy={handleCopy}
