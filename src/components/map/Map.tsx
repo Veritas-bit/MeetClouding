@@ -10,14 +10,11 @@ import { cn } from '@/lib/utils';
 import { Crown } from 'lucide-react';
 import { MAPTILER_KEY } from '@/lib/config';
 import { useTheme } from 'next-themes';
+import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/use-translation';
 
-interface MapProps {
-  center: [number, number];
-  markers?: MarkerInfo[];
-  className?: string;
-}
 
-function CloudIcon({ color, isPremium }: { color: string, isPremium?: boolean }) {
+function CloudIcon({ color, isPremium, isOwn }: { color: string, isPremium?: boolean, isOwn?: boolean }) {
   const getDarkerColor = (hslColor: string) => {
     if (!hslColor || !hslColor.startsWith('hsl')) return hslColor;
     try {
@@ -34,7 +31,7 @@ function CloudIcon({ color, isPremium }: { color: string, isPremium?: boolean })
   const strokeColor = getDarkerColor(color);
 
   return (
-    <div className="relative" style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))' }}>
+    <div className={cn("relative", isOwn && "animate-pulse-own-cloud")} style={{ filter: 'drop-shadow(0px 2px 4px rgba(0,0,0,0.2))' }}>
         {isPremium && (
             <Crown 
                 className="absolute -top-3.5 -left-1.5 h-6 w-6 text-yellow-400 -rotate-12"
@@ -67,6 +64,8 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const { theme, systemTheme } = useTheme();
+  const { toast } = useToast();
+  const t = useTranslation();
   
   useEffect(() => {
     setMounted(true)
@@ -74,7 +73,10 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   
   const handleMarkerClick = (marker: MarkerInfo) => {
     if (marker.userId === '0') {
-      alert("Это ваше собственное желание!");
+      toast({
+        title: "Это ваше желание",
+        description: "Другие пользователи его уже видят!",
+      });
       return;
     }
     // This is a mock navigation. In a real app, you would navigate to the specific chat.
@@ -122,11 +124,12 @@ export default function MapComponent({ center, markers = [], className }: MapPro
             longitude={marker.longitude}
             latitude={marker.latitude}
             onClick={() => handleMarkerClick(marker)}
-            style={{ zIndex: marker.isPremium ? 10 : 1 }}
+            style={{ zIndex: marker.isPremium || marker.userId === '0' ? 10 : 1 }}
             >
             <CloudIcon 
                 color={marker.color || '#FF7F50'}
                 isPremium={marker.isPremium}
+                isOwn={marker.userId === '0'}
             />
             </Marker>
         ))}
