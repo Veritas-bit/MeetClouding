@@ -95,7 +95,7 @@ export default function MapComponent({ center, markers = [], className }: MapPro
   }
   
   const currentTheme = theme === 'system' ? systemTheme : theme;
-  const isDark = currentTheme === 'dark' || currentTheme === 'evening';
+  const isDark = ['dark', 'evening'].includes(currentTheme || '');
   const mapStyle = isDark ? "streets-v2-dark" : "streets-v2";
 
   if (!mounted) {
