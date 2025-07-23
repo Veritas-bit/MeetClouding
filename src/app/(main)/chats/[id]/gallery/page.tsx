@@ -3,8 +3,11 @@
 
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Upload } from 'lucide-react';
+import { Upload, Send, X } from 'lucide-react';
 import { useRef, type ChangeEvent, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 
 interface GalleryImage {
     id: string;
@@ -16,6 +19,9 @@ interface GalleryImage {
 export default function GalleryPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [images, setImages] = useState<GalleryImage[]>([]);
+    const [previewImage, setPreviewImage] = useState<GalleryImage | null>(null);
+    const router = useRouter();
+    const { toast } = useToast();
 
     const handleUploadClick = () => {
         fileInputRef.current?.click();
@@ -52,12 +58,25 @@ export default function GalleryPage() {
         }
     };
 
+    const handleImageClick = (image: GalleryImage) => {
+        setPreviewImage(image);
+    };
+
+    const handleSendImage = () => {
+        if (!previewImage) return;
+        // Here you would typically handle sending the image to the chat
+        // For now, we'll just show a toast and navigate back
+        toast({ title: 'Изображение отправлено!', description: 'Оно скоро появится в чате.' });
+        setPreviewImage(null);
+        router.back();
+    };
+
     return (
         <div className="px-[2%] pt-[2%] pb-4 h-full flex flex-col gap-4">
             <div className="flex-grow h-full w-full rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 p-4 overflow-y-auto hide-scrollbar">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {images.map((image) => (
-                        <div key={image.id} className="relative aspect-square w-full">
+                        <div key={image.id} className="relative aspect-square w-full cursor-pointer" onClick={() => handleImageClick(image)}>
                             <Image
                                 src={image.src}
                                 alt={image.alt}
@@ -84,6 +103,34 @@ export default function GalleryPage() {
                     Загрузить фотографию
                 </Button>
             </div>
+
+            <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
+                <DialogContent className="max-w-3xl p-2">
+                   {previewImage && (
+                        <div className="relative aspect-video w-full">
+                             <Image
+                                src={previewImage.src}
+                                alt={previewImage.alt}
+                                fill
+                                className="rounded-md object-contain"
+                            />
+                        </div>
+                   )}
+                    <DialogFooter className="!flex-row !justify-center gap-4 p-2">
+                        <DialogClose asChild>
+                            <Button variant="outline" className="w-full">
+                                <X className="mr-2 h-4 w-4" />
+                                Отмена
+                            </Button>
+                        </DialogClose>
+                        <Button onClick={handleSendImage} className="w-full">
+                            <Send className="mr-2 h-4 w-4" />
+                            Отправить
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 }
