@@ -297,14 +297,14 @@ export default function ConversationPage() {
           )}
         >
           <div className="relative flex items-center bg-muted/50 rounded-[7px]">
-              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setIsAttachmentModalOpen(true)}>
-                  <Camera className="h-6 w-6 text-muted-foreground" />
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
+                  <ShieldAlert className="h-6 w-6 text-muted-foreground" />
               </Button>
               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
                   <UserPlus className="h-6 w-6 text-muted-foreground" />
               </Button>
-               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
-                  <ShieldAlert className="h-6 w-6 text-muted-foreground" />
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setIsAttachmentModalOpen(true)}>
+                  <Camera className="h-6 w-6 text-muted-foreground" />
               </Button>
 
               <div className="w-px h-6 bg-border"></div>
@@ -396,3 +396,5 @@ export default function ConversationPage() {
     </div>
   );
 }
+
+    
