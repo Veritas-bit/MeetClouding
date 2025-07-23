@@ -39,7 +39,7 @@ const BackButton = ({ onClick, srText }: { onClick: () => void, srText: string }
             variant="ghost" 
             size="icon" 
             onClick={onClick} 
-            className="text-foreground absolute left-0 hover:bg-transparent active:bg-transparent"
+            className="text-foreground hover:bg-transparent active:bg-transparent"
         >
             <BackIcon className="h-6 w-6 active:text-primary" />
             <span className="sr-only">{srText}</span>
@@ -84,9 +84,11 @@ const HeaderWithBackButton = ({ titleKey, showMapButton }: { titleKey: string, s
     }
     return (
          <div className="w-full h-full relative flex items-center justify-center">
-             {showMapButton ? <BackToMapButton /> : (
-                <BackButton onClick={handleBack} srText={t('back')} />
-             )}
+             <div className="absolute left-0">
+                {showMapButton ? <BackToMapButton /> : (
+                    <BackButton onClick={handleBack} srText={t('back')} />
+                )}
+             </div>
              <span className="text-xl font-headline text-foreground">{t(titleKey)}</span>
          </div>
     );
@@ -201,7 +203,9 @@ export function Header() {
         } else if (pathname === '/settings') {
              setHeaderContent(
                 <div className="w-full h-full relative flex items-center">
-                    <BackButton onClick={() => router.back()} srText={t('back')} />
+                    <div className="absolute left-0">
+                        <BackButton onClick={() => router.back()} srText={t('back')} />
+                    </div>
                 </div>
              );
         } else if (pathname.startsWith('/settings/')) {
@@ -225,8 +229,6 @@ export function Header() {
 
   }, [pathname, params, mounted, hasInteractedWithMap, setHasInteractedWithMap, t, router, searchParams]);
 
-  const showBorder = !pathname.startsWith('/settings');
-
   if (!mounted) {
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -238,7 +240,7 @@ export function Header() {
   }
   
   return (
-    <header className={cn("sticky top-0 z-40 w-full bg-background", showBorder && "border-b")}>
+    <header className={cn("sticky top-0 z-40 w-full bg-background border-b")}>
       <div className={cn("container flex h-16 items-center justify-between space-x-4 px-4 sm:space-x-0")}>
         {headerContent}
       </div>
