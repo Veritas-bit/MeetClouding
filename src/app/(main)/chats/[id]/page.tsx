@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Send, FileImage, Pencil, X, UserPlus, ShieldAlert, Video, MapPin, Share } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
-import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
+// import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
 import { cn } from '@/lib/utils';
 import { ReplyToView } from '@/components/chats/ReplyToView';
 import {
@@ -301,6 +301,7 @@ export default function ConversationPage() {
     notFound();
   }
 
+  /*
   if (isAttachmentModalOpen) {
     return (
       <ChatAttachmentModal
@@ -309,6 +310,7 @@ export default function ConversationPage() {
       />
     );
   }
+  */
 
   const isMessageEmpty = newMessage.trim() === '';
 
