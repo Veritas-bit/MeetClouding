@@ -5,15 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import dynamic from "next/dynamic";
 import { useTranslation } from "@/hooks/use-translation";
-import { GradientBorderCloudIcon } from "@/components/icons/GradientBorderCloudIcon";
+import { FullScreenLoader } from "@/components/common/FullScreenLoader";
 
 // Lazy load the sheet components
 const WantSheet = dynamic(() => import('@/components/want/WantSheet').then(mod => mod.WantSheet), {
-  loading: () => <div className="h-full flex justify-center items-center"><GradientBorderCloudIcon className="h-24 w-24" /></div>,
+  loading: () => <FullScreenLoader />,
   ssr: false
 });
 const SearchSheet = dynamic(() => import('@/components/search/SearchSheet').then(mod => mod.SearchSheet), {
-  loading: () => <div className="h-full flex justify-center items-center"><GradientBorderCloudIcon className="h-24 w-24" /></div>,
+  loading: () => <FullScreenLoader />,
   ssr: false
 });
 
