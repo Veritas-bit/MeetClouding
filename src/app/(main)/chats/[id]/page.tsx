@@ -34,8 +34,8 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 const reportReasons = [
@@ -74,7 +74,7 @@ export default function ConversationPage() {
 
   // Alert Dialog State
   const [dialogState, setDialogState] = useState<'friendRequest' | 'report' | null>(null);
-  const [selectedReportReason, setSelectedReportReason] = useState<string | null>(null);
+  const [selectedReportReasons, setSelectedReportReasons] = useState<string[]>([]);
   
   const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -190,14 +190,22 @@ export default function ConversationPage() {
   }
 
   const handleReport = () => {
-    if (!selectedReportReason) {
+    if (selectedReportReasons.length === 0) {
         toast({ title: "Ошибка", description: "Пожалуйста, выберите причину жалобы.", variant: "destructive" });
         return;
     }
     toast({ title: "Жалоба отправлена", description: `Ваша жалоба на пользователя ${otherParticipant?.name} будет рассмотрена модераторами.`, variant: "destructive" });
     setDialogState(null);
-    setSelectedReportReason(null);
+    setSelectedReportReasons([]);
   }
+
+  const handleReportReasonChange = (reasonId: string) => {
+    setSelectedReportReasons(prev => 
+      prev.includes(reasonId) 
+        ? prev.filter(id => id !== reasonId) 
+        : [...prev, reasonId]
+    );
+  };
 
   const cancelReply = () => {
     setReplyToMessage(null);
@@ -368,7 +376,7 @@ export default function ConversationPage() {
             </AlertDialogContent>
         </AlertDialog>
 
-        <Dialog open={dialogState === 'report'} onOpenChange={(open) => { if (!open) { setDialogState(null); setSelectedReportReason(null); } }}>
+        <Dialog open={dialogState === 'report'} onOpenChange={(open) => { if (!open) { setDialogState(null); setSelectedReportReasons([]); } }}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Пожаловаться на пользователя</DialogTitle>
@@ -376,19 +384,23 @@ export default function ConversationPage() {
                         Выберите причину жалобы на пользователя {otherParticipant?.name}. Ваша жалоба будет рассмотрена модераторами.
                     </DialogDescription>
                 </DialogHeader>
-                <RadioGroup value={selectedReportReason || ""} onValueChange={setSelectedReportReason} className="grid gap-2 my-4">
+                <div className="grid gap-2 my-4">
                     {reportReasons.map(reason => (
                         <div key={reason.id} className="flex items-center space-x-2">
-                            <RadioGroupItem value={reason.id} id={reason.id} />
+                            <Checkbox 
+                                id={reason.id} 
+                                checked={selectedReportReasons.includes(reason.id)} 
+                                onCheckedChange={() => handleReportReasonChange(reason.id)}
+                            />
                             <Label htmlFor={reason.id} className="font-normal">{reason.label}</Label>
                         </div>
                     ))}
-                </RadioGroup>
+                </div>
                 <DialogFooter className="!flex-row !justify-center gap-4">
                     <DialogClose asChild>
-                        <Button type="button" variant="secondary" className="max-w-[40%]">Отмена</Button>
+                        <Button type="button" variant="default" className="max-w-[40%]">Отмена</Button>
                     </DialogClose>
-                    <Button type="submit" variant="destructive" className="max-w-[40%]" onClick={handleReport} disabled={!selectedReportReason}>Отправить жалобу</Button>
+                    <Button type="submit" variant="destructive" className="max-w-[40%]" onClick={handleReport} disabled={selectedReportReasons.length === 0}>Отправить жалобу</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -396,7 +408,3 @@ export default function ConversationPage() {
     </div>
   );
 }
-
-    
-
-    
