@@ -9,7 +9,7 @@ import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { MessageView } from '@/components/message-view';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Send, Camera, Pencil, X, UserPlus, ShieldAlert } from 'lucide-react';
+import { Send, FileImage, Pencil, X, UserPlus, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
 import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
@@ -312,7 +312,7 @@ export default function ConversationPage() {
                   <UserPlus className="h-6 w-6 text-muted-foreground" />
               </Button>
               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setIsAttachmentModalOpen(true)}>
-                  <Camera className="h-6 w-6 text-muted-foreground" />
+                  <FileImage className="h-6 w-6 text-muted-foreground" />
               </Button>
 
               <div className="w-px h-6 bg-border"></div>
@@ -408,3 +408,5 @@ export default function ConversationPage() {
     </div>
   );
 }
+
+    
