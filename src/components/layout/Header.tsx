@@ -38,9 +38,9 @@ const BackButton = ({ onClick, srText }: { onClick: () => void, srText: string }
             variant="ghost" 
             size="icon" 
             onClick={onClick} 
-            className="hover:bg-transparent active:bg-transparent"
+            className="hover:bg-transparent active:bg-transparent group"
         >
-            <BackIcon className="h-6 w-6 text-muted-foreground active:text-primary" />
+            <BackIcon className="h-6 w-6 text-muted-foreground group-active:text-primary" />
             <span className="sr-only">{srText}</span>
         </Button>
     )
@@ -231,7 +231,7 @@ export function Header() {
   }
   
   return (
-    <header className={cn("sticky top-0 z-40 w-full bg-background border-b")}>
+    <header className={cn("sticky top-0 z-40 w-full bg-background", { "border-b": !pathname.startsWith('/settings') })}>
       <div className={cn("container flex h-16 items-center justify-between space-x-4 px-4 sm:space-x-0")}>
         {headerContent}
       </div>
