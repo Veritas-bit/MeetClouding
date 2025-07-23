@@ -15,8 +15,8 @@ export function ChatList({ mainChats, friendChats, activeTab }: ChatListProps) {
   const chatsToShow = activeTab === 'all' ? mainChats : friendChats;
 
   return (
-    <div className="flex-grow flex flex-col p-2 bg-primary/10 h-full">
-        <ScrollArea className="flex-grow rounded-lg bg-background">
+    <div className="flex-grow flex flex-col p-2 h-full">
+        <ScrollArea className="flex-grow rounded-lg bg-primary/10">
             <div className="pt-2">
                 <div className="flex flex-col">
                 {chatsToShow.map((chat) => (
