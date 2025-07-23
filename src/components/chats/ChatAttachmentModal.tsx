@@ -234,7 +234,7 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
                                         <p className="text-sm">Загрузите фото или видео.</p>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-3 gap-1">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
                                         {galleryImages.map((media, index) => (
                                             <div key={index} className="relative aspect-square w-full cursor-pointer" onClick={() => setSelectedMedia(media)}>
                                                 <Image src={media.src} alt={`Gallery item ${index}`} layout="fill" objectFit="cover" className="rounded" />
