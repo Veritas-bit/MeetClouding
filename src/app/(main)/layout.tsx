@@ -53,7 +53,7 @@ export default function MainLayout({
   
   // If the user is registered, show the main app layout.
   return (
-    <div className="relative flex flex-col h-screen">
+    <div className="relative flex flex-col h-svh">
       <Header />
       <main className="flex-1 flex flex-col overflow-hidden pb-20">{children}</main>
       <BottomNavBar />
