@@ -61,7 +61,7 @@ export default function GalleryPage() {
 
     return (
         <div className="px-[2%] pt-[2%] pb-4 h-full flex flex-col gap-4">
-            <div className="flex-grow h-full w-full rounded-lg border-2 border-dashed border-muted-foreground/50 bg-muted/20 p-4 overflow-y-auto hide-scrollbar">
+            <div className="flex-grow h-full w-full rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 p-4 overflow-y-auto hide-scrollbar">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {images.map((image) => (
                         <div key={image.id} className="relative aspect-square w-full">
