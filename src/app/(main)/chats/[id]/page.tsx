@@ -9,7 +9,7 @@ import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { MessageView } from '@/components/message-view';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Send, FileImage, Pencil, X, UserPlus, ShieldAlert } from 'lucide-react';
+import { Send, FileImage, Pencil, X, UserPlus, ShieldAlert, Video, MapPin, Share } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
 import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
@@ -34,8 +34,10 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Label } from "@/components/ui/label"
 import { Checkbox } from '@/components/ui/checkbox';
+import { useLocationStore } from '@/lib/location-store';
 
 
 const reportReasons = [
@@ -44,7 +46,7 @@ const reportReasons = [
     { id: "scam", label: "Мошенничество" },
     { id: "begging", label: "Попрошайничество" },
     { id: "harassment", label: "Оскорбления и угрозы" },
-    { id: "inappropriate-content", label: "Нежелательный контент" },
+    { id: "inappropriate-content", "label": "Нежелательный контент" },
 ]
 
 export default function ConversationPage() {
@@ -55,6 +57,8 @@ export default function ConversationPage() {
   const [conversation, setConversation] = useState<Conversation | null | undefined>(null);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const otherParticipant = conversation?.participants.find(p => p.id !== currentUser?.id);
+  const { location, requestLocation } = useLocationStore();
+
 
   // UI State
   const [messages, setMessages] = useState<Message[]>([]);
@@ -96,6 +100,10 @@ export default function ConversationPage() {
     }
     fetchData();
   }, [params.id]);
+  
+  useEffect(() => {
+    requestLocation();
+  }, [requestLocation]);
 
   // Auto-scroll to bottom on new message
   useEffect(() => {
@@ -128,24 +136,14 @@ export default function ConversationPage() {
         }, 1000);
     }, 500);
   };
+  
+  const sendTextMessage = (text: string) => {
+    if (!currentUser || !conversation) return;
 
-  const handleSendMessage = async () => {
-    if (newMessage.trim() === '' || !currentUser || !conversation) return;
-
-    setIsSending(true);
-
-    if (editMessage) {
-      // Logic for editing a message
-      setMessages(prev => prev.map(m => 
-        m.id === editMessage.id ? { ...m, text: newMessage.trim(), edited: true } : m
-      ));
-      toast({ title: 'Сообщение изменено' });
-      cancelEdit();
-    } else {
-      // Logic for sending a new message
+     // Logic for sending a new message
       const sentMessage: Message = {
         id: `msg-${Date.now()}`,
-        text: newMessage.trim(),
+        text: text,
         timestamp: Date.now(),
         senderId: currentUser.id,
         status: 'sent',
@@ -177,6 +175,22 @@ export default function ConversationPage() {
           }, 1000);
 
       }, 500);
+  }
+
+  const handleSendMessage = async () => {
+    if (newMessage.trim() === '' || !currentUser || !conversation) return;
+
+    setIsSending(true);
+
+    if (editMessage) {
+      // Logic for editing a message
+      setMessages(prev => prev.map(m => 
+        m.id === editMessage.id ? { ...m, text: newMessage.trim(), edited: true } : m
+      ));
+      toast({ title: 'Сообщение изменено' });
+      cancelEdit();
+    } else {
+        sendTextMessage(newMessage.trim());
     }
     
     setNewMessage('');
@@ -252,6 +266,16 @@ export default function ConversationPage() {
     toast({ title: 'Сообщение удалено', variant: 'destructive' });
   };
 
+  const handleSendLocation = () => {
+    if (location) {
+        const locationUrl = `https://maps.google.com/?q=${location.latitude},${location.longitude}`;
+        sendTextMessage(`Моя геопозиция: ${locationUrl}`);
+        toast({ title: 'Геопозиция отправлена' });
+    } else {
+        toast({ title: 'Не удалось определить геопозицию', description: 'Попробуйте еще раз позже.', variant: 'destructive'});
+    }
+  }
+
 
   if (conversation === null || currentUser === null) {
     return <FullScreenLoader text="Загрузка чата..." />;
@@ -311,9 +335,23 @@ export default function ConversationPage() {
               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
                   <UserPlus className="h-6 w-6 text-muted-foreground" />
               </Button>
-              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setIsAttachmentModalOpen(true)}>
-                  <FileImage className="h-6 w-6 text-muted-foreground" />
-              </Button>
+              <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
+                      <FileImage className="h-6 w-6 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuItem onClick={() => setIsAttachmentModalOpen(true)}>
+                      <Video className="mr-2 h-4 w-4" />
+                      <span>Фото или видео</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSendLocation}>
+                      <MapPin className="mr-2 h-4 w-4" />
+                      <span>Геопозиция</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+              </DropdownMenu>
 
               <div className="w-px h-6 bg-border"></div>
               <Textarea
@@ -408,5 +446,7 @@ export default function ConversationPage() {
     </div>
   );
 }
+
+    
 
     
