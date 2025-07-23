@@ -1,9 +1,11 @@
+
 "use client";
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const faqItems = [
     {
@@ -37,26 +39,28 @@ const faqItems = [
 
 export default function HelpPage() {
   return (
-    <div className="container mx-auto p-4 sm:p-6 lg:p-8 pt-8 pb-24 flex flex-col items-center">
-      <div className="w-full max-w-lg">
-        <Card>
-          <CardHeader>
-            <CardTitle>Помощь и Частые вопросы</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Accordion type="single" collapsible className="w-full">
-                {faqItems.map((item, index) => (
-                    <AccordionItem key={index} value={`item-${index}`}>
-                        <AccordionTrigger>{item.question}</AccordionTrigger>
-                        <AccordionContent>
-                           {item.answer}
-                        </AccordionContent>
-                    </AccordionItem>
-                ))}
-            </Accordion>
-          </CardContent>
-        </Card>
+    <ScrollArea className="h-full">
+      <div className="container mx-auto p-4 sm:p-6 lg:p-8 pt-8 pb-24 flex flex-col items-center">
+        <div className="w-full max-w-lg">
+          <Card>
+            <CardHeader>
+              <CardTitle>Помощь и Частые вопросы</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Accordion type="single" collapsible className="w-full">
+                  {faqItems.map((item, index) => (
+                      <AccordionItem key={index} value={`item-${index}`}>
+                          <AccordionTrigger>{item.question}</AccordionTrigger>
+                          <AccordionContent>
+                            {item.answer}
+                          </AccordionContent>
+                      </AccordionItem>
+                  ))}
+              </Accordion>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 }

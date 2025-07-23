@@ -1,6 +1,7 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const GoogleIcon = () => (
     <svg className="h-4 w-4 mr-3 shrink-0" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
@@ -19,27 +20,29 @@ const AppleIcon = () => (
 
 export default function AccountPage() {
   return (
-    <div className="container mx-auto p-8 sm:p-12 lg:p-16 pt-8 pb-24 flex flex-col items-center">
-      <div className="w-full max-w-lg">
-        <Card>
-          <CardHeader>
-            <CardTitle>Управление аккаунтом</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            <p className="text-muted-foreground">Привяжите свой аккаунт к социальным сетям для быстрого входа и восстановления доступа.</p>
-            <div className="flex flex-col space-y-3">
-                <Button variant="outline" className="justify-start">
-                    <GoogleIcon />
-                    Привязать аккаунт Google
-                </Button>
-                <Button variant="outline" className="justify-start">
-                    <AppleIcon />
-                    Привязать аккаунт Apple
-                </Button>
-            </div>
-          </CardContent>
-        </Card>
+    <ScrollArea className="h-full">
+      <div className="container mx-auto p-8 sm:p-12 lg:p-16 pt-8 pb-24 flex flex-col items-center">
+        <div className="w-full max-w-lg">
+          <Card>
+            <CardHeader>
+              <CardTitle>Управление аккаунтом</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
+              <p className="text-muted-foreground">Привяжите свой аккаунт к социальным сетям для быстрого входа и восстановления доступа.</p>
+              <div className="flex flex-col space-y-3">
+                  <Button variant="outline" className="justify-start">
+                      <GoogleIcon />
+                      Привязать аккаунт Google
+                  </Button>
+                  <Button variant="outline" className="justify-start">
+                      <AppleIcon />
+                      Привязать аккаунт Apple
+                  </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 }

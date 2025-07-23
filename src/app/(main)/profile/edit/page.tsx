@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MaleIcon } from "@/components/icons/gender/MaleIcon";
 import { FemaleIcon } from "@/components/icons/gender/FemaleIcon";
 import { NeuterIcon } from "@/components/icons/gender/NeuterIcon";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
     const iconProps = { className: "w-full h-full p-1.5" };
@@ -151,113 +152,113 @@ export default function EditProfilePage() {
   const selectedGenderLabel = genderOptions.find(opt => opt.value === gender)?.label || t('selectGenderPlaceholder');
 
   return (
-    <>
-    <div className="container mx-auto p-4 py-6 flex flex-col items-center pb-24">
-      <div className="relative mb-2">
-        <Avatar className="h-20 w-20 border-4 border-background bg-muted/50">
-            {avatarPreview ? (
-                <AvatarImage src={avatarPreview} alt="User Avatar" />
-            ) : null}
-            <AvatarFallback>
-                <GenderAvatar gender={gender} />
-            </AvatarFallback>
-        </Avatar>
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-          accept="image/*"
-        />
-      </div>
+    <ScrollArea className="h-full">
+      <div className="container mx-auto p-4 py-6 flex flex-col items-center pb-24">
+        <div className="relative mb-2">
+          <Avatar className="h-20 w-20 border-4 border-background bg-muted/50">
+              {avatarPreview ? (
+                  <AvatarImage src={avatarPreview} alt="User Avatar" />
+              ) : null}
+              <AvatarFallback>
+                  <GenderAvatar gender={gender} />
+              </AvatarFallback>
+          </Avatar>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept="image/*"
+          />
+        </div>
 
-      <button
-        onClick={handleAvatarChangeClick}
-        className="text-sm text-primary active:underline mb-4"
-      >
-        {t('changePhoto')}
-      </button>
+        <button
+          onClick={handleAvatarChangeClick}
+          className="text-sm text-primary active:underline mb-4"
+        >
+          {t('changePhoto')}
+        </button>
 
-      <div className="w-full max-w-md">
-        <Card className="bg-card/50">
-          <CardContent className="p-4 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="nickname">{t('nicknameLabel')}</Label>
-              <Input
-                id="nickname"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                placeholder={t('nicknamePlaceholder')}
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                className="mt-2"
-                onClick={handleGenerateNickname}
-                disabled={isGenerating}
-              >
-                {isGenerating ? (
-                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                    <Sparkles className="mr-2 h-4 w-4" />
-                )}
-                {t('generate')}
+        <div className="w-full max-w-md">
+          <Card className="bg-card/50">
+            <CardContent className="p-4 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="nickname">{t('nicknameLabel')}</Label>
+                <Input
+                  id="nickname"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                  placeholder={t('nicknamePlaceholder')}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="mt-2"
+                  onClick={handleGenerateNickname}
+                  disabled={isGenerating}
+                >
+                  {isGenerating ? (
+                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                      <Sparkles className="mr-2 h-4 w-4" />
+                  )}
+                  {t('generate')}
+                </Button>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="about">{t('aboutLabel')}</Label>
+                <Textarea
+                  id="about"
+                  value={about}
+                  onChange={(e) => setAbout(e.target.value)}
+                  placeholder={t('aboutPlaceholder')}
+                  rows={3}
+                  className="resize-none min-h-[60px]"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>{t('yourGenderLabel')}</Label>
+                <Collapsible open={isGenderOpen} onOpenChange={setIsGenderOpen} className="relative">
+                  <CollapsibleTrigger asChild>
+                    <Button variant="outline" className="w-full justify-between">
+                      {selectedGenderLabel}
+                      <span className="text-muted-foreground">...</span>
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="absolute bottom-full mb-2 w-full z-50">
+                      <Card className="mt-2">
+                          <CardContent className="p-2 space-y-1">
+                            {genderOptions.map((option) => (
+                              <Button
+                                  key={option.value}
+                                  variant="ghost"
+                                  className="w-full justify-start"
+                                  onClick={() => {
+                                    setGender(option.value);
+                                    setIsGenderOpen(false);
+                                  }}
+                                >
+                                  <Check className={cn("mr-2 h-4 w-4", gender === option.value ? "opacity-100" : "opacity-0")} />
+                                  {option.label}
+                                </Button>
+                            ))}
+                          </CardContent>
+                      </Card>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+              
+              <Button className="w-full" size="lg" onClick={handleSaveChanges} disabled={isSaving || !nickname}>
+                  {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                  {t('saveChanges')}
               </Button>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="about">{t('aboutLabel')}</Label>
-              <Textarea
-                id="about"
-                value={about}
-                onChange={(e) => setAbout(e.target.value)}
-                placeholder={t('aboutPlaceholder')}
-                rows={3}
-                className="resize-none min-h-[60px]"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t('yourGenderLabel')}</Label>
-              <Collapsible open={isGenderOpen} onOpenChange={setIsGenderOpen} className="relative">
-                <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full justify-between">
-                    {selectedGenderLabel}
-                    <span className="text-muted-foreground">...</span>
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="absolute bottom-full mb-2 w-full z-50">
-                    <Card className="mt-2">
-                        <CardContent className="p-2 space-y-1">
-                           {genderOptions.map((option) => (
-                             <Button
-                                key={option.value}
-                                variant="ghost"
-                                className="w-full justify-start"
-                                onClick={() => {
-                                  setGender(option.value);
-                                  setIsGenderOpen(false);
-                                }}
-                              >
-                                <Check className={cn("mr-2 h-4 w-4", gender === option.value ? "opacity-100" : "opacity-0")} />
-                                {option.label}
-                              </Button>
-                           ))}
-                        </CardContent>
-                    </Card>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-            
-            <Button className="w-full" size="lg" onClick={handleSaveChanges} disabled={isSaving || !nickname}>
-                {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                {t('saveChanges')}
-            </Button>
-
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
-    </>
+    </ScrollArea>
   );
 }
