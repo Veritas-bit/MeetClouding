@@ -1,10 +1,12 @@
 
 import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Upload } from 'lucide-react';
 
 export default function GalleryPage() {
     return (
-        <div className="px-[2%] pt-[2%] pb-[10%] h-full">
-            <div className="h-full w-full rounded-lg border-2 border-dashed border-muted-foreground/50 bg-muted/20 p-4 overflow-y-auto hide-scrollbar">
+        <div className="px-[2%] pt-[2%] pb-4 h-full flex flex-col gap-4">
+            <div className="flex-grow h-full w-full rounded-lg border-2 border-dashed border-muted-foreground/50 bg-muted/20 p-4 overflow-y-auto hide-scrollbar">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {Array.from({ length: 25 }).map((_, index) => (
                         <div key={index} className="relative aspect-square w-full">
@@ -19,6 +21,12 @@ export default function GalleryPage() {
                         </div>
                     ))}
                 </div>
+            </div>
+            <div className="flex-shrink-0">
+                <Button className="w-full" size="lg">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Загрузить фотографию
+                </Button>
             </div>
         </div>
     );
