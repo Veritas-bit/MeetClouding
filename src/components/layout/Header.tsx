@@ -198,8 +198,7 @@ export function Header() {
             setHeaderContent(<HeaderWithBackButton titleKey="editProfile" />);
         } else if (pathname === '/settings') {
              setHeaderContent(
-                <div className="w-full h-full relative flex items-center justify-center">
-                    {shouldShowMapButton && <BackToMapButton />}
+                <div className="w-full h-full relative flex items-center">
                     <Button variant="ghost" size="icon" onClick={() => router.back()} className="text-foreground absolute left-0">
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
@@ -226,6 +225,8 @@ export function Header() {
 
   }, [pathname, params, mounted, hasInteractedWithMap, setHasInteractedWithMap, t, router, searchParams]);
 
+  const showBorder = !pathname.startsWith('/settings');
+
   if (!mounted) {
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -237,7 +238,7 @@ export function Header() {
   }
   
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background">
+    <header className={cn("sticky top-0 z-40 w-full bg-background", showBorder && "border-b")}>
       <div className={cn("container flex h-16 items-center justify-between space-x-4 px-4 sm:space-x-0")}>
         {headerContent}
       </div>
