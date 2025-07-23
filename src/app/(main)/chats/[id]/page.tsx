@@ -25,7 +25,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
 
+
+const reportReasons = [
+    { id: "wrong-gender", label: "Неверный пол" },
+    { id: "spam", label: "Реклама" },
+    { id: "scam", label: "Мошенничество" },
+    { id: "begging", label: "Попрошайничество" },
+    { id: "harassment", label: "Оскорбления и угрозы" },
+    { id: "inappropriate-content", label: "Нежелательный контент" },
+]
 
 export default function ConversationPage() {
   const params = useParams();
@@ -54,6 +74,7 @@ export default function ConversationPage() {
 
   // Alert Dialog State
   const [dialogState, setDialogState] = useState<'friendRequest' | 'report' | null>(null);
+  const [selectedReportReason, setSelectedReportReason] = useState<string | null>(null);
   
   const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -169,8 +190,13 @@ export default function ConversationPage() {
   }
 
   const handleReport = () => {
+    if (!selectedReportReason) {
+        toast({ title: "Ошибка", description: "Пожалуйста, выберите причину жалобы.", variant: "destructive" });
+        return;
+    }
     toast({ title: "Жалоба отправлена", description: `Ваша жалоба на пользователя ${otherParticipant?.name} будет рассмотрена модераторами.`, variant: "destructive" });
     setDialogState(null);
+    setSelectedReportReason(null);
   }
 
   const cancelReply = () => {
@@ -327,26 +353,45 @@ export default function ConversationPage() {
         onMediaSend={handleMediaSend}
       />
 
-      <AlertDialog open={dialogState !== null} onOpenChange={(open) => !open && setDialogState(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {dialogState === 'friendRequest' ? 'Добавить в друзья?' : 'Пожаловаться?'}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {dialogState === 'friendRequest'
-                ? `Вы уверены, что хотите отправить запрос на добавление в друзья пользователю ${otherParticipant?.name}?`
-                : `Вы уверены, что хотите пожаловаться на пользователя ${otherParticipant?.name}? Это действие нельзя будет отменить.`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDialogState(null)}>Нет</AlertDialogCancel>
-            <AlertDialogAction onClick={dialogState === 'friendRequest' ? handleFriendRequest : handleReport}>
-              Да
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        <AlertDialog open={dialogState === 'friendRequest'} onOpenChange={(open) => !open && setDialogState(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Добавить в друзья?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Вы уверены, что хотите отправить запрос на добавление в друзья пользователю {otherParticipant?.name}?
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setDialogState(null)}>Нет</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleFriendRequest}>Да</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
+        <Dialog open={dialogState === 'report'} onOpenChange={(open) => { if (!open) { setDialogState(null); setSelectedReportReason(null); } }}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Пожаловаться на пользователя</DialogTitle>
+                    <DialogDescription>
+                        Выберите причину жалобы на пользователя {otherParticipant?.name}. Ваша жалоба будет рассмотрена модераторами.
+                    </DialogDescription>
+                </DialogHeader>
+                <RadioGroup value={selectedReportReason || ""} onValueChange={setSelectedReportReason} className="grid gap-2 my-4">
+                    {reportReasons.map(reason => (
+                        <div key={reason.id} className="flex items-center space-x-2">
+                            <RadioGroupItem value={reason.id} id={reason.id} />
+                            <Label htmlFor={reason.id} className="font-normal">{reason.label}</Label>
+                        </div>
+                    ))}
+                </RadioGroup>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button type="button" variant="secondary">Отмена</Button>
+                    </DialogClose>
+                    <Button type="submit" variant="destructive" onClick={handleReport} disabled={!selectedReportReason}>Отправить жалобу</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
 
     </div>
   );
