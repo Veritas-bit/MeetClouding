@@ -211,7 +211,7 @@ export function Header() {
             
             setHeaderContent(<HeaderWithBackButton titleKey={titleKey} />);
         } else if (pathname === '/settings') {
-            setHeaderContent(<HeaderWithBackButton titleKey="settings" />);
+            setHeaderContent(<div />);
         } else {
             setHeaderContent(defaultHeader);
         }
