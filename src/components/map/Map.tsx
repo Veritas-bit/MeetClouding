@@ -61,22 +61,20 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     
     const getGenderGradient = (gender: Gender) => {
         const gradientId = `gender-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}`;
-        let colors = { c1: '#333', c2: '#aaa', c3: '#333' }; // Neutral default
+        let color = '#C0C0C0'; // Neutral default
         if (gender === 'male') {
-            colors = { c1: 'black', c2: '#00BFFF', c3: 'black' }; // black-blue-black
+            color = '#00BFFF'; // blue
         } else if (gender === 'female') {
-            colors = { c1: 'black', c2: '#FF69B4', c3: 'black' }; // black-pink-black
-        } else {
-            colors = { c1: 'black', c2: '#C0C0C0', c3: 'black' }; // black-silver-black
+            color = '#FF69B4'; // pink
         }
         
         return {
             gradientDef: `
-                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="25%" style="stop-color:${colors.c1};" />
-                    <stop offset="40%" style="stop-color:${colors.c2};" />
-                    <stop offset="60%" style="stop-color:${colors.c2};" />
-                    <stop offset="75%" style="stop-color:${colors.c1};" />
+                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="30%" style="stop-color:black;" />
+                    <stop offset="45%" style="stop-color:${color};" />
+                    <stop offset="55%" style="stop-color:${color};" />
+                    <stop offset="70%" style="stop-color:black;" />
                 </linearGradient>
             `,
             gradientUrl: `url(#${gradientId})`
