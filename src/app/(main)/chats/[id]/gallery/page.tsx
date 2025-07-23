@@ -15,14 +15,7 @@ interface GalleryImage {
 
 export default function GalleryPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [images, setImages] = useState<GalleryImage[]>(
-        Array.from({ length: 25 }).map((_, index) => ({
-            id: `placeholder-${index}`,
-            src: `https://placehold.co/200x200.png`,
-            alt: `Placeholder image ${index + 1}`,
-            hint: "gallery photo"
-        }))
-    );
+    const [images, setImages] = useState<GalleryImage[]>([]);
 
     const handleUploadClick = () => {
         fileInputRef.current?.click();
