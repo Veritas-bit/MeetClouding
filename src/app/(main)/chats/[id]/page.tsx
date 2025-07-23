@@ -474,10 +474,8 @@ export default function ConversationPage() {
         </Dialog>
 
         <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
-            <DialogContent className="max-w-3xl p-2 bg-transparent border-none shadow-none">
-                <DialogHeader>
-                    <DialogTitle className="sr-only">Предпросмотр изображения</DialogTitle>
-                </DialogHeader>
+            <DialogContent className="max-w-3xl p-0 bg-transparent border-none shadow-none" hideCloseButton={false}>
+                <DialogTitle className="sr-only">Предпросмотр изображения</DialogTitle>
                {previewImage && (
                     <div className="relative aspect-video w-full">
                          <Image
@@ -488,19 +486,9 @@ export default function ConversationPage() {
                         />
                     </div>
                )}
-                <DialogFooter>
-                    <DialogClose asChild>
-                        <Button variant="outline">
-                            <X className="mr-2 h-4 w-4" />
-                            Закрыть
-                        </Button>
-                    </DialogClose>
-                </DialogFooter>
             </DialogContent>
         </Dialog>
 
     </div>
   );
 }
-
-    
