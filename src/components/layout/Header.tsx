@@ -19,6 +19,7 @@ import { MaleIcon } from "@/components/icons/gender/MaleIcon";
 import { FemaleIcon } from "@/components/icons/gender/FemaleIcon";
 import { NeuterIcon } from "@/components/icons/gender/NeuterIcon";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BackIcon } from "../icons/BackIcon";
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
     const iconProps = { className: "w-full h-full p-1.5" };
@@ -32,7 +33,7 @@ const GenderAvatar = ({ gender }: { gender: Gender }) => {
     }
 };
 
-const BackButton = ({ onClick, text, srText }: { onClick: () => void, text: string, srText: string }) => {
+const BackButton = ({ onClick, srText }: { onClick: () => void, srText: string }) => {
     return (
         <Button 
             variant="ghost" 
@@ -40,7 +41,7 @@ const BackButton = ({ onClick, text, srText }: { onClick: () => void, text: stri
             onClick={onClick} 
             className="text-foreground absolute left-0 hover:bg-transparent active:bg-transparent"
         >
-            <span className="text-2xl font-bold active:text-primary">&lt;</span>
+            <BackIcon className="h-6 w-6 active:text-primary" />
             <span className="sr-only">{srText}</span>
         </Button>
     )
@@ -57,7 +58,7 @@ const BackToMapButton = () => {
         router.push('/map');
     }
 
-    return <BackButton onClick={handleClick} text="<" srText={t('backToMap')} />;
+    return <BackButton onClick={handleClick} srText={t('backToMap')} />;
 };
 
 
@@ -84,7 +85,7 @@ const HeaderWithBackButton = ({ titleKey, showMapButton }: { titleKey: string, s
     return (
          <div className="w-full h-full relative flex items-center justify-center">
              {showMapButton ? <BackToMapButton /> : (
-                <BackButton onClick={handleBack} text="<" srText={t('back')} />
+                <BackButton onClick={handleBack} srText={t('back')} />
              )}
              <span className="text-xl font-headline text-foreground">{t(titleKey)}</span>
          </div>
@@ -106,9 +107,9 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
         <div className="w-full h-full relative flex items-center justify-center">
             <div className="absolute left-0">
                  {showMapButton ? (
-                    <BackButton onClick={handleBackToMap} text="<" srText={t('backToMap')} />
+                    <BackButton onClick={handleBackToMap} srText={t('backToMap')} />
                 ) : (
-                    <BackButton onClick={() => router.back()} text="<" srText={t('back')} />
+                    <BackButton onClick={() => router.back()} srText={t('back')} />
                 )}
             </div>
             
@@ -200,7 +201,7 @@ export function Header() {
         } else if (pathname === '/settings') {
              setHeaderContent(
                 <div className="w-full h-full relative flex items-center">
-                    <BackButton onClick={() => router.back()} text="<" srText={t('back')} />
+                    <BackButton onClick={() => router.back()} srText={t('back')} />
                 </div>
              );
         } else if (pathname.startsWith('/settings/')) {
