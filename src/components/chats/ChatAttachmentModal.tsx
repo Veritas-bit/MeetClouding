@@ -5,10 +5,11 @@ import { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Camera, FileImage, Send, X, AlertTriangle, LoaderCircle, Zap, Circle, Square } from 'lucide-react';
+import { Camera, FileImage, Send, X, AlertTriangle, Zap, Circle, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
+import { GradientBorderCloudIcon } from '../icons/GradientBorderCloudIcon';
 
 interface ChatAttachmentModalProps {
     isOpen: boolean;
@@ -222,7 +223,7 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
                         <div className="w-full flex-grow relative flex items-center justify-center">
                             {isCameraLoading && (
                                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 z-20 rounded-lg">
-                                   <LoaderCircle className="h-8 w-8 animate-spin" />
+                                   <GradientBorderCloudIcon className="h-8 w-8" />
                                    <p className="mt-2 text-muted-foreground">Запускаем камеру...</p>
                                 </div>
                             )}

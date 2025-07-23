@@ -4,16 +4,16 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import dynamic from "next/dynamic";
-import { LoaderCircle } from "lucide-react";
 import { useTranslation } from "@/hooks/use-translation";
+import { GradientBorderCloudIcon } from "@/components/icons/GradientBorderCloudIcon";
 
 // Lazy load the sheet components
 const WantSheet = dynamic(() => import('@/components/want/WantSheet').then(mod => mod.WantSheet), {
-  loading: () => <div className="h-full flex justify-center items-center"><LoaderCircle className="animate-spin" /></div>,
+  loading: () => <div className="h-full flex justify-center items-center"><GradientBorderCloudIcon className="h-24 w-24" /></div>,
   ssr: false
 });
 const SearchSheet = dynamic(() => import('@/components/search/SearchSheet').then(mod => mod.SearchSheet), {
-  loading: () => <div className="h-full flex justify-center items-center"><LoaderCircle className="animate-spin" /></div>,
+  loading: () => <div className="h-full flex justify-center items-center"><GradientBorderCloudIcon className="h-24 w-24" /></div>,
   ssr: false
 });
 

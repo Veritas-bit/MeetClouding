@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, LoaderCircle, LayoutGrid } from "lucide-react";
+import { ArrowLeft, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { useLocationStore } from "@/lib/location-store";
 import { WISH_CATEGORIES, WishCategoryKey } from '@/lib/categories';
@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { useProfileStore } from '@/lib/profile-store';
 import { useTranslation } from '@/hooks/use-translation';
+import { GradientBorderCloudIcon } from '@/components/icons/GradientBorderCloudIcon';
 
 function CategorizeWishForm() {
     const router = useRouter();
@@ -190,7 +191,7 @@ function CategorizeWishForm() {
                     </CardContent>
                     <CardFooter>
                         <Button className="w-full" onClick={handlePublish} disabled={isPublishing || !selectedCategory}>
-                            {isPublishing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                            {isPublishing && <GradientBorderCloudIcon className="mr-2 h-4 w-4" />}
                             {isPublishing ? t('publishingWish') : t('publishOnMap')}
                         </Button>
                     </CardFooter>

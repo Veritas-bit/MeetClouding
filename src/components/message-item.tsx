@@ -7,7 +7,7 @@ import type { Message, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Check, CheckCheck, Languages, Loader2, MessageSquareReply, Copy, Pencil, Trash2 } from 'lucide-react';
+import { Check, CheckCheck, Languages, MessageSquareReply, Copy, Pencil, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { getTranslation } from '@/lib/actions';
 import { useLanguageStore } from '@/lib/language-store';
@@ -17,6 +17,7 @@ import type { Gender } from '@/lib/profile-store';
 import { MaleIcon } from '@/components/icons/gender/MaleIcon';
 import { FemaleIcon } from '@/components/icons/gender/FemaleIcon';
 import { NeuterIcon } from '@/components/icons/gender/NeuterIcon';
+import { GradientBorderCloudIcon } from '../icons/GradientBorderCloudIcon';
 
 
 interface MessageItemProps {
@@ -211,7 +212,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
            <MediaContent message={message} />
           <div className={cn("flex items-center gap-2 mt-2 self-end text-xs", isSentByCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
             {message.edited && <span className="text-xs opacity-70">изменено</span>}
-            {isPending && <Loader2 className="h-3 w-3 animate-spin" />}
+            {isPending && <GradientBorderCloudIcon className="h-3 w-3" />}
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, LoaderCircle, Check } from "lucide-react";
+import { Sparkles, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useProfileStore, type Gender } from "@/lib/profile-store";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -21,6 +21,7 @@ import { MaleIcon } from "@/components/icons/gender/MaleIcon";
 import { FemaleIcon } from "@/components/icons/gender/FemaleIcon";
 import { NeuterIcon } from "@/components/icons/gender/NeuterIcon";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { GradientBorderCloudIcon } from "@/components/icons/GradientBorderCloudIcon";
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
     const iconProps = { className: "w-full h-full p-1.5" };
@@ -198,7 +199,7 @@ export default function EditProfilePage() {
                   disabled={isGenerating}
                 >
                   {isGenerating ? (
-                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                      <GradientBorderCloudIcon className="mr-2 h-4 w-4" />
                   ) : (
                       <Sparkles className="mr-2 h-4 w-4" />
                   )}
@@ -251,7 +252,7 @@ export default function EditProfilePage() {
               </div>
               
               <Button className="w-full" size="lg" onClick={handleSaveChanges} disabled={isSaving || !nickname}>
-                  {isSaving && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+                  {isSaving && <GradientBorderCloudIcon className="mr-2 h-4 w-4" />}
                   {t('saveChanges')}
               </Button>
 

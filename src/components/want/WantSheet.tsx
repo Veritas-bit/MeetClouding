@@ -5,7 +5,7 @@ import { useState, type KeyboardEvent, useRef, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Shuffle, Check, LoaderCircle, Send } from "lucide-react";
+import { Shuffle, Check, Send } from "lucide-react";
 import { SheetClose, SheetHeader, SheetTitle } from "../ui/sheet";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "../ui/card";
@@ -14,6 +14,7 @@ import { FullScreenLoader } from "../common/FullScreenLoader";
 import { WISHES } from "@/lib/wishes";
 import { WISH_CATEGORY_KEYS, type WishCategoryKey } from "@/lib/categories";
 import { useTranslation } from "@/hooks/use-translation";
+import { GradientBorderCloudIcon } from "../icons/GradientBorderCloudIcon";
 
 
 export function WantSheet() {
@@ -92,7 +93,7 @@ export function WantSheet() {
           <Card className="bg-muted/50 border-dashed w-full max-w-sm min-h-[6rem] flex items-center justify-center">
               <CardContent className="p-3">
                   {isLoading || !placeholderWish ? (
-                      <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+                      <GradientBorderCloudIcon className="h-8 w-8" />
                   ) : (
                       <p className="text-muted-foreground">{t('iWant')} {t(placeholderWish.key as any)}</p>
                   )}
