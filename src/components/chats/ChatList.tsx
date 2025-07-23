@@ -16,17 +16,19 @@ export function ChatList({ mainChats, friendChats, activeTab }: ChatListProps) {
 
   return (
     <div className="flex-grow flex flex-col p-2 h-full">
-        <ScrollArea className="flex-grow rounded-lg bg-primary/10">
-            <div>
-                <div className="flex flex-col">
-                {chatsToShow.map((chat) => (
-                    <Link key={chat.id} href={`/chats/${chat.id}`} passHref>
-                        <ChatItem {...chat} />
-                    </Link>
-                ))}
+        <div className="flex-grow rounded-lg p-px bg-gradient-to-r from-primary/20 to-secondary/20">
+            <ScrollArea className="flex-grow rounded-[7px] bg-background h-full">
+                <div>
+                    <div className="flex flex-col">
+                    {chatsToShow.map((chat) => (
+                        <Link key={chat.id} href={`/chats/${chat.id}`} passHref>
+                            <ChatItem {...chat} />
+                        </Link>
+                    ))}
+                    </div>
                 </div>
-            </div>
-        </ScrollArea>
+            </ScrollArea>
+        </div>
     </div>
   );
 }
