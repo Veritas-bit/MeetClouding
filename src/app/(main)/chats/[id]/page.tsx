@@ -359,15 +359,15 @@ export default function ConversationPage() {
           )}
         >
           <div className="relative flex items-center bg-muted/50 rounded-[7px]">
+            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
+                <ShieldAlert className="h-6 w-6 text-muted-foreground" />
+            </Button>
+            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
+                <UserPlus className="h-6 w-6 text-muted-foreground" />
+            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="flex">
-                  <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
-                      <ShieldAlert className="h-6 w-6 text-muted-foreground" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
-                      <UserPlus className="h-6 w-6 text-muted-foreground" />
-                  </Button>
                    <Link href={`/chats/${params.id}/gallery`}>
                         <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
                             <FileImage className="h-6 w-6 text-muted-foreground" />
@@ -485,7 +485,7 @@ export default function ConversationPage() {
                             className="object-contain"
                         />
                         <DialogClose asChild>
-                            <button className="absolute top-4 right-4 z-10 text-white rounded-full bg-black/50 p-2">
+                            <button className="absolute top-4 right-4 z-10 text-primary-foreground rounded-full bg-black/50 p-2">
                                 <X className="h-6 w-6" />
                                 <span className="sr-only">Close</span>
                             </button>
