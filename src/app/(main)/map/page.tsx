@@ -99,27 +99,42 @@ function MapContent() {
   const [mapLocation, setMapLocation] = useState<YMapLocation | null>(null);
 
   useEffect(() => {
-    requestLocation();
+    // Request location only if not coming from a public link
+    if (!searchParams.get('published')) {
+      requestLocation();
+    }
     getAllUsers().then(setAllUsers);
-  }, [requestLocation]);
+  }, [requestLocation, searchParams]);
 
-  // Effect to initialize markers and view state, runs once after location and users are fetched.
+  // Effect to initialize markers and view state
   useEffect(() => {
-    if (!location || allUsers.length === 0 || mapLocation) return;
-
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
+
+    // If map already initialized, do nothing.
+    if (mapLocation) return;
+    
+    // If not a public link or search, and location/users aren't ready, wait.
+    if (!isPublished && (!location || allUsers.length === 0)) return;
+    
+    // If it is a public link but users aren't ready, wait.
+    if (isPublished && allUsers.length === 0) return;
+
 
     if (isPublished || isSearch) {
       setHasInteractedWithMap(true);
     }
 
-    let initialCenter = { latitude: location.latitude, longitude: location.longitude };
+    let initialCenter: { latitude: number, longitude: number };
     let initialMarkers: MarkerInfo[] = [];
 
     if (isPublished) {
-        const lat = parseFloat(searchParams.get('lat') || `${location.latitude}`);
-        const lon = parseFloat(searchParams.get('lon') || `${location.longitude}`);
+        const lat = parseFloat(searchParams.get('lat') || '0');
+        const lon = parseFloat(searchParams.get('lon') || '0');
+        
+        // If lat/lon are invalid, don't render the map yet.
+        if (!lat || !lon) return;
+
         initialCenter = { latitude: lat, longitude: lon };
 
         const message = decodeURIComponent(searchParams.get('message') || '');
@@ -139,15 +154,23 @@ function MapContent() {
             gender: gender,
         };
         initialMarkers.push(ownWishMarker);
-    }
-    
-    if (isSearch) {
-        const searchRadius = parseFloat(searchParams.get('radius') || '5');
-        const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-        initialMarkers.push(...generateRandomMarkers(initialCenter, searchCategory, searchRadius, t, allUsers));
-    } else {
-        // Default view or published view: add random markers
+        // Also add random markers around the published wish
         initialMarkers.push(...generateRandomMarkers(initialCenter, null, 5, t, allUsers));
+
+    } else if (location) { // Handles default view and search view, which require user location
+        initialCenter = { latitude: location.latitude, longitude: location.longitude };
+        
+        if (isSearch) {
+            const searchRadius = parseFloat(searchParams.get('radius') || '5');
+            const searchCategory = searchParams.get('category') as WishCategoryKey | null;
+            initialMarkers.push(...generateRandomMarkers(initialCenter, searchCategory, searchRadius, t, allUsers));
+        } else {
+            // Default view: add random markers
+            initialMarkers.push(...generateRandomMarkers(initialCenter, null, 5, t, allUsers));
+        }
+    } else {
+        // This case is hit if it's not a published link and location is not yet available.
+        return;
     }
     
     setMarkers(initialMarkers);
@@ -160,7 +183,9 @@ function MapContent() {
   }, []);
 
   if (!mapLocation) {
-    return <FullScreenLoader text={!location ? 'Определяем ваше местоположение...' : 'Загрузка карты...'} />;
+    const isPublished = searchParams.get('published') === 'true';
+    const text = !isPublished && !location ? 'Определяем ваше местоположение...' : 'Загрузка карты...';
+    return <FullScreenLoader text={text} />;
   }
 
   return (
