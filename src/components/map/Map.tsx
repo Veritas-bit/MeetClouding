@@ -46,15 +46,15 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
 
     const premiumGem = marker.isPremium ? `
         <g transform="translate(68, 25) scale(0.6)">
-            <svg viewBox="0 0 24 24" width="24" height="24">
+            <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <linearGradient id="gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1"></stop>
                         <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:1"></stop>
                     </linearGradient>
                 </defs>
-                <circle cx="12" cy="12" r="12" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})" />
-                <path d="M6.7,19.33,4.43,10.67,10,4,12,5.33,14,4l5.57,6.67,17.3,19.33Z" transform="translate(0, -1)" fill="white" />
+                <circle cx="12" cy="12" r="12" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})"/>
+                <path d="M9 2L7 9H2l5 4-2 7 7-5 7 5-2-7 5-4h-5L15 2z" transform="translate(2.5, 2.5) scale(0.7)" fill="white"/>
             </svg>
         </g>
     ` : '';
