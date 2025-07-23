@@ -29,18 +29,18 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     const color = marker.color || '#FF7F50';
     
     const premiumGem = marker.isPremium ? `
-        <g transform="translate(68, 25) scale(0.6)">
-            <svg viewBox="0 0 15 15" width="24" height="24">
-                <defs>
-                    <linearGradient id="gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1"></stop>
-                        <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:1"></stop>
-                    </linearGradient>
-                </defs>
-                <circle cx="12" cy="40" r="15" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})"></circle>
-                <path d="M6.7,19.33,4.43,10.67,10,4,12,5.33,14,4l5.57,6.67,17.3,19.33Z" transform="translate(0, -1)" fill="white"></path>
-            </svg>
-        </g>
+    <g transform="translate(68, 25) scale(0.6)">
+        <svg viewBox="0 0 15 15" width="24" height="24">
+            <defs>
+                <linearGradient id="gem-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1"></stop>
+                    <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:1"></stop>
+                </linearGradient>
+            </defs>
+            <circle cx="12" cy="40" r="15" fill="url(#gem-gradient)"></circle>
+            <path d="M6.7,19.33,4.43,10.67,10,4,12,5.33,14,4l5.57,6.67,17.3,19.33Z" transform="translate(0, -1)" fill="white"></path>
+        </svg>
+    </g>
     ` : '';
     
     const getGenderGradient = (gender: Gender) => {
@@ -81,7 +81,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
                 style="${marker.userId === '0' ? `filter: url(#glow);` : ''}"
                 transform="scale(1)"
             >
-              <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}" stroke="hsl(320, 100%, 40%)" stroke-width="2.5"/>
+              <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}"/>
             </g>
             ${genderSticker}
             ${premiumGem}
