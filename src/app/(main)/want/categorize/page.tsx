@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Suspense, useEffect, useState } from 'react';
@@ -101,7 +102,7 @@ function CategorizeWishForm() {
             const coords = await locationPromise;
             const categoryInfo = WISH_CATEGORIES[selectedCategory!];
             const encodedMessage = encodeURIComponent(message);
-            const encodedCategoryName = encodeURIComponent(categoryInfo.name);
+            const encodedCategoryName = encodeURIComponent(t(categoryInfo.name as any));
             const color = categoryInfo.color;
             
             router.push(`/map?published=true&message=${encodedMessage}&lat=${coords.latitude}&lon=${coords.longitude}&categoryName=${encodedCategoryName}&color=${color}`);
@@ -109,8 +110,8 @@ function CategorizeWishForm() {
         } catch (err) {
             toast({
                 variant: "destructive",
-                title: "Не удалось определить местоположение",
-                description: "Пожалуйста, проверьте настройки геолокации и попробуйте снова.",
+                title: t('locationErrorTitle'),
+                description: t('locationErrorDescription'),
             });
         } finally {
             setIsPublishing(false);
@@ -122,13 +123,13 @@ function CategorizeWishForm() {
 
 
     if (isLoading) {
-      return <FullScreenLoader text="Подбираем категорию..." />;
+      return <FullScreenLoader text={t('categorizingWish')} />;
     }
 
     if (!message) {
          return (
             <div className="flex h-screen w-full items-center justify-center bg-background">
-                <p className="text-muted-foreground">Не найдено сообщение для категоризации.</p>
+                <p className="text-muted-foreground">{t('noWishFound')}</p>
             </div>
         );
     }
@@ -140,13 +141,13 @@ function CategorizeWishForm() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline">
                             <LayoutGrid className="h-6 w-6 text-primary" />
-                            Выберите категорию
+                            {t('selectCategoryTitle')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="grid w-full gap-4">
                             <div className="p-4 border rounded-lg bg-muted/50">
-                                <Label>Ваше желание:</Label>
+                                <Label>{t('yourWishLabel')}:</Label>
                                 <p className="text-sm text-muted-foreground italic mt-1">"{message}"</p>
                             </div>
                             
@@ -173,7 +174,7 @@ function CategorizeWishForm() {
                                             } as React.CSSProperties}
                                         >
                                             <cat.icon className="h-5 w-5" />
-                                            <span className="text-xs">{cat.name}</span>
+                                            <span className="text-xs">{t(cat.name as any)}</span>
                                         </Button>
                                     )
                                 })}
@@ -181,7 +182,7 @@ function CategorizeWishForm() {
                             {!isPremium && (
                                 <Link href="/settings/premium" className="w-full">
                                     <Button variant="secondary" className="w-full">
-                                        Разблокировать с Премиум
+                                        {t('unlockWithPremium')}
                                     </Button>
                                 </Link>
                             )}
@@ -190,7 +191,7 @@ function CategorizeWishForm() {
                     <CardFooter>
                         <Button className="w-full" onClick={handlePublish} disabled={isPublishing || !selectedCategory}>
                             {isPublishing && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
-                            {isPublishing ? 'Определяем место...' : 'Опубликовать на карте'}
+                            {isPublishing ? t('publishingWish') : t('publishOnMap')}
                         </Button>
                     </CardFooter>
                 </Card>

@@ -13,10 +13,10 @@ export interface WishCategory {
 
 // Using HSL values for easier theme manipulation if needed later
 export const WISH_CATEGORIES: Record<WishCategoryKey, WishCategory> = {
-    food: { name: 'Еда', icon: Utensils, color: 'hsl(45, 100%, 50%)' }, // Acid Yellow
-    walk: { name: 'Прогулка', icon: Footprints, color: 'hsl(90, 100%, 50%)' }, // Lime Green
-    entertainment: { name: 'Развлечения', icon: Dice5, color: 'hsl(320, 100%, 55%)' }, // Hot Pink
-    sport: { name: 'Спорт', icon: Dumbbell, color: 'hsl(195, 100%, 50%)' }, // Electric Blue
-    culture: { name: 'Культура', icon: Landmark, color: 'hsl(270, 100%, 60%)' }, // Vivid Violet
-    other: { name: 'Другое', icon: Sparkles, color: 'hsl(16, 100%, 60%)' } // Coral
+    food: { name: 'categoryFood', icon: Utensils, color: 'hsl(45, 100%, 50%)' }, // Acid Yellow
+    walk: { name: 'categoryWalk', icon: Footprints, color: 'hsl(90, 100%, 50%)' }, // Lime Green
+    entertainment: { name: 'categoryEntertainment', icon: Dice5, color: 'hsl(320, 100%, 55%)' }, // Hot Pink
+    sport: { name: 'categorySport', icon: Dumbbell, color: 'hsl(195, 100%, 50%)' }, // Electric Blue
+    culture: { name: 'categoryCulture', icon: Landmark, color: 'hsl(270, 100%, 60%)' }, // Vivid Violet
+    other: { name: 'categoryOther', icon: Sparkles, color: 'hsl(16, 100%, 60%)' } // Coral
 };
