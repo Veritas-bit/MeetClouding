@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { MaleIcon } from "../icons/gender/MaleIcon";
 import { FemaleIcon } from "../icons/gender/FemaleIcon";
 import { NeuterIcon } from "../icons/gender/NeuterIcon";
-import { Trash2 } from "lucide-react";
+import { Trash2, Pin } from "lucide-react";
 
 export interface ChatItemProps {
   id: string;
@@ -22,6 +22,8 @@ export interface ChatItemProps {
   gender: Gender;
   isOnline?: boolean;
   onDelete: (id: string) => void;
+  onPin: (id: string) => void;
+  isPinned?: boolean;
 }
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
@@ -36,15 +38,15 @@ const GenderAvatar = ({ gender }: { gender: Gender }) => {
     }
 };
 
-export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCount, avatarHint, isOnline, gender, onDelete }: ChatItemProps) {
+export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCount, avatarHint, isOnline, gender, onDelete, onPin, isPinned }: ChatItemProps) {
   const [swipeX, setSwipeX] = useState(0);
   const touchStartRef = useRef(0);
   const itemRef = useRef<HTMLDivElement>(null);
-  const isDeletingRef = useRef(false);
+  const isActionTriggeredRef = useRef(false);
 
   const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
     touchStartRef.current = e.targetTouches[0].clientX;
-    isDeletingRef.current = false;
+    isActionTriggeredRef.current = false;
     if (itemRef.current) {
         itemRef.current.style.transition = 'none';
     }
@@ -52,9 +54,8 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
 
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     const deltaX = e.targetTouches[0].clientX - touchStartRef.current;
-    if (deltaX < 0) { // Only allow swiping left
-        setSwipeX(deltaX);
-    }
+    // Allow swiping in both directions
+    setSwipeX(deltaX);
   };
 
   const handleTouchEnd = () => {
@@ -62,29 +63,43 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
         itemRef.current.style.transition = 'transform 0.2s ease-out';
     }
     
-    const deletionThreshold = -80;
-    if (swipeX < deletionThreshold) {
-      if (!isDeletingRef.current) {
-        isDeletingRef.current = true;
-        setSwipeX(-window.innerWidth); // Animate out of screen
+    const actionThreshold = 80;
+    if (swipeX < -actionThreshold) { // Swipe Left (Delete)
+      if (!isActionTriggeredRef.current) {
+        isActionTriggeredRef.current = true;
+        setSwipeX(-window.innerWidth);
         setTimeout(() => onDelete(id), 200);
+      }
+    } else if (swipeX > actionThreshold) { // Swipe Right (Pin)
+       if (!isActionTriggeredRef.current) {
+        isActionTriggeredRef.current = true;
+        // Animate back to original position after action
+        setSwipeX(0);
+        onPin(id);
       }
     } else {
       setSwipeX(0);
     }
   };
 
-  const isSwiped = swipeX < -40;
-
   return (
-    <div className="relative overflow-hidden">
-       <div className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" style={{ width: `${Math.abs(swipeX)}px` }}>
+    <div className="relative overflow-hidden bg-background">
+       {/* Delete Background */}
+       <div className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" style={{ width: `${Math.max(0, -swipeX)}px` }}>
             <Trash2 className="h-6 w-6 text-destructive-foreground" />
        </div>
+       {/* Pin Background */}
+       <div className="absolute inset-y-0 left-0 flex items-center justify-start bg-primary pl-6" style={{ width: `${Math.max(0, swipeX)}px` }}>
+            <Pin className="h-6 w-6 text-primary-foreground" />
+       </div>
+
 
       <div
         ref={itemRef}
-        className="flex p-4 border-b transition-colors bg-background active:bg-muted/50 items-center h-20 relative z-10"
+        className={cn(
+            "flex p-4 border-b transition-colors bg-background active:bg-muted/50 items-center h-20 relative z-10",
+            isPinned && "bg-primary/10"
+        )}
         style={{ transform: `translateX(${swipeX}px)` }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -109,7 +124,10 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
           </div>
           <div className="ml-4 flex-grow overflow-hidden flex flex-col justify-center">
               <div className="flex justify-between items-baseline">
-                  <p className="font-semibold text-foreground text-lg truncate">{name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-foreground text-lg truncate">{name}</p>
+                    {isPinned && <Pin className="h-4 w-4 text-primary shrink-0" />}
+                  </div>
                   <span className="text-xs text-muted-foreground whitespace-nowrap ml-2 shrink-0">{timestamp}</span>
               </div>
               <div className="flex justify-between items-start">

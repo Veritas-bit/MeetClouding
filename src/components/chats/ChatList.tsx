@@ -14,26 +14,54 @@ interface ChatListProps {
 }
 
 // Props for ChatItem now include onDelete, but we'll handle it inside ChatList.
-type ChatItemData = Omit<ChatItemProps, 'onDelete'>;
+type ChatItemData = Omit<ChatItemProps, 'onDelete' | 'onPin'>;
 
 export function ChatList({ mainChats: initialMainChats, friendChats: initialFriendChats, activeTab }: ChatListProps) {
   const [mainChats, setMainChats] = useState<ChatItemData[]>(initialMainChats);
   const [friendChats, setFriendChats] = useState<ChatItemData[]>(initialFriendChats);
+  const [pinnedChats, setPinnedChats] = useState<Set<string>>(new Set());
   const { toast } = useToast();
 
   const handleDelete = (id: string, type: 'main' | 'friend') => {
-    if (type === 'main') {
-        setMainChats(prev => prev.filter(chat => chat.id !== id));
-    } else {
-        setFriendChats(prev => prev.filter(chat => chat.id !== id));
-    }
+    const updater = type === 'main' ? setMainChats : setFriendChats;
+    updater(prev => prev.filter(chat => chat.id !== id));
+    setPinnedChats(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+    });
     toast({
         title: "Чат удален",
         variant: "destructive",
     });
   };
 
-  const chatsToShow = activeTab === 'all' ? mainChats : friendChats;
+  const handlePin = (id: string) => {
+    const isPinned = pinnedChats.has(id);
+    const newPinnedSet = new Set(pinnedChats);
+
+    if (isPinned) {
+      newPinnedSet.delete(id);
+      toast({ title: "Чат откреплен" });
+    } else {
+      newPinnedSet.add(id);
+      toast({ title: "Чат закреплен" });
+    }
+    
+    setPinnedChats(newPinnedSet);
+  };
+
+  const sortChats = (chats: ChatItemData[]) => {
+      return [...chats].sort((a, b) => {
+          const aIsPinned = pinnedChats.has(a.id);
+          const bIsPinned = pinnedChats.has(b.id);
+          if (aIsPinned && !bIsPinned) return -1;
+          if (!aIsPinned && bIsPinned) return 1;
+          return 0; // Keep original order for unpinned or same-pinned-status chats
+      });
+  };
+
+  const chatsToShow = activeTab === 'all' ? sortChats(mainChats) : sortChats(friendChats);
   const chatType = activeTab === 'all' ? 'main' : 'friend';
 
   return (
@@ -47,6 +75,8 @@ export function ChatList({ mainChats: initialMainChats, friendChats: initialFrie
                             key={chat.id} 
                             {...chat} 
                             onDelete={(id) => handleDelete(id, chatType)}
+                            onPin={handlePin}
+                            isPinned={pinnedChats.has(chat.id)}
                         />
                     ))}
                     </div>
