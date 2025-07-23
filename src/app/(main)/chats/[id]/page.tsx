@@ -9,12 +9,22 @@ import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { MessageView } from '@/components/message-view';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Send, Camera, Pencil, X } from 'lucide-react';
+import { Send, Camera, Pencil, X, UserPlus, ShieldAlert } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
 import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
 import { cn } from '@/lib/utils';
 import { ReplyToView } from '@/components/chats/ReplyToView';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 
 export default function ConversationPage() {
@@ -41,6 +51,9 @@ export default function ConversationPage() {
   // Reply/Edit State
   const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
   const [editMessage, setEditMessage] = useState<Message | null>(null);
+
+  // Alert Dialog State
+  const [dialogState, setDialogState] = useState<'friendRequest' | 'report' | null>(null);
   
   const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -150,6 +163,16 @@ export default function ConversationPage() {
     setIsSending(false);
   };
 
+  const handleFriendRequest = () => {
+    toast({ title: "Запрос отправлен", description: `Вы отправили запрос на добавление в друзья пользователю ${otherParticipant?.name}.` });
+    setDialogState(null);
+  }
+
+  const handleReport = () => {
+    toast({ title: "Жалоба отправлена", description: `Ваша жалоба на пользователя ${otherParticipant?.name} будет рассмотрена модераторами.`, variant: "destructive" });
+    setDialogState(null);
+  }
+
   const cancelReply = () => {
     setReplyToMessage(null);
   };
@@ -251,6 +274,13 @@ export default function ConversationPage() {
               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setIsAttachmentModalOpen(true)}>
                   <Camera className="h-6 w-6 text-muted-foreground" />
               </Button>
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
+                  <UserPlus className="h-6 w-6 text-muted-foreground" />
+              </Button>
+               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
+                  <ShieldAlert className="h-6 w-6 text-muted-foreground" />
+              </Button>
+
               <div className="w-px h-6 bg-border"></div>
               <Textarea
                   ref={textareaRef}
@@ -296,6 +326,28 @@ export default function ConversationPage() {
         onClose={() => setIsAttachmentModalOpen(false)}
         onMediaSend={handleMediaSend}
       />
+
+      <AlertDialog open={dialogState !== null} onOpenChange={(open) => !open && setDialogState(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {dialogState === 'friendRequest' ? 'Добавить в друзья?' : 'Пожаловаться?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {dialogState === 'friendRequest'
+                ? `Вы уверены, что хотите отправить запрос на добавление в друзья пользователю ${otherParticipant?.name}?`
+                : `Вы уверены, что хотите пожаловаться на пользователя ${otherParticipant?.name}? Это действие нельзя будет отменить.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setDialogState(null)}>Нет</AlertDialogCancel>
+            <AlertDialogAction onClick={dialogState === 'friendRequest' ? handleFriendRequest : handleReport}>
+              Да
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }
