@@ -5,7 +5,7 @@ import { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import Image from 'next/image';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Camera, FileImage, Send, X, AlertTriangle, Zap, Circle, Square } from 'lucide-react';
+import { Camera, FileImage, Send, X, AlertTriangle, Zap, Circle, Square, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
@@ -17,12 +17,21 @@ interface ChatAttachmentModalProps {
     onMediaSend: (media: { src: string; type: 'image' | 'video' }, source: 'camera' | 'gallery') => void;
 }
 
+type MediaSource = 'camera' | 'gallery';
+
+interface Media {
+    src: string;
+    type: 'image' | 'video';
+    source: MediaSource;
+}
+
 export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttachmentModalProps) {
     const { toast } = useToast();
     const [activeView, setActiveView] = useState<'gallery' | 'photo'>('gallery');
     
     // Media state
-    const [selectedMedia, setSelectedMedia] = useState<{ src: string; type: 'image' | 'video'; source: 'camera' | 'gallery' } | null>(null);
+    const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
+    const [galleryImages, setGalleryImages] = useState<Media[]>([]);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Camera state
@@ -59,6 +68,7 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
         setSelectedMedia(null);
         setHasCameraPermission(null);
         setIsRecording(false);
+        // We don't clear galleryImages on close
         onClose();
     }, [stopCamera, clearRecordingTimer, onClose]);
 
@@ -70,18 +80,29 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
     };
     
     const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const type = file.type.startsWith('video') ? 'video' : 'image';
-                setSelectedMedia({ 
-                    src: event.target?.result as string,
-                    type,
-                    source: 'gallery'
-                });
-            };
-            reader.readAsDataURL(file);
+        const files = e.target.files;
+        if (files) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const type = file.type.startsWith('video') ? 'video' : 'image';
+                    const newMedia: Media = { 
+                        src: event.target?.result as string,
+                        type,
+                        source: 'gallery'
+                    };
+                    // Add to in-app gallery, prevent duplicates
+                    setGalleryImages(prev => {
+                        if (prev.some(p => p.src === newMedia.src)) return prev;
+                        return [...prev, newMedia];
+                    });
+                };
+                reader.readAsDataURL(file);
+            })
+        }
+        // Reset file input to allow selecting the same file again
+        if(e.target) {
+            e.target.value = "";
         }
     };
 
@@ -204,19 +225,31 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
         return (
             <div className="flex flex-col h-full w-full">
                 {activeView === 'gallery' && (
-                    <div className="flex-grow mt-0 flex flex-col items-center justify-center p-4">
-                        <div className="text-center text-muted-foreground mb-4">
-                            <p>Выберите фото или видео из галереи</p>
+                    <div className="flex-grow flex flex-col p-4">
+                        <div className="grid grid-cols-3 gap-1 flex-grow overflow-y-auto">
+                            {galleryImages.map((media, index) => (
+                                <div key={index} className="relative aspect-square w-full cursor-pointer" onClick={() => setSelectedMedia(media)}>
+                                    <Image src={media.src} alt={`Gallery item ${index}`} layout="fill" objectFit="cover" className="rounded" />
+                                    {media.type === 'video' && <div className="absolute inset-0 bg-black/30 flex items-center justify-center"><Circle className="h-8 w-8 text-white fill-white" /></div>}
+                                </div>
+                            ))}
                         </div>
-                         <div className="mt-auto w-full">
+                        {galleryImages.length === 0 && (
+                            <div className="flex flex-col items-center justify-center text-center text-muted-foreground flex-grow">
+                                <p>Ваша галерея пуста.</p>
+                                <p className="text-sm">Загрузите фото или видео, чтобы они появились здесь.</p>
+                            </div>
+                        )}
+                        <div className="mt-4 flex-shrink-0">
                             <Button variant="outline" className="w-full h-12 text-base" onClick={() => fileInputRef.current?.click()}>
-                                <FileImage className="mr-2 h-4 w-4" />
-                                Выбрать с устройства
+                                <Upload className="mr-2 h-4 w-4" />
+                                Загрузить с устройства
                             </Button>
-                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" onChange={handleFileSelect} />
+                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" multiple onChange={handleFileSelect} />
                         </div>
                     </div>
                 )}
+
 
                 {activeView === 'photo' && (
                      <div className="flex-grow mt-0 flex flex-col items-center justify-between p-4 gap-4">
