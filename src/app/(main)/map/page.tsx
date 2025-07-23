@@ -121,9 +121,9 @@ function MapContent() {
     if (isPublished && allUsers.length === 0) return;
 
 
-    if (isPublished || isSearch) {
-      setHasInteractedWithMap(true);
-    }
+    // Set that user has interacted with map to show back button on other pages
+    setHasInteractedWithMap(true);
+
 
     let initialCenter: { latitude: number, longitude: number };
     let initialMarkers: MarkerInfo[] = [];
@@ -210,3 +210,5 @@ export default function MapPage() {
         </Suspense>
     )
 }
+
+    
