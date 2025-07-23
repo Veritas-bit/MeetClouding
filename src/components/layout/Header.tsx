@@ -162,7 +162,9 @@ export function Header() {
         const shouldShowMapButton = hasInteractedWithMap;
         const fromParam = searchParams.get('from');
 
-        if (pathname.startsWith('/chats/')) {
+        if (pathname.endsWith('/gallery')) {
+            setHeaderContent(<HeaderWithBackButton titleKey="Галерея" />);
+        } else if (pathname.startsWith('/chats/')) {
             const chatId = params.id as string;
             const conversation = await getConversationById(chatId);
             const currentUser = await getCurrentUser();

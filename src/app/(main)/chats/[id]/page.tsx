@@ -38,6 +38,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Label } from "@/components/ui/label"
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLocationStore } from '@/lib/location-store';
+import Link from 'next/link';
 
 
 const reportReasons = [
@@ -65,7 +66,6 @@ export default function ConversationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
   
   // Context Menu State
   const [menuState, setMenuState] = useState<{
@@ -127,7 +127,6 @@ export default function ConversationPage() {
     };
 
     setMessages(prev => [...prev, mediaMessage]);
-    setIsAttachmentModalOpen(false);
 
     // Simulate network delay and auto-reply
     setTimeout(() => {
@@ -301,17 +300,6 @@ export default function ConversationPage() {
     notFound();
   }
 
-  /*
-  if (isAttachmentModalOpen) {
-    return (
-      <ChatAttachmentModal
-        onClose={() => setIsAttachmentModalOpen(false)}
-        onMediaSend={handleMediaSend}
-      />
-    );
-  }
-  */
-
   const isMessageEmpty = newMessage.trim() === '';
 
   return (
@@ -365,15 +353,19 @@ export default function ConversationPage() {
                   <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
                       <UserPlus className="h-6 w-6 text-muted-foreground" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
-                      <FileImage className="h-6 w-6 text-muted-foreground" />
-                  </Button>
+                   <Link href={`/chats/${params.id}/gallery`}>
+                        <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
+                            <FileImage className="h-6 w-6 text-muted-foreground" />
+                        </Button>
+                    </Link>
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-56 mb-1">
-                <DropdownMenuItem onClick={() => setIsAttachmentModalOpen(true)}>
-                  <Video className="mr-3 h-5 w-5" />
-                  <span>Фото или видео</span>
+                <DropdownMenuItem>
+                    <Link href={`/chats/${params.id}/gallery`} className="flex items-center w-full">
+                        <Video className="mr-3 h-5 w-5" />
+                        <span>Фото или видео</span>
+                    </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSendLocation}>
                   <MapPin className="mr-3 h-5 w-5" />
