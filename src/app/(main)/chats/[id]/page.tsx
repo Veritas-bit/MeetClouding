@@ -474,18 +474,18 @@ export default function ConversationPage() {
         </Dialog>
 
         <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
-            <DialogContent className="max-w-3xl p-0 bg-transparent border-none shadow-none" hideCloseButton>
+            <DialogContent className="h-screen w-screen max-w-full p-0 gap-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm border-none" hideCloseButton>
                <DialogTitle className="sr-only">Предпросмотр изображения</DialogTitle>
                {previewImage && (
-                    <div className="relative aspect-video w-full">
+                    <div className="relative w-full h-full flex-grow">
                         <Image
                             src={previewImage}
                             alt="Image preview"
                             fill
-                            className="rounded-md object-contain"
+                            className="object-contain"
                         />
                         <DialogClose asChild>
-                             <button className="absolute top-2 right-2 z-10 text-foreground">
+                            <button className="absolute top-4 right-4 z-10 text-white rounded-full bg-black/50 p-2">
                                 <X className="h-6 w-6" />
                                 <span className="sr-only">Close</span>
                             </button>
