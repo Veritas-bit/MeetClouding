@@ -29,16 +29,16 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     const color = marker.color || '#FF7F50';
     
     const premiumGem = marker.isPremium ? `
-        <g transform="translate(28, 1) scale(0.6)">
-             <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(68, 25) scale(0.6)">
+            <svg viewBox="0 0 15 15" width="24" height="24">
                 <defs>
                     <linearGradient id="gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1"></stop>
                         <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:1"></stop>
                     </linearGradient>
                 </defs>
-                <path d="M1.38,12.21,11.5,2.1a.5.5,0,0,1,.7,0L22.32,12.21a.5.5,0,0,1-.35.85H1.73a.5.5,0,0,1-.35-.85Z" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})"/>
-                <path d="M1.73,13.06h20.24l-4.7-5.45a.5.5,0,0,0-.7,0l-4.27,4.27a.5.5,0,0,1-.7,0L7.33,7.61a.5.5,0,0,0-.7,0l-4.9,5.45Z" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})" opacity="0.5"/>
+                <circle cx="12" cy="40" r="15" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})"></circle>
+                <path d="M6.7,19.33,4.43,10.67,10,4,12,5.33,14,4l5.57,6.67,17.3,19.33Z" transform="translate(0, -1)" fill="white"></path>
             </svg>
         </g>
     ` : '';
@@ -56,13 +56,10 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
         
         return {
             gradientDef: `
-                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(30)">
-                    <stop offset="30%" style="stop-color:black;" />
-                    <stop offset="30%" style="stop-color:${color};" />
-                    <stop offset="70%" style="stop-color:${color};" />
-                    <stop offset="70%" style="stop-color:black;" />
-                    <stop offset="85%" style="stop-color:black;" />
-                    <stop offset="85%" style="stop-color:${color};" />
+                 <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:black;"></stop>
+                    <stop offset="50%" style="stop-color:${color};"></stop>
+                    <stop offset="100%" style="stop-color:black;"></stop>
                 </linearGradient>
             `,
             gradientUrl: `url(#${gradientId})`
@@ -70,10 +67,10 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     }
 
     const { gradientDef, gradientUrl } = getGenderGradient(marker.gender);
-    const genderSticker = `<circle cx="31" cy="9" r="6" fill="${gradientUrl}" stroke="black" stroke-width="0.5"/>`;
+    const genderSticker = `<circle cx="65" cy="35" r="15" fill="${gradientUrl}" stroke="black" stroke-width="0.5"></circle>`;
 
     const cloudSvg = `
-        <svg width="20" height="15" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-10px, -15px); overflow: visible;">
+        <svg width="40" height="30" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-20px, -30px); overflow: visible;">
             <defs>
                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                     <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="${color}" flood-opacity="1"/>
@@ -82,7 +79,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
             </defs>
             <g 
                 style="${marker.userId === '0' ? `filter: url(#glow);` : ''}"
-                transform="${marker.userId === '0' ? 'scale(1)' : 'scale(1)'}"
+                transform="scale(1)"
             >
               <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}" stroke="hsl(320, 100%, 40%)" stroke-width="2.5"/>
             </g>
