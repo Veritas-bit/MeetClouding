@@ -3,7 +3,6 @@
 
 import { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import Image from 'next/image';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Camera, FileImage, Send, X, AlertTriangle, Zap, Circle, Square, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -12,7 +11,6 @@ import { cn } from '@/lib/utils';
 import { GradientBorderCloudIcon } from '../icons/GradientBorderCloudIcon';
 
 interface ChatAttachmentModalProps {
-    isOpen: boolean;
     onClose: () => void;
     onMediaSend: (media: { src: string; type: 'image' | 'video' }, source: 'camera' | 'gallery') => void;
 }
@@ -25,7 +23,7 @@ interface Media {
     source: MediaSource;
 }
 
-export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttachmentModalProps) {
+export function ChatAttachmentModal({ onClose, onMediaSend }: ChatAttachmentModalProps) {
     const { toast } = useToast();
     const [activeView, setActiveView] = useState<'gallery' | 'photo'>('gallery');
     
@@ -68,7 +66,6 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
         setSelectedMedia(null);
         setHasCameraPermission(null);
         setIsRecording(false);
-        // We don't clear galleryImages on close
         onClose();
     }, [stopCamera, clearRecordingTimer, onClose]);
 
@@ -91,7 +88,6 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
                         type,
                         source: 'gallery'
                     };
-                    // Add to in-app gallery, prevent duplicates
                     setGalleryImages(prev => {
                         if (prev.some(p => p.src === newMedia.src)) return prev;
                         return [newMedia, ...prev];
@@ -100,7 +96,6 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
                 reader.readAsDataURL(file);
             })
         }
-        // Reset file input to allow selecting the same file again
         if(e.target) {
             e.target.value = "";
         }
@@ -126,7 +121,6 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
             mediaRecorderRef.current.stop();
         }
-        // State changes will be handled by the onstop event listener
     }, []);
 
     const handleStartRecording = useCallback(() => {
@@ -157,14 +151,13 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
                     title: 'Запись остановлена',
                     description: 'Достигнут лимит записи в 2 минуты.',
                 });
-            }, 120000); // 2 minutes
+            }, 120000);
         }
     }, [clearRecordingTimer, handleStopRecording, stopCamera, toast]);
-
     
     useEffect(() => {
         const getCameraPermission = async () => {
-            if (isOpen && activeView === 'photo' && !selectedMedia) {
+            if (activeView === 'photo' && !selectedMedia) {
                 setIsCameraLoading(true);
                 try {
                     const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -194,7 +187,7 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
              }
              clearRecordingTimer();
         }
-    }, [isOpen, activeView, selectedMedia, stopCamera, toast, clearRecordingTimer]);
+    }, [activeView, selectedMedia, stopCamera, toast, clearRecordingTimer]);
     
     const handleCancelPreview = () => {
         setSelectedMedia(null);
@@ -231,7 +224,7 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
                                 {galleryImages.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full">
                                         <p>Ваша галерея пуста.</p>
-                                        <p className="text-sm">Загрузите фото или видео.</p>
+                                        <p className="text-sm">Загрузите фото или видео, чтобы они появились здесь.</p>
                                     </div>
                                 ) : (
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
@@ -338,46 +331,36 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-            <DialogContent className="sm:max-w-full w-full h-svh max-h-svh p-0 m-0 gap-0" hideCloseButton>
-                <DialogHeader className="sr-only">
-                    <DialogTitle>Прикрепить медиа</DialogTitle>
-                    <DialogDescription>
-                        Выберите фото/видео из галереи или сделайте новое с помощью камеры.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="flex flex-col h-full bg-background">
-                    <div className="flex-shrink-0 flex items-center justify-between p-2 border-b h-14">
-                       <div className="flex items-center justify-center flex-grow">
-                          <div className="inline-flex items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
-                              <Button 
-                                  variant={activeView === 'gallery' ? 'default' : 'ghost'} 
-                                  className="w-24"
-                                  onClick={() => handleViewChange('gallery')}
-                                  disabled={isRecording}
-                              >
-                                  Галерея
-                              </Button>
-                              <Button 
-                                  variant={activeView === 'photo' ? 'default' : 'ghost'} 
-                                  className="w-24"
-                                  onClick={() => handleViewChange('photo')}
-                                  disabled={isRecording}
-                              >
-                                  Фото
-                              </Button>
-                          </div>
-                       </div>
-                        <Button variant="ghost" size="icon" onClick={handleClose} className="absolute right-2">
-                            <X className="h-5 w-5" />
-                            <span className="sr-only">Закрыть</span>
-                        </Button>
-                    </div>
-                    <div className="flex-grow relative overflow-y-auto">
-                        {renderContent()}
-                    </div>
-                </div>
-            </DialogContent>
-        </Dialog>
+        <div className="fixed inset-0 z-50 bg-background flex flex-col">
+            <div className="flex-shrink-0 flex items-center justify-between p-2 border-b h-14">
+               <div className="flex items-center justify-center flex-grow">
+                  <div className="inline-flex items-center justify-center rounded-md bg-muted p-1 text-muted-foreground">
+                      <Button 
+                          variant={activeView === 'gallery' ? 'default' : 'ghost'} 
+                          className="w-24"
+                          onClick={() => handleViewChange('gallery')}
+                          disabled={isRecording}
+                      >
+                          Галерея
+                      </Button>
+                      <Button 
+                          variant={activeView === 'photo' ? 'default' : 'ghost'} 
+                          className="w-24"
+                          onClick={() => handleViewChange('photo')}
+                          disabled={isRecording}
+                      >
+                          Фото
+                      </Button>
+                  </div>
+               </div>
+                <Button variant="ghost" size="icon" onClick={handleClose} className="absolute right-2">
+                    <X className="h-5 w-5" />
+                    <span className="sr-only">Закрыть</span>
+                </Button>
+            </div>
+            <div className="flex-grow relative overflow-hidden">
+                {renderContent()}
+            </div>
+        </div>
     );
 }

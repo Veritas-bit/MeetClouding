@@ -301,6 +301,15 @@ export default function ConversationPage() {
     notFound();
   }
 
+  if (isAttachmentModalOpen) {
+    return (
+      <ChatAttachmentModal
+        onClose={() => setIsAttachmentModalOpen(false)}
+        onMediaSend={handleMediaSend}
+      />
+    );
+  }
+
   const isMessageEmpty = newMessage.trim() === '';
 
   return (
@@ -409,12 +418,6 @@ export default function ConversationPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onClose={handleCloseMenu}
-      />
-
-      <ChatAttachmentModal
-        isOpen={isAttachmentModalOpen}
-        onClose={() => setIsAttachmentModalOpen(false)}
-        onMediaSend={handleMediaSend}
       />
 
         <AlertDialog open={dialogState === 'friendRequest'} onOpenChange={(open) => !open && setDialogState(null)}>
