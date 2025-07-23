@@ -77,7 +77,7 @@ export default function GalleryPage() {
                     ))}
                 </div>
             </div>
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex justify-center">
                 <input
                     type="file"
                     ref={fileInputRef}
@@ -86,7 +86,7 @@ export default function GalleryPage() {
                     accept="image/*"
                     multiple
                 />
-                <Button className="w-full" size="lg" onClick={handleUploadClick}>
+                <Button className="w-full max-w-[50%]" size="lg" onClick={handleUploadClick}>
                     <Upload className="mr-2 h-4 w-4" />
                     Загрузить фотографию
                 </Button>
