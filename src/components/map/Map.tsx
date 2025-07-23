@@ -83,7 +83,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     }
 
     const { gradientDef, gradientId: genderGradientId } = getGenderGradient(marker.gender);
-    const genderSticker = `<circle cx="70" cy="48" r="8" fill="url(#${genderGradientId})" stroke="black" stroke-width="1"/>`;
+    const genderSticker = `<circle cx="65" cy="45" r="8" fill="url(#${genderGradientId})" stroke="black" stroke-width="1"/>`;
 
     const cloudSvg = `
         <svg width="80" height="60" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-40px, -60px); overflow: visible;">
