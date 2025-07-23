@@ -5,6 +5,7 @@ const users: User[] = [
   { id: 'user-2', name: 'Elena Petrova', avatarUrl: '', isOnline: true, gender: 'female' },
   { id: 'user-3', name: 'Kenji Tanaka', avatarUrl: '', isOnline: false, gender: 'male' },
   { id: 'user-4', name: 'Priya Sharma', avatarUrl: '', isOnline: true, gender: 'female' },
+  { id: 'user-5', name: 'Alex Doe', avatarUrl: '', isOnline: true, gender: 'unselected' },
   { id: 'friend-1', name: 'Иван Друг', avatarUrl: '', isOnline: true, gender: 'male' },
   { id: 'friend-2', name: 'Мария Подруга', avatarUrl: '', isOnline: false, gender: 'female' },
 ];
@@ -44,14 +45,14 @@ const conversations: Conversation[] = [
   },
   {
     id: 'friend-1',
-    participants: [users[0], users[4]],
+    participants: [users[0], users[5]],
     messages: [
        { id: 'msg-4-1', text: 'Привет! Давно не виделись!', timestamp: Date.now() - 1000 * 60 * 60 * 24, senderId: 'friend-1', status: 'read' },
     ],
   },
   {
     id: 'friend-2',
-    participants: [users[0], users[5]],
+    participants: [users[0], users[6]],
     messages: [
        { id: 'msg-5-1', text: 'Какие планы на выходные?', timestamp: Date.now() - 1000 * 60 * 60 * 4, senderId: 'user-1', status: 'delivered' },
     ],
@@ -63,6 +64,7 @@ const friendshipStatuses: Record<string, FriendshipStatus> = {
     'user-2': 'none',
     'user-3': 'none',
     'user-4': 'none',
+    'user-5': 'received',
     'friend-1': 'friends',
     'friend-2': 'friends',
 };

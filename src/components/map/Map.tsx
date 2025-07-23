@@ -41,9 +41,6 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     };
     const strokeColor = getDarkerColor(color);
     
-    // Using a more specific ID for the gradient to avoid conflicts
-    const gradientId = `map-marker-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}`;
-
     const premiumGem = marker.isPremium ? `
         <g transform="translate(68, 25) scale(0.6)">
             <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
@@ -61,11 +58,13 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     
     const getGenderGradient = (gender: Gender) => {
         const gradientId = `gender-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}`;
-        let color = '#C0C0C0'; // Neutral default
+        let color: string;
         if (gender === 'male') {
             color = '#00BFFF'; // blue
         } else if (gender === 'female') {
             color = '#FF69B4'; // pink
+        } else {
+            color = '#C0C0C0'; // Neutral silver
         }
         
         return {
