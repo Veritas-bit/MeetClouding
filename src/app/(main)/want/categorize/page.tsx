@@ -180,7 +180,7 @@ function CategorizeWishForm() {
                                 })}
                             </div>
                             {!isPremium && (
-                                <Link href="/settings/premium" className="w-full">
+                                <Link href="/settings/premium?from=categorize" className="w-full">
                                     <Button variant="secondary" className="w-full">
                                         {t('unlockWithPremium')}
                                     </Button>

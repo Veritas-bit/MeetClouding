@@ -67,7 +67,7 @@ export function SearchSheet() {
                 </div>
 
                 {!isPremium && (
-                  <Link href="/settings/premium" className="w-full">
+                  <Link href="/settings/premium?from=search" className="w-full">
                       <Button variant="secondary" className="w-full text-xs">
                           {t('filtersWithPremium')}
                       </Button>

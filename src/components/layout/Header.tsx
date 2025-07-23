@@ -160,6 +160,7 @@ export function Header() {
     
     const fetchChatInfo = async () => {
         const shouldShowMapButton = hasInteractedWithMap;
+        const fromParam = searchParams.get('from');
 
         if (pathname.startsWith('/chats/')) {
             const chatId = params.id as string;
@@ -209,7 +210,9 @@ export function Header() {
             if (pathname.includes('about')) titleKey = "aboutApp";
             if (pathname.includes('premium')) titleKey = "premium";
             
-            setHeaderContent(<HeaderWithBackButton titleKey={titleKey} />);
+            const fromMapOrPremium = shouldShowMapButton || !!fromParam;
+            setHeaderContent(<HeaderWithBackButton titleKey={titleKey} showMapButton={fromMapOrPremium} />);
+
         } else if (pathname === '/settings') {
             setHeaderContent(<div />);
         } else {
