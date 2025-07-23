@@ -30,16 +30,14 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     let glowStdDeviation = '6';
 
     if (marker.userId === '0') {
-        // Increase lightness by 30%
         const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
         if (hslMatch) {
             const h = hslMatch[1];
             const s = hslMatch[2];
             let l = parseInt(hslMatch[3], 10);
-            l = Math.min(100, l + 30); // Add 30 to lightness and cap at 100
+            l = Math.min(100, l + 30);
             color = `hsl(${h}, ${s}%, ${l}%)`;
         }
-        // Increase glow effect size
         glowStdDeviation = '10';
     }
     
@@ -62,11 +60,11 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
         const gradientId = `gender-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}`;
         let genderColor: string;
         if (gender === 'male') {
-            genderColor = '#00BFFF'; // blue
+            genderColor = '#00BFFF';
         } else if (gender === 'female') {
-            genderColor = '#FF69B4'; // pink
+            genderColor = '#FF69B4';
         } else {
-            genderColor = '#C0C0C0'; // Neutral silver
+            genderColor = '#C0C0C0';
         }
         
         return {
@@ -83,20 +81,33 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
 
     const { gradientDef, gradientUrl } = getGenderGradient(marker.gender);
     const genderSticker = `<circle cx="65" cy="35" r="15" fill="${gradientUrl}" stroke="black" stroke-width="0.5"></circle>`;
+    
+    const getStrokeColor = (baseColor: string) => {
+        const hslMatch = baseColor.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+        if (hslMatch) {
+            const h = hslMatch[1];
+            const s = hslMatch[2];
+            let l = parseInt(hslMatch[3], 10);
+            l = Math.max(0, l - 10);
+            return `hsl(${h}, ${s}%, ${l}%)`;
+        }
+        return baseColor;
+    };
+    const strokeColor = getStrokeColor(color);
 
     const cloudSvg = `
         <svg width="40" height="30" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-20px, -30px); overflow: visible;">
             <defs>
-                 <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="${glowStdDeviation}" flood-color="${marker.color || '#FF7F50'}" flood-opacity="1"/>
+                 <filter id="glow-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}" x="-50%" y="-50%" width="200%" height="200%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="${glowStdDeviation}" flood-color="${color}" flood-opacity="1"/>
                 </filter>
                 ${gradientDef}
             </defs>
             <g 
-                style="${marker.userId === '0' ? `filter: url(#glow);` : ''}"
+                style="${marker.userId === '0' ? `filter: url(#glow-${marker.id.replace(/[^a-zA-Z0-9]/g, '')});` : ''}"
                 transform="scale(1)"
             >
-              <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}"/>
+              <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}" stroke="${strokeColor}" stroke-width="2.5"/>
             </g>
             ${genderSticker}
             ${premiumGem}
