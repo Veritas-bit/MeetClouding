@@ -329,7 +329,7 @@ export default function ConversationPage() {
           )}
         >
           <div className="relative flex items-center bg-muted/50 rounded-[7px]">
-               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
                   <ShieldAlert className="h-6 w-6 text-muted-foreground" />
               </Button>
               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
@@ -341,7 +341,7 @@ export default function ConversationPage() {
                       <FileImage className="h-6 w-6 text-muted-foreground" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent side="top" className="w-56">
+                  <DropdownMenuContent side="top" align="start" className="w-56">
                     <DropdownMenuItem onClick={() => setIsAttachmentModalOpen(true)}>
                       <Video className="mr-2 h-4 w-4" />
                       <span>Фото или видео</span>
