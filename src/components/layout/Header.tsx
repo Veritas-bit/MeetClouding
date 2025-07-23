@@ -38,9 +38,9 @@ const BackButton = ({ onClick, srText }: { onClick: () => void, srText: string }
             variant="ghost" 
             size="icon" 
             onClick={onClick} 
-            className="text-foreground hover:bg-transparent active:bg-transparent"
+            className="hover:bg-transparent active:bg-transparent"
         >
-            <BackIcon className="h-6 w-6 active:text-primary" />
+            <BackIcon className="h-6 w-6 text-muted-foreground active:text-primary" />
             <span className="sr-only">{srText}</span>
         </Button>
     )
