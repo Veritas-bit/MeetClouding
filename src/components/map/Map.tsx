@@ -86,6 +86,21 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
          </g>
       </svg>`;
 
+    const premiumGem = marker.isPremium ? `
+        <g transform="translate(68, 25) scale(0.6)">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+                <defs>
+                    <linearGradient id="gem-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1"></stop>
+                        <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:1"></stop>
+                    </linearGradient>
+                </defs>
+                <circle cx="12" cy="12" r="12" fill="url(#gem-gradient)" />
+                <path d="M6.7,19.33,4.43,10.67,10,4,12,5.33,14,4l5.57,6.67L17.3,19.33Z" transform="translate(0, -1)" fill="white" />
+            </svg>
+        </g>
+    ` : '';
+
     const cloudSvg = `
         <svg width="45" height="30" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-22px, -30px); overflow: visible;">
             <defs>
@@ -93,7 +108,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
                     <circle cx="63" cy="25" r="14" />
                 </clipPath>
                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="${color}" flood-opacity="1"/>
+                    <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="${color}" flood-opacity="1"/>
                 </filter>
             </defs>
             <g 
@@ -103,6 +118,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
               <path d="M49,7C46.3,4.9,42.8,3.5,39,3.5c-8.9,0-16.9,4.4-21.7,11.3C16.5,14.7,15.8,14.5,15,14.5C6.7,14.5,0,21.2,0,29.5S6.7,44.5,15,44.5h34c7.2,0,11-5.8,11-13S56.2,7,49,7z" fill="${color}" stroke="${strokeColor}" stroke-width="2"/>
             </g>
             ${!avatarUrl ? fallbackAvatar : `<image href="${avatarUrl}" x="45" y="0" height="40" width="40" clip-path="url(#avatarClip)" />`}
+            ${premiumGem}
         </svg>
     `;
     
