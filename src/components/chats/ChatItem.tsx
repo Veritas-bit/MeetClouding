@@ -58,13 +58,19 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
     
     // Clamp the swipe distance to a maximum of 10% of the element's width
     const maxSwipe = itemRef.current ? itemRef.current.offsetWidth * 0.10 : 50;
-    const clampedSwipeX = Math.max(-maxSwipe, Math.min(maxSwipe, deltaX));
+    
+    // Allow slightly more swipe to ensure the action threshold can be met
+    const overSwipe = 40;
+    const clampedSwipeX = Math.max(-(maxSwipe + overSwipe), Math.min(maxSwipe + overSwipe, deltaX));
+
     setSwipeX(clampedSwipeX);
 
     // Only show the background if the swipe is more than 2% of the element width
-    const threshold = itemRef.current ? itemRef.current.offsetWidth * 0.02 : 0;
-    if (Math.abs(clampedSwipeX) > threshold) {
-        setActionBackgroundWidth(Math.abs(clampedSwipeX));
+    const threshold = itemRef.current ? itemRef.current.offsetWidth * 0.02 : 5;
+    if (Math.abs(deltaX) > threshold) {
+        // Limit visual background width to not exceed the max swipe
+        const bgWidth = Math.min(Math.abs(deltaX), maxSwipe + overSwipe);
+        setActionBackgroundWidth(bgWidth);
     } else {
         setActionBackgroundWidth(0);
     }
@@ -109,7 +115,7 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
       <div
         ref={itemRef}
         className={cn(
-            "flex p-4 border-b transition-colors bg-background active:bg-muted/50 items-center h-20 relative z-10",
+            "flex p-4 border-b transition-colors bg-background active:bg-muted/50 items-center h-20 relative z-10 touch-pan-y",
             isPinned && "bg-primary/10"
         )}
         style={{ transform: `translateX(${swipeX}px)` }}
