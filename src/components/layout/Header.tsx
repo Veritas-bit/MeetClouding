@@ -210,7 +210,8 @@ export function Header() {
             if (pathname.includes('premium')) titleKey = "premium";
             
             setHeaderContent(<HeaderWithBackButton titleKey={titleKey} />);
-
+        } else if (pathname === '/settings') {
+            setHeaderContent(<HeaderWithBackButton titleKey="settings" />);
         } else {
             setHeaderContent(defaultHeader);
         }
@@ -231,7 +232,7 @@ export function Header() {
   }
   
   return (
-    <header className={cn("sticky top-0 z-40 w-full bg-background", { "border-b": !pathname.startsWith('/settings') })}>
+    <header className={cn("sticky top-0 z-40 w-full border-b bg-background")}>
       <div className={cn("container flex h-16 items-center justify-between space-x-4 px-4 sm:space-x-0")}>
         {headerContent}
       </div>
