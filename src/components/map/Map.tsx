@@ -74,8 +74,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
                     <stop offset="20%" style="stop-color:black;" />
                     <stop offset="45%" style="stop-color:${color};" />
                     <stop offset="55%" style="stop-color:${color};" />
-                    <stop offset="70%" style="stop-color:black;" />
-                    <stop offset="80%" style="stop-color:black;" />
+                    <stop offset="85%" style="stop-color:black;" />
                     <stop offset="95%" style="stop-color:${color};" />
                 </linearGradient>
             `,
