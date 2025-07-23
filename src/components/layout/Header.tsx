@@ -6,7 +6,6 @@ import { usePathname, useParams, useRouter, useSearchParams } from "next/navigat
 import { GradientCloudIcon } from "@/components/icons/GradientCloudIcon";
 import React from "react";
 import { cn } from "@/lib/utils";
-import { ArrowLeft, MapIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import Image from "next/image";
@@ -200,14 +199,6 @@ export function Header() {
             );
         } else if (pathname.startsWith('/profile/edit')) {
             setHeaderContent(<HeaderWithBackButton titleKey="editProfile" />);
-        } else if (pathname === '/settings') {
-             setHeaderContent(
-                <div className="w-full h-full relative flex items-center">
-                    <div className="absolute left-0">
-                        <BackButton onClick={() => router.back()} srText={t('back')} />
-                    </div>
-                </div>
-             );
         } else if (pathname.startsWith('/settings/')) {
             let titleKey = "settings";
             if (pathname.includes('account')) titleKey = "account";
