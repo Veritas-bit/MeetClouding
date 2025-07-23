@@ -103,26 +103,26 @@ export default function GalleryPage() {
             </div>
 
             <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
-                <DialogContent className="max-w-3xl p-2">
+                <DialogContent className="h-screen w-screen max-w-full p-0 gap-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm border-none">
                    <DialogTitle className="sr-only">Предпросмотр изображения</DialogTitle>
                    {previewImage && (
-                        <div className="relative aspect-video w-full">
+                        <div className="relative w-full h-full flex-grow">
                              <Image
                                 src={previewImage.src}
                                 alt={previewImage.alt}
                                 fill
-                                className="rounded-md object-contain"
+                                className="object-contain"
                             />
                         </div>
                    )}
-                    <DialogFooter className="!flex-row !justify-center gap-4 p-2">
+                    <DialogFooter className="!flex-row !justify-center gap-4 p-4 bg-background w-full flex-shrink-0">
                         <DialogClose asChild>
-                            <Button variant="outline" className="w-full">
+                            <Button variant="outline" className="w-full max-w-xs">
                                 <X className="mr-2 h-4 w-4" />
                                 Отмена
                             </Button>
                         </DialogClose>
-                        <Button onClick={handleSendImage} className="w-full">
+                        <Button onClick={handleSendImage} className="w-full max-w-xs">
                             <Send className="mr-2 h-4 w-4" />
                             Отправить
                         </Button>
