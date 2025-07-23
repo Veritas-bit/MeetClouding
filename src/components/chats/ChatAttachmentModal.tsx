@@ -215,11 +215,12 @@ export function ChatAttachmentModal({ onClose, onMediaSend }: ChatAttachmentModa
             );
         }
         
-        return (
-            <div className="flex flex-col h-full w-full">
-                {activeView === 'gallery' && (
-                     <div className="flex flex-col p-4 h-full">
-                        <div className="flex-grow p-px rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 m-[3%] overflow-hidden">
+        if (activeView === 'gallery') {
+            return (
+                <div className="flex flex-col h-full w-full">
+                    {/* Gallery Grid */}
+                    <div className="flex-grow p-4 overflow-y-auto">
+                        <div className="p-px rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 h-full">
                             <div className="bg-black/50 rounded-[7px] h-full p-2 overflow-y-auto">
                                 {galleryImages.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full">
@@ -238,96 +239,101 @@ export function ChatAttachmentModal({ onClose, onMediaSend }: ChatAttachmentModa
                                 )}
                             </div>
                         </div>
-                        <div className="mt-4 flex-shrink-0">
-                            <Button variant="outline" className="w-full h-12 text-base" onClick={() => fileInputRef.current?.click()}>
-                                <Upload className="mr-2 h-4 w-4" />
-                                Загрузить с устройства
-                            </Button>
-                            <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" multiple onChange={handleFileSelect} />
-                        </div>
                     </div>
-                )}
+                    {/* Upload Button */}
+                    <div className="flex-shrink-0 p-4 border-t">
+                        <Button variant="outline" className="w-full h-12 text-base" onClick={() => fileInputRef.current?.click()}>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Загрузить с устройства
+                        </Button>
+                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" multiple onChange={handleFileSelect} />
+                    </div>
+                </div>
+            );
+        }
 
 
-                {activeView === 'photo' && (
-                     <div className="flex-grow mt-0 flex flex-col items-center justify-between p-4 gap-4">
-                        <div className="w-full flex-grow relative flex items-center justify-center">
-                            {isCameraLoading && (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 z-20 rounded-lg">
-                                   <GradientBorderCloudIcon className="h-8 w-8" />
-                                   <p className="mt-2 text-muted-foreground">Запускаем камеру...</p>
-                                </div>
-                            )}
-                            {hasCameraPermission === false && !isCameraLoading && (
-                                 <Alert variant="destructive" className="m-4">
-                                     <AlertTriangle className="h-4 w-4"/>
-                                     <AlertTitle>Доступ к камере необходим</AlertTitle>
-                                     <AlertDescription>
-                                        Пожалуйста, разрешите доступ в настройках вашего браузера.
-                                     </AlertDescription>
-                                 </Alert>
-                            )}
-                            
-                            <div className="relative w-full aspect-[3/4] max-w-full max-h-full bg-muted overflow-hidden rounded-lg">
-                               <video 
-                                    ref={videoRef} 
-                                    className="w-full h-full object-cover transform -scale-x-100"
-                                    autoPlay 
-                                    muted 
-                                    playsInline 
-                               />
-                               {isRecording && <div className="absolute top-2 right-2 h-3 w-3 rounded-full bg-red-500 animate-pulse" />}
+        if (activeView === 'photo') {
+            return (
+                 <div className="flex-grow mt-0 flex flex-col items-center justify-between p-4 gap-4 h-full">
+                    <div className="w-full flex-grow relative flex items-center justify-center">
+                        {isCameraLoading && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 z-20 rounded-lg">
+                               <GradientBorderCloudIcon className="h-8 w-8" />
+                               <p className="mt-2 text-muted-foreground">Запускаем камеру...</p>
                             </div>
-                        </div>
+                        )}
+                        {hasCameraPermission === false && !isCameraLoading && (
+                             <Alert variant="destructive" className="m-4">
+                                 <AlertTriangle className="h-4 w-4"/>
+                                 <AlertTitle>Доступ к камере необходим</AlertTitle>
+                                 <AlertDescription>
+                                    Пожалуйста, разрешите доступ в настройках вашего браузера.
+                                 </AlertDescription>
+                             </Alert>
+                        )}
                         
-                        <div className="flex-shrink-0 flex flex-col items-center gap-4">
-                            <div className="flex items-center gap-4 text-sm font-medium text-white p-1 rounded-full bg-black/40">
-                                <button 
-                                    onClick={() => setCaptureMode('photo')}
-                                    className={cn(
-                                        "px-4 py-1 rounded-full transition-colors",
-                                        captureMode === 'photo' ? 'bg-white text-black' : 'text-white'
-                                    )}
-                                    disabled={isRecording}
-                                >
-                                    Фото
-                                </button>
-                                 <button 
-                                    onClick={() => setCaptureMode('video')}
-                                    className={cn(
-                                        "px-4 py-1 rounded-full transition-colors",
-                                        captureMode === 'video' ? 'bg-white text-black' : 'text-white'
-                                    )}
-                                    disabled={isRecording}
-                                >
-                                    Видео
-                                </button>
-                            </div>
-                            <Button 
-                                size="lg" 
-                                className={cn(
-                                    "rounded-full w-16 h-16",
-                                    isRecording && "bg-red-500 hover:bg-red-600"
-                                )}
-                                onClick={isRecording ? handleStopRecording : (captureMode === 'photo' ? handleCapturePhoto : handleStartRecording)}
-                                disabled={hasCameraPermission !== true || isCameraLoading}
-                                aria-label={isRecording ? "Остановить запись" : (captureMode === 'photo' ? 'Сделать фото' : 'Начать запись')}
-                            >
-                                {isRecording ? (
-                                    <Square className="h-7 w-7 fill-current" />
-                                ) : captureMode === 'photo' ? (
-                                    <Zap className="h-8 w-8" />
-                                ) : (
-                                    <Circle className="h-8 w-8 text-red-500 fill-current" />
-                                )}
-                            </Button>
+                        <div className="relative w-full aspect-[3/4] max-w-full max-h-full bg-muted overflow-hidden rounded-lg">
+                           <video 
+                                ref={videoRef} 
+                                className="w-full h-full object-cover transform -scale-x-100"
+                                autoPlay 
+                                muted 
+                                playsInline 
+                           />
+                           {isRecording && <div className="absolute top-2 right-2 h-3 w-3 rounded-full bg-red-500 animate-pulse" />}
                         </div>
-
-                        <canvas ref={canvasRef} className="hidden" />
                     </div>
-                )}
-            </div>
-        );
+                    
+                    <div className="flex-shrink-0 flex flex-col items-center gap-4">
+                        <div className="flex items-center gap-4 text-sm font-medium text-white p-1 rounded-full bg-black/40">
+                            <button 
+                                onClick={() => setCaptureMode('photo')}
+                                className={cn(
+                                    "px-4 py-1 rounded-full transition-colors",
+                                    captureMode === 'photo' ? 'bg-white text-black' : 'text-white'
+                                )}
+                                disabled={isRecording}
+                            >
+                                Фото
+                            </button>
+                             <button 
+                                onClick={() => setCaptureMode('video')}
+                                className={cn(
+                                    "px-4 py-1 rounded-full transition-colors",
+                                    captureMode === 'video' ? 'bg-white text-black' : 'text-white'
+                                )}
+                                disabled={isRecording}
+                            >
+                                Видео
+                            </button>
+                        </div>
+                        <Button 
+                            size="lg" 
+                            className={cn(
+                                "rounded-full w-16 h-16",
+                                isRecording && "bg-red-500 hover:bg-red-600"
+                            )}
+                            onClick={isRecording ? handleStopRecording : (captureMode === 'photo' ? handleCapturePhoto : handleStartRecording)}
+                            disabled={hasCameraPermission !== true || isCameraLoading}
+                            aria-label={isRecording ? "Остановить запись" : (captureMode === 'photo' ? 'Сделать фото' : 'Начать запись')}
+                        >
+                            {isRecording ? (
+                                <Square className="h-7 w-7 fill-current" />
+                            ) : captureMode === 'photo' ? (
+                                <Zap className="h-8 w-8" />
+                            ) : (
+                                <Circle className="h-8 w-8 text-red-500 fill-current" />
+                            )}
+                        </Button>
+                    </div>
+
+                    <canvas ref={canvasRef} className="hidden" />
+                </div>
+            );
+        }
+        
+        return null;
     };
 
     return (
