@@ -297,14 +297,14 @@ export default function ConversationPage() {
           )}
         >
           <div className="relative flex items-center bg-muted/50 rounded-[7px]">
-              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
+              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setIsAttachmentModalOpen(true)}>
+                  <Camera className="h-6 w-6 text-muted-foreground" />
+              </Button>
+               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
                   <ShieldAlert className="h-6 w-6 text-muted-foreground" />
               </Button>
               <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
                   <UserPlus className="h-6 w-6 text-muted-foreground" />
-              </Button>
-              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setIsAttachmentModalOpen(true)}>
-                  <Camera className="h-6 w-6 text-muted-foreground" />
               </Button>
 
               <div className="w-px h-6 bg-border"></div>
@@ -361,9 +361,9 @@ export default function ConversationPage() {
                         Вы уверены, что хотите отправить запрос на добавление в друзья пользователю {otherParticipant?.name}?
                     </AlertDialogDescription>
                 </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setDialogState(null)}>Нет</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleFriendRequest}>Да</AlertDialogAction>
+                <AlertDialogFooter className="!flex-row !justify-center gap-4">
+                    <AlertDialogCancel className="max-w-[40%]" onClick={() => setDialogState(null)}>Нет</AlertDialogCancel>
+                    <AlertDialogAction className="max-w-[40%]" onClick={handleFriendRequest}>Да</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
@@ -384,11 +384,11 @@ export default function ConversationPage() {
                         </div>
                     ))}
                 </RadioGroup>
-                <DialogFooter>
+                <DialogFooter className="!flex-row !justify-center gap-4">
                     <DialogClose asChild>
-                        <Button type="button" variant="secondary">Отмена</Button>
+                        <Button type="button" variant="secondary" className="max-w-[40%]">Отмена</Button>
                     </DialogClose>
-                    <Button type="submit" variant="destructive" onClick={handleReport} disabled={!selectedReportReason}>Отправить жалобу</Button>
+                    <Button type="submit" variant="destructive" className="max-w-[40%]" onClick={handleReport} disabled={!selectedReportReason}>Отправить жалобу</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -396,5 +396,7 @@ export default function ConversationPage() {
     </div>
   );
 }
+
+    
 
     
