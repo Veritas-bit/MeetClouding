@@ -17,7 +17,7 @@ export function ChatList({ mainChats, friendChats, activeTab }: ChatListProps) {
   return (
     <div className="flex-grow flex flex-col p-2 h-full">
         <div className="flex-grow rounded-lg p-px bg-gradient-to-r from-primary/20 to-secondary/20">
-            <ScrollArea className="flex-grow rounded-[7px] bg-background h-full">
+            <ScrollArea className="flex-grow rounded-[7px] bg-primary/10 h-full">
                 <div>
                     <div className="flex flex-col">
                     {chatsToShow.map((chat) => (
