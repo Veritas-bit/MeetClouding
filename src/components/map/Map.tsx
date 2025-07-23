@@ -83,10 +83,10 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     }
 
     const { gradientDef, gradientId: genderGradientId } = getGenderGradient(marker.gender);
-    const genderSticker = `<circle cx="65" cy="45" r="8" fill="url(#${genderGradientId})" stroke="black" stroke-width="1"/>`;
+    const genderSticker = `<circle cx="32.5" cy="22.5" r="4" fill="url(#${genderGradientId})" stroke="black" stroke-width="0.5"/>`;
 
     const cloudSvg = `
-        <svg width="80" height="60" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-40px, -60px); overflow: visible;">
+        <svg width="40" height="30" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-20px, -30px); overflow: visible;">
             <defs>
                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                     <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="${color}" flood-opacity="1"/>
@@ -95,7 +95,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
             </defs>
             <g 
                 style="${marker.userId === '0' ? `filter: url(#glow);` : ''}"
-                transform="${marker.userId === '0' ? 'translate(-3.75, -3.75) scale(1.1)' : ''}"
+                transform="${marker.userId === '0' ? 'translate(-3.75, -3.75) scale(1.1)' : 'scale(1)'}"
             >
               <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}" stroke="${strokeColor}" stroke-width="2.5"/>
             </g>
