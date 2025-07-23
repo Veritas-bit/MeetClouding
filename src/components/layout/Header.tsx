@@ -163,7 +163,27 @@ export function Header() {
         const fromParam = searchParams.get('from');
 
         if (pathname.endsWith('/gallery')) {
-            setHeaderContent(<HeaderWithBackButton titleKey="Галерея" />);
+            const activeTab = searchParams.get('view') === 'camera' ? 'camera' : 'gallery';
+            setHeaderContent(
+                 <div className="w-full h-full relative flex items-center justify-center">
+                    <div className="absolute left-0">
+                        <BackButton onClick={() => router.back()} srText={t('back')} />
+                    </div>
+                    <Tabs 
+                        defaultValue={activeTab} 
+                        value={activeTab}
+                        onValueChange={(value) => {
+                            // Logic to switch views will be here
+                        }}
+                        className="w-auto"
+                    >
+                        <TabsList className="bg-primary/10">
+                            <TabsTrigger value="gallery">Галерея</TabsTrigger>
+                            <TabsTrigger value="camera">Камера</TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                </div>
+            );
         } else if (pathname.startsWith('/chats/')) {
             const chatId = params.id as string;
             const conversation = await getConversationById(chatId);
