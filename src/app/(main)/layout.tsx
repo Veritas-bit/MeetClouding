@@ -57,7 +57,7 @@ export default function MainLayout({
   return (
     <div className="relative flex flex-col h-svh">
       <Header />
-      <main className="flex-1 flex flex-col overflow-hidden pb-20">{children}</main>
+      <main className="flex-grow overflow-y-auto pb-20">{children}</main>
       <BottomNavBar />
     </div>
   );
