@@ -4,8 +4,6 @@
 import Link from "next/link";
 import { ChatItem, type ChatItemProps } from "./ChatItem";
 import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
-
 
 interface ChatListProps {
     mainChats: ChatItemProps[];
@@ -17,8 +15,8 @@ export function ChatList({ mainChats, friendChats, activeTab }: ChatListProps) {
   const chatsToShow = activeTab === 'all' ? mainChats : friendChats;
 
   return (
-    <div className="container mx-auto p-0 sm:p-4 pb-24 flex-grow flex flex-col">
-        <ScrollArea className="flex-grow">
+    <div className="flex-grow flex flex-col p-2 bg-primary/10 h-full">
+        <ScrollArea className="flex-grow rounded-lg bg-background">
             <div className="pt-2">
                 <div className="flex flex-col">
                 {chatsToShow.map((chat) => (
