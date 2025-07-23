@@ -211,7 +211,7 @@ function MapContent() {
   }
 
   return (
-    <div className="flex-grow w-full relative">
+    <div className="h-full w-full relative">
         {isFromChat && (
             <Button
                 variant="default"
@@ -237,7 +237,7 @@ function MapContent() {
 export default function MapPage() {
     return (
         <Suspense fallback={<FullScreenLoader text="Загрузка карты..." />}>
-            <div className="flex flex-col flex-grow">
+            <div className="h-full">
                 <MapContent />
             </div>
         </Suspense>
