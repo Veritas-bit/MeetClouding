@@ -4,7 +4,7 @@ import Image from 'next/image';
 export default function GalleryPage() {
     return (
         <div className="px-[2%] pt-[2%] pb-[10%] h-full">
-            <div className="h-full w-full rounded-lg border-2 border-dashed border-muted-foreground/50 bg-muted/20 p-4 overflow-y-auto">
+            <div className="h-full w-full rounded-lg border-2 border-dashed border-muted-foreground/50 bg-muted/20 p-4 overflow-y-auto hide-scrollbar">
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                     {Array.from({ length: 25 }).map((_, index) => (
                         <div key={index} className="relative aspect-square w-full">
