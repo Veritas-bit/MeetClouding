@@ -73,9 +73,10 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
         return {
             gradientDef: `
                 <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="45%" style="stop-color:${colors.c1};" />
-                    <stop offset="50%" style="stop-color:${colors.c2};" />
-                    <stop offset="55%" style="stop-color:${colors.c1};" />
+                    <stop offset="0%" style="stop-color:${colors.c1};" />
+                    <stop offset="40%" style="stop-color:${colors.c2};" />
+                    <stop offset="60%" style="stop-color:${colors.c2};" />
+                    <stop offset="100%" style="stop-color:${colors.c1};" />
                 </linearGradient>
             `,
             gradientUrl: `url(#${gradientId})`
