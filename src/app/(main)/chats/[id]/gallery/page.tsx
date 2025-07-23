@@ -29,21 +29,33 @@ export default function GalleryPage() {
     };
 
     const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (e.target?.result) {
-                    const newImage: GalleryImage = {
-                        id: `uploaded-${Date.now()}`,
-                        src: e.target.result as string,
-                        alt: file.name,
-                        hint: 'uploaded photo'
+        const files = event.target.files;
+        if (files && files.length > 0) {
+            const filePromises = Array.from(files).map(file => {
+                return new Promise<GalleryImage>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        if (e.target?.result) {
+                            resolve({
+                                id: `uploaded-${file.name}-${Date.now()}`,
+                                src: e.target.result as string,
+                                alt: file.name,
+                                hint: 'uploaded photo'
+                            });
+                        } else {
+                            reject(new Error("Failed to read file"));
+                        }
                     };
-                    setImages(prevImages => [newImage, ...prevImages]);
-                }
-            };
-            reader.readAsDataURL(file);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(filePromises).then(newImages => {
+                setImages(prevImages => [...newImages, ...prevImages]);
+            }).catch(error => {
+                console.error("Error reading files:", error);
+            });
         }
     };
 
@@ -72,6 +84,7 @@ export default function GalleryPage() {
                     onChange={handleFileChange}
                     className="hidden"
                     accept="image/*"
+                    multiple
                 />
                 <Button className="w-full" size="lg" onClick={handleUploadClick}>
                     <Upload className="mr-2 h-4 w-4" />
