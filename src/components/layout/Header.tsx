@@ -191,7 +191,7 @@ export function Header() {
                         }}
                         className="w-auto"
                     >
-                        <TabsList className="bg-muted">
+                        <TabsList className="bg-primary/10">
                             <TabsTrigger value="all">Чаты</TabsTrigger>
                             <TabsTrigger value="friends">Друзья</TabsTrigger>
                         </TabsList>
