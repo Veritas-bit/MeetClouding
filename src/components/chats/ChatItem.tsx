@@ -48,25 +48,14 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
     touchStartRef.current = e.targetTouches[0].clientX;
     isActionTriggeredRef.current = false;
     if (itemRef.current) {
-        itemRef.current.style.transition = 'transform 0.1s ease-out';
+        // Disable transition during swipe for instant feedback
+        itemRef.current.style.transition = 'none';
     }
   };
 
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     const deltaX = e.targetTouches[0].clientX - touchStartRef.current;
-    if (itemRef.current) {
-      // Allow swiping up to 10% of the item's width
-      const maxSwipe = itemRef.current.offsetWidth * 0.1; 
-      // Apply resistance when swiping beyond the max
-      if (Math.abs(deltaX) > maxSwipe) {
-          const overSwipe = Math.abs(deltaX) - maxSwipe;
-          const resistance = 0.4; // feels "heavier"
-          const limitedOverSwipe = overSwipe * resistance;
-          setSwipeX(maxSwipe * Math.sign(deltaX) + limitedOverSwipe);
-      } else {
-          setSwipeX(deltaX);
-      }
-    }
+    setSwipeX(deltaX);
   };
 
   const handleTouchEnd = () => {
@@ -74,15 +63,14 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
         itemRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
     }
     
-    // Use a percentage of the element's width for the action threshold
     const actionThreshold = itemRef.current ? itemRef.current.offsetWidth * 0.25 : 80;
 
     if (swipeX < -actionThreshold) { // Swipe Left (Delete)
       if (!isActionTriggeredRef.current) {
         isActionTriggeredRef.current = true;
-        // Keep the item swiped out while the action happens
-        setSwipeX(-itemRef.current!.offsetWidth);
-        setTimeout(() => onDelete(id), 300); // give time for animation
+        // Animate item out of view then delete
+        setSwipeX(-itemRef.current!.offsetWidth); 
+        setTimeout(() => onDelete(id), 300);
       }
     } else if (swipeX > actionThreshold) { // Swipe Right (Pin)
        if (!isActionTriggeredRef.current) {
@@ -96,7 +84,8 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
     }
   };
 
-  const backgroundOpacity = Math.min(Math.abs(swipeX) / (itemRef.current ? itemRef.current.offsetWidth * 0.25 : 80), 1);
+  // Calculate opacity based on how far the item is swiped
+  const backgroundOpacity = Math.min(Math.abs(swipeX) / 80, 1);
 
 
   return (
@@ -104,13 +93,13 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
        {/* Backgrounds that fade in */}
        <div 
           className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" 
-          style={{ width: '100%', opacity: swipeX < 0 ? backgroundOpacity : 0 }}
+          style={{ width: '100%', opacity: swipeX < 0 ? backgroundOpacity : 0, transition: 'opacity 0.1s ease-in-out' }}
         >
             <Trash2 className="h-6 w-6 text-destructive-foreground" />
        </div>
        <div 
           className="absolute inset-y-0 left-0 flex items-center justify-start bg-primary pl-6" 
-          style={{ width: '100%', opacity: swipeX > 0 ? backgroundOpacity : 0 }}
+          style={{ width: '100%', opacity: swipeX > 0 ? backgroundOpacity : 0, transition: 'opacity 0.1s ease-in-out' }}
         >
             <Pin className="h-6 w-6 text-primary-foreground" />
        </div>
