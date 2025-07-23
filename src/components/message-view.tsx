@@ -17,6 +17,7 @@ interface MessageViewProps {
     viewportRef: React.RefObject<HTMLDivElement>;
     wishText?: string;
     wishCategory?: WishCategoryKey;
+    onPreviewImage: (src: string) => void;
 }
 
 const WishHeader = ({ wishText, wishCategory }: { wishText: string, wishCategory?: WishCategoryKey }) => {
@@ -39,7 +40,7 @@ const WishHeader = ({ wishText, wishCategory }: { wishText: string, wishCategory
 };
 
 
-export function MessageView({ messages, currentUser, otherParticipant, onOpenMenu, viewportRef, wishText, wishCategory }: MessageViewProps) {
+export function MessageView({ messages, currentUser, otherParticipant, onOpenMenu, viewportRef, wishText, wishCategory, onPreviewImage }: MessageViewProps) {
   
   if (!otherParticipant) return null;
 
@@ -54,9 +55,12 @@ export function MessageView({ messages, currentUser, otherParticipant, onOpenMen
             currentUser={currentUser} 
             otherParticipant={otherParticipant} 
             onOpenMenu={onOpenMenu}
+            onPreviewImage={onPreviewImage}
           />
         ))}
       </div>
     </ScrollArea>
   );
 }
+
+    

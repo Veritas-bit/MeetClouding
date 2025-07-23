@@ -26,6 +26,7 @@ interface MessageItemProps {
   currentUser: User;
   otherParticipant: User;
   onOpenMenu: (messageId: string, rect: DOMRect) => void;
+  onPreviewImage: (src: string) => void;
 }
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
@@ -91,10 +92,10 @@ function LocationContent({ message }: { message: Message }) {
     );
 }
 
-function MediaContent({ message }: { message: Message }) {
+function MediaContent({ message, onPreviewImage }: { message: Message, onPreviewImage: (src: string) => void }) {
   if (message.image) {
     return (
-      <div className="relative w-full max-w-[250px] aspect-square mt-2">
+      <button onClick={() => onPreviewImage(message.image!)} className="relative w-full max-w-[250px] aspect-square mt-2 block">
         <Image
           src={message.image}
           alt="Attached image"
@@ -102,7 +103,7 @@ function MediaContent({ message }: { message: Message }) {
           objectFit="cover"
           className="rounded-lg"
         />
-      </div>
+      </button>
     );
   }
   if (message.video) {
@@ -132,7 +133,7 @@ function ReplyContent({ message, isSentByCurrentUser }: { message: Message, isSe
 }
 
 
-export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu }: MessageItemProps) {
+export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu, onPreviewImage }: MessageItemProps) {
   const [isPending, startTransition] = useTransition();
   const [translatedText, setTranslatedText] = useState<string | null>(message.translation || null);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -179,7 +180,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   }, []);
 
   const handlePressStart = (e: React.TouchEvent) => {
-    if (message.location) return; // Disable long press for location messages
+    if (message.location || message.image || message.video) return; // Disable long press for special content
     clearLongPressTimer();
     touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     pressTimer.current = setTimeout(openMenu, 700);
@@ -201,7 +202,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (message.location) return; // Disable context menu for location messages
+    if (message.location || message.image || message.video) return; // Disable context menu for special content
     openMenu();
   };
 
@@ -238,7 +239,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
                     {showTranslation && <p className="text-xs opacity-70 mt-2 pt-2 border-t border-t-white/20">{t('original')}: {message.text}</p>}
                 </div>
             )}
-           <MediaContent message={message} />
+           <MediaContent message={message} onPreviewImage={onPreviewImage} />
            <LocationContent message={message} />
           <div className={cn("flex items-center gap-2 mt-2 self-end text-xs", isSentByCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
             {message.edited && <span className="text-xs opacity-70">изменено</span>}
@@ -330,3 +331,5 @@ export function ChatMessageMenu({ message, isSentByCurrentUser, position, onRepl
     </div>
   );
 }
+
+    

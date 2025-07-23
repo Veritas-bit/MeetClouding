@@ -39,6 +39,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from '@/components/ui/checkbox';
 import { useLocationStore } from '@/lib/location-store';
 import Link from 'next/link';
+import Image from 'next/image';
 
 
 const reportReasons = [
@@ -66,6 +67,7 @@ export default function ConversationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   
   // Context Menu State
   const [menuState, setMenuState] = useState<{
@@ -325,6 +327,7 @@ export default function ConversationPage() {
             viewportRef={viewportRef}
             wishText={conversation.wishText}
             wishCategory={conversation.wishCategory}
+            onPreviewImage={setPreviewImage}
         />
       </div>
 
@@ -470,6 +473,34 @@ export default function ConversationPage() {
             </DialogContent>
         </Dialog>
 
+        <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
+            <DialogContent className="max-w-3xl p-2 bg-transparent border-none shadow-none">
+                <DialogHeader>
+                    <DialogTitle className="sr-only">Предпросмотр изображения</DialogTitle>
+                </DialogHeader>
+               {previewImage && (
+                    <div className="relative aspect-video w-full">
+                         <Image
+                            src={previewImage}
+                            alt="Image preview"
+                            fill
+                            className="rounded-md object-contain"
+                        />
+                    </div>
+               )}
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button variant="outline">
+                            <X className="mr-2 h-4 w-4" />
+                            Закрыть
+                        </Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+
     </div>
   );
 }
+
+    
