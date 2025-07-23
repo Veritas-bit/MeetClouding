@@ -35,7 +35,7 @@ const GenderAvatar = ({ gender }: { gender: Gender }) => {
 export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCount, avatarHint, isOnline, gender }: ChatItemProps) {
   return (
     <div className="flex p-4 border-b transition-colors active:bg-muted/50 items-center h-20">
-      <div className="relative">
+      <div className="relative shrink-0">
         <Avatar className="h-12 w-12 bg-muted/50">
             {avatarUrl ? (
                 <AvatarImage 
@@ -54,7 +54,7 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
       <div className="ml-4 flex-grow overflow-hidden flex flex-col justify-center">
           <div className="flex justify-between items-baseline">
               <p className="font-semibold text-foreground text-lg truncate">{name}</p>
-              <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">{timestamp}</span>
+              <span className="text-xs text-muted-foreground whitespace-nowrap ml-2 shrink-0">{timestamp}</span>
           </div>
           <div className="flex justify-between items-start">
               <p className="text-sm text-muted-foreground truncate">{lastMessage}</p>
