@@ -9,6 +9,7 @@ import { BottomNavBar } from "@/components/layout/BottomNavBar";
 import { FullScreenLoader } from "@/components/common/FullScreenLoader";
 import { useLocationStore } from "@/lib/location-store";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useTranslation } from "@/hooks/use-translation";
 
 // Heavy components are now lazy-loaded where they are used.
 
@@ -21,6 +22,7 @@ export default function MainLayout({
   const pathname = usePathname();
   const { isRegistered, checkRegistration } = useProfileStore();
   const requestLocation = useLocationStore((state) => state.requestLocation);
+  const t = useTranslation();
 
   useEffect(() => {
     // This is the key change: ensure we check registration status
@@ -43,7 +45,7 @@ export default function MainLayout({
 
   // While we wait for the registration status, show a loader.
   if (isRegistered === null) {
-    return <FullScreenLoader text="Загрузка..." />;
+    return <FullScreenLoader text={t('loading')} />;
   }
 
   // If the user is not registered, they will be redirected, so we don't render anything.
