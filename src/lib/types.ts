@@ -1,3 +1,4 @@
+
 import { WishCategoryKey } from "./categories";
 import { Gender } from "./profile-store";
 
@@ -25,6 +26,10 @@ export interface Message {
     text: string;
   };
   edited?: boolean;
+  location?: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export interface Conversation {

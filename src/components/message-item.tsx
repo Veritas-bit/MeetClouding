@@ -7,7 +7,7 @@ import type { Message, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Check, CheckCheck, Languages, MessageSquareReply, Copy, Pencil, Trash2 } from 'lucide-react';
+import { Check, CheckCheck, Languages, MessageSquareReply, Copy, Pencil, Trash2, MapPin } from 'lucide-react';
 import { format } from 'date-fns';
 import { getTranslation } from '@/lib/actions';
 import { useLanguageStore } from '@/lib/language-store';
@@ -18,6 +18,7 @@ import { MaleIcon } from '@/components/icons/gender/MaleIcon';
 import { FemaleIcon } from '@/components/icons/gender/FemaleIcon';
 import { NeuterIcon } from '@/components/icons/gender/NeuterIcon';
 import { GradientBorderCloudIcon } from '@/components/icons/GradientBorderCloudIcon';
+import { useRouter } from 'next/navigation';
 
 
 interface MessageItemProps {
@@ -64,6 +65,30 @@ function parseMessageContent(text: string) {
     }
     return part;
   });
+}
+
+function LocationContent({ message }: { message: Message }) {
+    const router = useRouter();
+
+    if (!message.location) return null;
+
+    const handleClick = () => {
+        router.push(`/map?lat=${message.location!.latitude}&lon=${message.location!.longitude}&from=chat`);
+    };
+
+    return (
+        <button onClick={handleClick} className="w-full text-left mt-2">
+            <div className="p-2 bg-black/10 dark:bg-white/10 rounded-lg">
+                <div className="flex items-center gap-3">
+                    <MapPin className="h-5 w-5 text-primary shrink-0" />
+                    <div className="flex-1">
+                        <p className="text-sm font-semibold">Геопозиция</p>
+                        <p className="text-xs opacity-80 truncate">Нажмите, чтобы посмотреть</p>
+                    </div>
+                </div>
+            </div>
+        </button>
+    );
 }
 
 function MediaContent({ message }: { message: Message }) {
@@ -154,6 +179,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   }, []);
 
   const handlePressStart = (e: React.TouchEvent) => {
+    if (message.location) return; // Disable long press for location messages
     clearLongPressTimer();
     touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
     pressTimer.current = setTimeout(openMenu, 700);
@@ -175,6 +201,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (message.location) return; // Disable context menu for location messages
     openMenu();
   };
 
@@ -205,27 +232,31 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
           className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}
         >
           <ReplyContent message={message} isSentByCurrentUser={isSentByCurrentUser} />
-          <div className="text-sm whitespace-pre-wrap break-words">
-            {parseMessageContent(textToShow)}
-            {showTranslation && <p className="text-xs opacity-70 mt-2 pt-2 border-t border-t-white/20">{t('original')}: {message.text}</p>}
-          </div>
+           {!message.location && (
+                <div className="text-sm whitespace-pre-wrap break-words">
+                    {parseMessageContent(textToShow)}
+                    {showTranslation && <p className="text-xs opacity-70 mt-2 pt-2 border-t border-t-white/20">{t('original')}: {message.text}</p>}
+                </div>
+            )}
            <MediaContent message={message} />
+           <LocationContent message={message} />
           <div className={cn("flex items-center gap-2 mt-2 self-end text-xs", isSentByCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
             {message.edited && <span className="text-xs opacity-70">изменено</span>}
             {isPending && <GradientBorderCloudIcon className="h-3 w-3" />}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleTranslate(); }} disabled={isPending}>
-                    <Languages className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{showTranslation ? t('showOriginal') : `${t('translateTo')} ${targetLanguage}`}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
+            {!message.location && (
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleTranslate(); }} disabled={isPending}>
+                            <Languages className="h-4 w-4" />
+                        </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                        <p>{showTranslation ? t('showOriginal') : `${t('translateTo')} ${targetLanguage}`}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            )}
             <span>{format(new Date(message.timestamp), 'p')}</span>
             {isSentByCurrentUser && <MessageStatus status={message.status} />}
           </div>

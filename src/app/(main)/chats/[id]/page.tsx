@@ -268,8 +268,25 @@ export default function ConversationPage() {
   };
 
   const handleSendLocation = () => {
+    if (!currentUser) return;
     if (location) {
-        router.push(`/map?lat=${location.latitude}&lon=${location.longitude}&from=chat`);
+        const locationMessage: Message = {
+            id: `msg-${Date.now()}`,
+            text: 'Геопозиция',
+            timestamp: Date.now(),
+            senderId: currentUser.id,
+            status: 'sent',
+            location: {
+                latitude: location.latitude,
+                longitude: location.longitude,
+            }
+        };
+        setMessages(prev => [...prev, locationMessage]);
+        // Simulate sending
+        setTimeout(() => {
+            setMessages(prev => prev.map(m => m.id === locationMessage.id ? {...m, status: 'read'} : m));
+        }, 500);
+
     } else {
         toast({ title: 'Не удалось определить геопозицию', description: 'Попробуйте еще раз позже.', variant: 'destructive'});
     }
@@ -447,9 +464,3 @@ export default function ConversationPage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
