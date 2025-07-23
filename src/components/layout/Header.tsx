@@ -75,7 +75,7 @@ const defaultHeader = (
     </>
 );
 
-const HeaderWithBackButton = ({ titleKey, showMapButton }: { titleKey: string, showMapButton?: boolean }) => {
+const HeaderWithBackButton = ({ titleKey, showMapButton }: { titleKey?: string, showMapButton?: boolean }) => {
     const router = useRouter();
     const t = useTranslation();
     const handleBack = () => {
@@ -88,7 +88,7 @@ const HeaderWithBackButton = ({ titleKey, showMapButton }: { titleKey: string, s
                     <BackButton onClick={handleBack} srText={t('back')} />
                 )}
              </div>
-             <span className="text-xl font-headline text-foreground">{t(titleKey)}</span>
+             {titleKey && <span className="text-xl font-headline text-foreground">{t(titleKey as any)}</span>}
          </div>
     );
 };
@@ -200,21 +200,28 @@ export function Header() {
             );
         } else if (pathname.startsWith('/profile/edit')) {
             setHeaderContent(<HeaderWithBackButton titleKey="editProfile" />);
-        } else if (pathname.startsWith('/settings/')) {
-            let titleKey = "settings";
-            if (pathname.includes('account')) titleKey = "account";
-            if (pathname.includes('help')) titleKey = "help";
-            if (pathname.includes('notifications')) titleKey = "notifications";
-            if (pathname.includes('language')) titleKey = "language";
-            if (pathname.includes('rate')) titleKey = "rateApp";
-            if (pathname.includes('about')) titleKey = "aboutApp";
-            if (pathname.includes('premium')) titleKey = "premium";
+        } else if (pathname.startsWith('/settings')) {
+            let titleKey: string | undefined = undefined;
+            if (pathname !== '/settings') {
+                titleKey = "settings";
+                if (pathname.includes('account')) titleKey = "account";
+                if (pathname.includes('help')) titleKey = "help";
+                if (pathname.includes('notifications')) titleKey = "notifications";
+                if (pathname.includes('language')) titleKey = "language";
+                if (pathname.includes('rate')) titleKey = "rateApp";
+                if (pathname.includes('about')) titleKey = "aboutApp";
+                if (pathname.includes('premium')) titleKey = "premium";
+            }
             
             const fromMapOrPremium = shouldShowMapButton || !!fromParam;
-            setHeaderContent(<HeaderWithBackButton titleKey={titleKey} showMapButton={fromMapOrPremium} />);
+            if (fromMapOrPremium) {
+                setHeaderContent(<HeaderWithBackButton titleKey={titleKey} showMapButton={fromMapOrPremium} />);
+            } else if (titleKey) {
+                setHeaderContent(<HeaderWithBackButton titleKey={titleKey} />);
+            } else {
+                setHeaderContent(<div />);
+            }
 
-        } else if (pathname === '/settings') {
-            setHeaderContent(<div />);
         } else {
             setHeaderContent(defaultHeader);
         }
