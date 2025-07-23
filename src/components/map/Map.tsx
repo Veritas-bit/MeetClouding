@@ -71,6 +71,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
             gradientDef: `
                 <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(30)">
                     <stop offset="30%" style="stop-color:black;" />
+                    <stop offset="30%" style="stop-color:${color};" />
                     <stop offset="60%" style="stop-color:${color};" />
                     <stop offset="85%" style="stop-color:black;" />
                     <stop offset="100%" style="stop-color:${color};" />
@@ -97,7 +98,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
             >
               <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}" stroke="${strokeColor}" stroke-width="2.5"/>
             </g>
-            ${marker.userId !== '0' ? genderSticker : ''}
+            ${genderSticker}
             ${premiumGem}
         </svg>
     `;
