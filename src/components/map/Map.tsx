@@ -54,7 +54,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
                     </linearGradient>
                 </defs>
                 <circle cx="12" cy="12" r="12" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})"/>
-                <path d="M9 2L7 9H2l5 4-2 7 7-5 7 5-2-7 5-4h-5L15 2z" transform="translate(2.5, 2.5) scale(0.7)" fill="white"/>
+                <path d="M9.7,14.3,6.47,12.05,4,14.45,2.15,11.32l-1.9,3.13L2.5,21.5,4.87,23,8,22.3,10.6,23,12.5,21.5l2.25-7.07-1.9-3.13Z" transform="translate(4, -2) scale(0.8)" fill="white"/>
             </svg>
         </g>
     ` : '';
@@ -73,10 +73,10 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
         return {
             gradientDef: `
                 <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" style="stop-color:${colors.c1};" />
+                    <stop offset="25%" style="stop-color:${colors.c1};" />
                     <stop offset="40%" style="stop-color:${colors.c2};" />
                     <stop offset="60%" style="stop-color:${colors.c2};" />
-                    <stop offset="100%" style="stop-color:${colors.c1};" />
+                    <stop offset="75%" style="stop-color:${colors.c1};" />
                 </linearGradient>
             `,
             gradientUrl: `url(#${gradientId})`
