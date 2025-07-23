@@ -217,34 +217,33 @@ export function ChatAttachmentModal({ onClose, onMediaSend }: ChatAttachmentModa
         
         if (activeView === 'gallery') {
             return (
-                <div className="flex flex-col h-full w-full">
-                    {/* Gallery Grid */}
-                    <div className="flex-grow p-4 overflow-y-auto">
-                        <div className="p-px rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 h-full">
-                            <div className="bg-black/50 rounded-[7px] h-full p-2 overflow-y-auto">
-                                {galleryImages.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full">
-                                        <p>Ваша галерея пуста.</p>
-                                        <p className="text-sm">Загрузите фото или видео, чтобы они появились здесь.</p>
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
-                                        {galleryImages.map((media, index) => (
-                                            <div key={index} className="relative aspect-square w-full cursor-pointer" onClick={() => setSelectedMedia(media)}>
-                                                <Image src={media.src} alt={`Gallery item ${index}`} layout="fill" objectFit="cover" className="rounded" />
-                                                {media.type === 'video' && <div className="absolute inset-0 bg-black/30 flex items-center justify-center"><Circle className="h-8 w-8 text-white fill-white" /></div>}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                <div className="flex flex-col h-full w-full p-4">
+                    <div className="relative flex-grow p-px rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20">
+                        <div className="bg-black/50 rounded-[7px] h-full p-2 overflow-y-auto">
+                            {galleryImages.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full">
+                                    <p>Ваша галерея пуста.</p>
+                                    <p className="text-sm">Загрузите фото или видео, чтобы они появились здесь.</p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1">
+                                    {galleryImages.map((media, index) => (
+                                        <div key={index} className="relative aspect-square w-full cursor-pointer" onClick={() => setSelectedMedia(media)}>
+                                            <Image src={media.src} alt={`Gallery item ${index}`} layout="fill" objectFit="cover" className="rounded" />
+                                            {media.type === 'video' && <div className="absolute inset-0 bg-black/30 flex items-center justify-center"><Circle className="h-8 w-8 text-white fill-white" /></div>}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
-                    </div>
-                    {/* Upload Button */}
-                    <div className="flex-shrink-0 p-4 border-t">
-                        <Button variant="outline" className="w-full h-12 text-base" onClick={() => fileInputRef.current?.click()}>
-                            <Upload className="mr-2 h-4 w-4" />
-                            Загрузить с устройства
+                        <Button 
+                            size="icon"
+                            variant="secondary"
+                            className="absolute top-2 left-2 z-10 h-8 w-8 rounded-full" 
+                            onClick={() => fileInputRef.current?.click()}
+                        >
+                            <Upload className="h-4 w-4" />
+                            <span className="sr-only">Загрузить с устройства</span>
                         </Button>
                         <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" multiple onChange={handleFileSelect} />
                     </div>
