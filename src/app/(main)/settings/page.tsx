@@ -54,14 +54,14 @@ function ProfileSection() {
 
     return (
         <Card className="w-full max-w-md mx-auto mb-4 relative">
-            <Link href="/profile/edit" className="absolute top-2 right-2">
+            <Link href="/profile/edit" className="absolute top-2 right-2 z-10">
                 <Button variant="ghost" size="sm">
                     <Pencil className="mr-2 h-4 w-4" />
                     {t('edit')}
                 </Button>
             </Link>
-            <CardContent className="p-4 flex flex-col items-center">
-                 <div className="relative mt-8">
+            <CardContent className="p-2 flex flex-col items-center">
+                 <div className="relative mt-2">
                     <Avatar className="h-16 w-16 bg-muted/50 border-2 border-background">
                         {avatar ? (
                             <AvatarImage src={avatar} alt={nickname || "User Avatar"} />
@@ -72,7 +72,7 @@ function ProfileSection() {
                     </Avatar>
                 </div>
 
-                <div className="text-center mt-2 mb-2">
+                <div className="text-center mt-1">
                     <h1 className="text-md font-bold text-foreground flex items-center gap-2">
                         {nickname || t('user')}
                         {isPremium && <Gem className="h-4 w-4 text-primary" />}
@@ -80,10 +80,10 @@ function ProfileSection() {
                     <p className="text-xs text-muted-foreground">{getGenderText()}</p>
                 </div>
 
-                <Card className="bg-card/50 w-full">
-                    <CardContent className="px-3 pt-2 pb-3">
-                        <h2 className="text-sm font-semibold mt-1">{t('aboutSelf')}</h2>
-                        <p className="text-xs text-muted-foreground mt-1">
+                <Card className="bg-card/50 w-full mt-2">
+                    <CardContent className="p-2">
+                        <h2 className="text-sm font-semibold">{t('aboutSelf')}</h2>
+                        <p className="text-xs text-muted-foreground mt-0.5">
                         {about || t('infoNotProvided')}
                         </p>
                     </CardContent>
@@ -163,7 +163,7 @@ export default function SettingsPage() {
                 </Collapsible>
                 <Separator />
                 </div>
-                <div className="pt-4 px-2 pb-2">
+                <div className="pt-2 px-2 pb-2">
                     <Link 
                     href="/settings/premium"
                     className={cn(
@@ -176,7 +176,7 @@ export default function SettingsPage() {
                     </Link>
                 </div>
                 <Separator />
-                <div className="flex justify-center px-2 py-4">
+                <div className="flex justify-center px-2 py-2">
                 <Button 
                     variant="destructive" 
                     className="w-auto px-8"
