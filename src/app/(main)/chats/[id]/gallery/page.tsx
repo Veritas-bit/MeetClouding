@@ -7,7 +7,7 @@ import { Upload, Send, X } from 'lucide-react';
 import { useRef, type ChangeEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogClose } from '@/components/ui/dialog';
 
 interface GalleryImage {
     id: string;
@@ -16,22 +16,9 @@ interface GalleryImage {
     hint: string;
 }
 
-const initialImages: GalleryImage[] = [
-    { id: '1', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 1', hint: 'abstract gradient' },
-    { id: '2', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 2', hint: 'city skyline' },
-    { id: '3', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 3', hint: 'forest path' },
-    { id: '4', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 4', hint: 'ocean waves' },
-    { id: '5', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 5', hint: 'mountain peak' },
-    { id: '6', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 6', hint: 'night sky' },
-    { id: '7', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 7', hint: 'desert dunes' },
-    { id: '8', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 8', hint: 'modern architecture' },
-    { id: '9', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 9', hint: 'wildlife photography' },
-    { id: '10', src: 'https://placehold.co/400x400.png', alt: 'Placeholder 10', hint: 'cozy cafe' },
-];
-
 export default function GalleryPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [images, setImages] = useState<GalleryImage[]>(initialImages);
+    const [images, setImages] = useState<GalleryImage[]>([]);
     const [previewImage, setPreviewImage] = useState<GalleryImage | null>(null);
     const router = useRouter();
     const { toast } = useToast();
