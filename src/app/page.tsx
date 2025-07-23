@@ -14,24 +14,28 @@ export default function WelcomePage() {
   const router = useRouter();
   const { isRegistered, checkRegistration } = useProfileStore();
   const t = useTranslation();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // This is the only place we should check registration status at startup.
     checkRegistration();
+    
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, [checkRegistration]);
 
 
   useEffect(() => {
-    // If registration status becomes true, redirect to the main app.
+    if (isLoading) return;
+
     if (isRegistered === true) {
       router.replace('/main');
     } 
-  }, [isRegistered, router]);
+  }, [isRegistered, router, isLoading]);
 
-  // While isRegistered is `null`, we are waiting for the store to rehydrate.
-  // Show a loader to prevent flicker. This also covers the brief moment
-  // before a registered user is redirected.
-  if (isRegistered === null || isRegistered === true) {
+  if (isLoading || isRegistered === null || isRegistered === true) {
     return <FullScreenLoader text={isRegistered ? t('signingIn') : t('loading')} />;
   }
 
