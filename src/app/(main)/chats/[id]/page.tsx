@@ -329,29 +329,31 @@ export default function ConversationPage() {
           )}
         >
           <div className="relative flex items-center bg-muted/50 rounded-[7px]">
-              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
-                  <ShieldAlert className="h-6 w-6 text-muted-foreground" />
-              </Button>
-              <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
-                  <UserPlus className="h-6 w-6 text-muted-foreground" />
-              </Button>
-              <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className="flex">
+                  <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
+                      <ShieldAlert className="h-6 w-6 text-muted-foreground" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
+                      <UserPlus className="h-6 w-6 text-muted-foreground" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
                       <FileImage className="h-6 w-6 text-muted-foreground" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent side="top" align="start" className="w-56">
-                    <DropdownMenuItem onClick={() => setIsAttachmentModalOpen(true)}>
-                      <Video className="mr-2 h-4 w-4" />
-                      <span>Фото или видео</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleSendLocation}>
-                      <MapPin className="mr-2 h-4 w-4" />
-                      <span>Геопозиция</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-              </DropdownMenu>
+                  </Button>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-56 mb-1">
+                <DropdownMenuItem onClick={() => setIsAttachmentModalOpen(true)}>
+                  <Video className="mr-3 h-5 w-5" />
+                  <span>Фото или видео</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSendLocation}>
+                  <MapPin className="mr-3 h-5 w-5" />
+                  <span>Геопозиция</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
               <div className="w-px h-6 bg-border"></div>
               <Textarea
@@ -452,3 +454,4 @@ export default function ConversationPage() {
     
 
     
+
