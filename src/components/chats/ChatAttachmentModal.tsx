@@ -94,7 +94,7 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
                     // Add to in-app gallery, prevent duplicates
                     setGalleryImages(prev => {
                         if (prev.some(p => p.src === newMedia.src)) return prev;
-                        return [...prev, newMedia];
+                        return [newMedia, ...prev];
                     });
                 };
                 reader.readAsDataURL(file);
@@ -225,21 +225,26 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
         return (
             <div className="flex flex-col h-full w-full">
                 {activeView === 'gallery' && (
-                    <div className="flex-grow flex flex-col p-4">
-                        <div className="grid grid-cols-3 gap-1 flex-grow overflow-y-auto">
-                            {galleryImages.map((media, index) => (
-                                <div key={index} className="relative aspect-square w-full cursor-pointer" onClick={() => setSelectedMedia(media)}>
-                                    <Image src={media.src} alt={`Gallery item ${index}`} layout="fill" objectFit="cover" className="rounded" />
-                                    {media.type === 'video' && <div className="absolute inset-0 bg-black/30 flex items-center justify-center"><Circle className="h-8 w-8 text-white fill-white" /></div>}
-                                </div>
-                            ))}
-                        </div>
-                        {galleryImages.length === 0 && (
-                            <div className="flex flex-col items-center justify-center text-center text-muted-foreground flex-grow">
-                                <p>Ваша галерея пуста.</p>
-                                <p className="text-sm">Загрузите фото или видео, чтобы они появились здесь.</p>
+                     <div className="flex-grow flex flex-col p-4 overflow-hidden">
+                        <div className="flex-grow p-px rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 m-[3%]">
+                            <div className="bg-primary/10 rounded-[7px] h-full p-2 overflow-y-auto">
+                                {galleryImages.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full">
+                                        <p>Ваша галерея пуста.</p>
+                                        <p className="text-sm">Загрузите фото или видео.</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-3 gap-1">
+                                        {galleryImages.map((media, index) => (
+                                            <div key={index} className="relative aspect-square w-full cursor-pointer" onClick={() => setSelectedMedia(media)}>
+                                                <Image src={media.src} alt={`Gallery item ${index}`} layout="fill" objectFit="cover" className="rounded" />
+                                                {media.type === 'video' && <div className="absolute inset-0 bg-black/30 flex items-center justify-center"><Circle className="h-8 w-8 text-white fill-white" /></div>}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
                         <div className="mt-4 flex-shrink-0">
                             <Button variant="outline" className="w-full h-12 text-base" onClick={() => fileInputRef.current?.click()}>
                                 <Upload className="mr-2 h-4 w-4" />
@@ -376,3 +381,5 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
         </Dialog>
     );
 }
+
+    
