@@ -136,7 +136,7 @@ export function WantSheet() {
                         className="flex-1 max-h-24 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
                     />
                     <Button
-                        className="shrink-0"
+                        className="shrink-0 hover:bg-transparent active:bg-transparent"
                         size="icon"
                         variant="ghost"
                         onClick={handleNext}
