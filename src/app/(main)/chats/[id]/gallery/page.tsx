@@ -64,10 +64,8 @@ export default function GalleryPage() {
 
     const handleSendImage = () => {
         if (!previewImage) return;
-        // Here you would typically handle sending the image to the chat
-        // For now, we'll just show a toast and navigate back
-        toast({ title: 'Изображение отправлено!', description: 'Оно скоро появится в чате.' });
-        setPreviewImage(null);
+        // Store image in session storage to be picked up by the chat page
+        sessionStorage.setItem('pending-image-to-send', previewImage.src);
         router.back();
     };
 

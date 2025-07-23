@@ -106,6 +106,18 @@ export default function ConversationPage() {
     requestLocation();
   }, [requestLocation]);
 
+  // Check for sent image from gallery
+  useEffect(() => {
+    const pendingImage = sessionStorage.getItem('pending-image-to-send');
+    if (pendingImage && currentUser) {
+        handleMediaSend({ src: pendingImage, type: 'image' }, 'gallery');
+        sessionStorage.removeItem('pending-image-to-send');
+    }
+  // We only want to run this once on mount, but need currentUser to be available
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser]);
+
+
   // Auto-scroll to bottom on new message
   useEffect(() => {
     if (viewportRef.current) {
