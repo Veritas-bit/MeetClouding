@@ -56,19 +56,15 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     const deltaX = e.targetTouches[0].clientX - touchStartRef.current;
     
-    // Clamp the swipe distance to a maximum of 10% of the element's width
     const maxSwipe = itemRef.current ? itemRef.current.offsetWidth * 0.10 : 50;
-    
-    // Allow slightly more swipe to ensure the action threshold can be met
     const overSwipe = 40;
     const clampedSwipeX = Math.max(-(maxSwipe + overSwipe), Math.min(maxSwipe + overSwipe, deltaX));
 
     setSwipeX(clampedSwipeX);
 
-    // Only show the background if the swipe is more than 2% of the element width
-    const threshold = itemRef.current ? itemRef.current.offsetWidth * 0.02 : 5;
-    if (Math.abs(deltaX) > threshold) {
-        // Limit visual background width to not exceed the max swipe
+    // Background appears only after swiping half the available distance
+    const backgroundThreshold = itemRef.current ? (itemRef.current.offsetWidth * 0.10) / 2 : 25;
+    if (Math.abs(deltaX) > backgroundThreshold) {
         const bgWidth = Math.min(Math.abs(deltaX), maxSwipe + overSwipe);
         setActionBackgroundWidth(bgWidth);
     } else {
@@ -95,18 +91,17 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
       }
     } 
     
-    // Always animate back to 0 at the end of the swipe if no action was taken
     setSwipeX(0);
     setActionBackgroundWidth(0);
   };
 
   return (
     <div className="relative overflow-hidden bg-background">
-       {/* Delete Background - only shows on left swipe */}
+       {/* Delete Background */}
        <div className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" style={{ width: `${swipeX < 0 ? actionBackgroundWidth : 0}px` }}>
             <Trash2 className="h-6 w-6 text-destructive-foreground" />
        </div>
-       {/* Pin Background - only shows on right swipe */}
+       {/* Pin Background */}
        <div className="absolute inset-y-0 left-0 flex items-center justify-start bg-primary pl-6" style={{ width: `${swipeX > 0 ? actionBackgroundWidth : 0}px` }}>
             <Pin className="h-6 w-6 text-primary-foreground" />
        </div>
