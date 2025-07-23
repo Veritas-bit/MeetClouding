@@ -17,7 +17,7 @@ import type { Gender } from '@/lib/profile-store';
 import { MaleIcon } from '@/components/icons/gender/MaleIcon';
 import { FemaleIcon } from '@/components/icons/gender/FemaleIcon';
 import { NeuterIcon } from '@/components/icons/gender/NeuterIcon';
-import { GradientBorderCloudIcon } from '../icons/GradientBorderCloudIcon';
+import { GradientBorderCloudIcon } from '@/components/icons/GradientBorderCloudIcon';
 
 
 interface MessageItemProps {
