@@ -40,7 +40,6 @@ const GenderAvatar = ({ gender }: { gender: Gender }) => {
 
 export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCount, avatarHint, isOnline, gender, onDelete, onPin, isPinned }: ChatItemProps) {
   const [swipeX, setSwipeX] = useState(0);
-  const [actionBackgroundWidth, setActionBackgroundWidth] = useState(0);
   const touchStartRef = useRef(0);
   const itemRef = useRef<HTMLDivElement>(null);
   const isActionTriggeredRef = useRef(false);
@@ -56,20 +55,12 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     const deltaX = e.targetTouches[0].clientX - touchStartRef.current;
     
+    // Allow swiping up to 10% of the item's width + a small over-swipe effect
     const maxSwipe = itemRef.current ? itemRef.current.offsetWidth * 0.10 : 50;
     const overSwipe = 40;
     const clampedSwipeX = Math.max(-(maxSwipe + overSwipe), Math.min(maxSwipe + overSwipe, deltaX));
 
     setSwipeX(clampedSwipeX);
-
-    // Background appears only after swiping half the available distance
-    const backgroundThreshold = itemRef.current ? (itemRef.current.offsetWidth * 0.10) / 2 : 25;
-    if (Math.abs(deltaX) > backgroundThreshold) {
-        const bgWidth = Math.min(Math.abs(deltaX), maxSwipe + overSwipe);
-        setActionBackgroundWidth(bgWidth);
-    } else {
-        setActionBackgroundWidth(0);
-    }
   };
 
   const handleTouchEnd = () => {
@@ -77,12 +68,11 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
         itemRef.current.style.transition = 'transform 0.2s ease-out';
     }
     
-    const actionThreshold = 80; // This remains the threshold to ACTUALLY trigger the action
+    const actionThreshold = 80; 
     if (swipeX < -actionThreshold) { // Swipe Left (Delete)
       if (!isActionTriggeredRef.current) {
         isActionTriggeredRef.current = true;
-        setSwipeX(-window.innerWidth); // Animate out
-        setTimeout(() => onDelete(id), 200);
+        onDelete(id);
       }
     } else if (swipeX > actionThreshold) { // Swipe Right (Pin)
        if (!isActionTriggeredRef.current) {
@@ -92,17 +82,18 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
     } 
     
     setSwipeX(0);
-    setActionBackgroundWidth(0);
   };
+
+  const backgroundWidth = Math.abs(swipeX);
 
   return (
     <div className="relative overflow-hidden bg-background">
        {/* Delete Background */}
-       <div className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" style={{ width: `${swipeX < 0 ? actionBackgroundWidth : 0}px` }}>
+       <div className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" style={{ width: `${swipeX < 0 ? backgroundWidth : 0}px` }}>
             <Trash2 className="h-6 w-6 text-destructive-foreground" />
        </div>
        {/* Pin Background */}
-       <div className="absolute inset-y-0 left-0 flex items-center justify-start bg-primary pl-6" style={{ width: `${swipeX > 0 ? actionBackgroundWidth : 0}px` }}>
+       <div className="absolute inset-y-0 left-0 flex items-center justify-start bg-primary pl-6" style={{ width: `${swipeX > 0 ? backgroundWidth : 0}px` }}>
             <Pin className="h-6 w-6 text-primary-foreground" />
        </div>
 
