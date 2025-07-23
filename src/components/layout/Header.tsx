@@ -223,9 +223,11 @@ export function Header() {
         } else if (pathname.startsWith('/profile/edit')) {
             setHeaderContent(<HeaderWithBackButton titleKey="editProfile" />);
         } else if (pathname.startsWith('/settings')) {
-            const fromMapOrPremium = shouldShowMapButton || !!fromParam;
-            if (fromMapOrPremium || pathname !== '/settings') {
-                let titleKey: string | undefined = undefined;
+            const isPremiumFromSearch = pathname.includes('/premium') && (fromParam === 'search' || fromParam === 'categorize');
+            const showMapButton = shouldShowMapButton && !isPremiumFromSearch;
+            
+            if (showMapButton || pathname !== '/settings') {
+                 let titleKey: string | undefined = undefined;
                 if (pathname !== '/settings') {
                     titleKey = "settings";
                     if (pathname.includes('account')) titleKey = "account";
@@ -236,7 +238,7 @@ export function Header() {
                     if (pathname.includes('about')) titleKey = "aboutApp";
                     if (pathname.includes('premium')) titleKey = "premium";
                 }
-                setHeaderContent(<HeaderWithBackButton titleKey={titleKey} showMapButton={fromMapOrPremium} />);
+                setHeaderContent(<HeaderWithBackButton titleKey={titleKey} showMapButton={showMapButton} />);
             } else {
                 setHeaderContent(<div />);
             }
