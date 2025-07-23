@@ -26,7 +26,22 @@ interface MapProps {
 }
 
 const getPlacemarkLayout = (marker: MarkerInfo): string => {
-    const color = marker.color || '#FF7F50';
+    let color = marker.color || '#FF7F50';
+    let glowStdDeviation = '6';
+
+    if (marker.userId === '0') {
+        // Increase lightness by 30%
+        const hslMatch = color.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/);
+        if (hslMatch) {
+            const h = hslMatch[1];
+            const s = hslMatch[2];
+            let l = parseInt(hslMatch[3], 10);
+            l = Math.min(100, l + 30); // Add 30 to lightness and cap at 100
+            color = `hsl(${h}, ${s}%, ${l}%)`;
+        }
+        // Increase glow effect size
+        glowStdDeviation = '10';
+    }
     
     const premiumGem = marker.isPremium ? `
     <g transform="translate(68, 25) scale(0.6)">
@@ -45,20 +60,20 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     
     const getGenderGradient = (gender: Gender) => {
         const gradientId = `gender-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}`;
-        let color: string;
+        let genderColor: string;
         if (gender === 'male') {
-            color = '#00BFFF'; // blue
+            genderColor = '#00BFFF'; // blue
         } else if (gender === 'female') {
-            color = '#FF69B4'; // pink
+            genderColor = '#FF69B4'; // pink
         } else {
-            color = '#C0C0C0'; // Neutral silver
+            genderColor = '#C0C0C0'; // Neutral silver
         }
         
         return {
             gradientDef: `
                  <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" style="stop-color:black;"></stop>
-                    <stop offset="50%" style="stop-color:${color};"></stop>
+                    <stop offset="50%" style="stop-color:${genderColor};"></stop>
                     <stop offset="100%" style="stop-color:black;"></stop>
                 </linearGradient>
             `,
@@ -73,7 +88,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
         <svg width="40" height="30" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-20px, -30px); overflow: visible;">
             <defs>
                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="${color}" flood-opacity="1"/>
+                    <feDropShadow dx="0" dy="0" stdDeviation="${glowStdDeviation}" flood-color="${marker.color || '#FF7F50'}" flood-opacity="1"/>
                 </filter>
                 ${gradientDef}
             </defs>
