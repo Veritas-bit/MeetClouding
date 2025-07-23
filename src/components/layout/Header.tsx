@@ -191,7 +191,7 @@ export function Header() {
                         }}
                         className="w-auto"
                     >
-                        <TabsList>
+                        <TabsList className="bg-primary/10">
                             <TabsTrigger value="all">Чаты</TabsTrigger>
                             <TabsTrigger value="friends">Друзья</TabsTrigger>
                         </TabsList>
@@ -201,27 +201,23 @@ export function Header() {
         } else if (pathname.startsWith('/profile/edit')) {
             setHeaderContent(<HeaderWithBackButton titleKey="editProfile" />);
         } else if (pathname.startsWith('/settings')) {
-            let titleKey: string | undefined = undefined;
-            if (pathname !== '/settings') {
-                titleKey = "settings";
-                if (pathname.includes('account')) titleKey = "account";
-                if (pathname.includes('help')) titleKey = "help";
-                if (pathname.includes('notifications')) titleKey = "notifications";
-                if (pathname.includes('language')) titleKey = "language";
-                if (pathname.includes('rate')) titleKey = "rateApp";
-                if (pathname.includes('about')) titleKey = "aboutApp";
-                if (pathname.includes('premium')) titleKey = "premium";
-            }
-            
             const fromMapOrPremium = shouldShowMapButton || !!fromParam;
-            if (fromMapOrPremium) {
+            if (fromMapOrPremium || pathname !== '/settings') {
+                let titleKey: string | undefined = undefined;
+                if (pathname !== '/settings') {
+                    titleKey = "settings";
+                    if (pathname.includes('account')) titleKey = "account";
+                    if (pathname.includes('help')) titleKey = "help";
+                    if (pathname.includes('notifications')) titleKey = "notifications";
+                    if (pathname.includes('language')) titleKey = "language";
+                    if (pathname.includes('rate')) titleKey = "rateApp";
+                    if (pathname.includes('about')) titleKey = "aboutApp";
+                    if (pathname.includes('premium')) titleKey = "premium";
+                }
                 setHeaderContent(<HeaderWithBackButton titleKey={titleKey} showMapButton={fromMapOrPremium} />);
-            } else if (titleKey) {
-                setHeaderContent(<HeaderWithBackButton titleKey={titleKey} />);
             } else {
                 setHeaderContent(<div />);
             }
-
         } else {
             setHeaderContent(defaultHeader);
         }
