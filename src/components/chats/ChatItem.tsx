@@ -54,8 +54,16 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
 
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     const deltaX = e.targetTouches[0].clientX - touchStartRef.current;
-    // Allow swiping in both directions
-    setSwipeX(deltaX);
+    
+    // Threshold to prevent showing background on simple clicks
+    if (itemRef.current) {
+        const activationThreshold = itemRef.current.offsetWidth * 0.02; 
+        if (Math.abs(deltaX) > activationThreshold) {
+            setSwipeX(deltaX);
+        }
+    } else {
+        setSwipeX(deltaX);
+    }
   };
 
   const handleTouchEnd = () => {
