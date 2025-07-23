@@ -400,7 +400,7 @@ export default function ConversationPage() {
                     <DialogClose asChild>
                         <Button type="button" variant="default" className="max-w-[40%]">Отмена</Button>
                     </DialogClose>
-                    <Button type="submit" variant="destructive" className="max-w-[40%]" onClick={handleReport} disabled={selectedReportReasons.length === 0}>Отправить жалобу</Button>
+                    <Button type="submit" variant="destructive" className="max-w-[50%]" onClick={handleReport} disabled={selectedReportReasons.length === 0}>Отправить жалобу</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
