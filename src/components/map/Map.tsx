@@ -27,31 +27,18 @@ interface MapProps {
 
 const getPlacemarkLayout = (marker: MarkerInfo): string => {
     const color = marker.color || '#FF7F50';
-    const getDarkerColor = (hslColor: string) => {
-        if (!hslColor || !hslColor.startsWith('hsl')) return hslColor;
-        try {
-            const parts = hslColor.match(/(\d+(\.\d+)?)/g);
-            if (!parts || parts.length < 3) return hslColor;
-            const [h, s, l] = parts.map(Number);
-            const newL = Math.max(0, l - 15);
-            return `hsl(${h}, ${s}%, ${newL}%)`;
-        } catch (e) {
-            return hslColor; // fallback
-        }
-    };
-    const strokeColor = getDarkerColor(color);
     
     const premiumGem = marker.isPremium ? `
-        <g transform="translate(68, 25) scale(0.6)">
-            <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(28, 1) scale(0.6)">
+             <svg viewBox="0 0 24 24" width="24" height="24" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <linearGradient id="gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:hsl(var(--primary));stop-opacity:1"></stop>
                         <stop offset="100%" style="stop-color:hsl(var(--secondary));stop-opacity:1"></stop>
                     </linearGradient>
                 </defs>
-                <circle cx="12" cy="12" r="12" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})"/>
-                <path d="M9.7,14.3,6.47,12.05,4,14.45,2.15,11.32l-1.9,3.13L2.5,21.5,4.87,23,8,22.3,10.6,23,12.5,21.5l2.25-7.07-1.9-3.13Z" transform="translate(4, -2) scale(0.8)" fill="white"/>
+                <path d="M1.38,12.21,11.5,2.1a.5.5,0,0,1,.7,0L22.32,12.21a.5.5,0,0,1-.35.85H1.73a.5.5,0,0,1-.35-.85Z" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})"/>
+                <path d="M1.73,13.06h20.24l-4.7-5.45a.5.5,0,0,0-.7,0l-4.27,4.27a.5.5,0,0,1-.7,0L7.33,7.61a.5.5,0,0,0-.7,0l-4.9,5.45Z" fill="url(#gem-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')})" opacity="0.5"/>
             </svg>
         </g>
     ` : '';
@@ -72,9 +59,10 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
                 <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%" gradientTransform="rotate(30)">
                     <stop offset="30%" style="stop-color:black;" />
                     <stop offset="30%" style="stop-color:${color};" />
-                    <stop offset="60%" style="stop-color:${color};" />
+                    <stop offset="70%" style="stop-color:${color};" />
+                    <stop offset="70%" style="stop-color:black;" />
                     <stop offset="85%" style="stop-color:black;" />
-                    <stop offset="100%" style="stop-color:${color};" />
+                    <stop offset="85%" style="stop-color:${color};" />
                 </linearGradient>
             `,
             gradientUrl: `url(#${gradientId})`
@@ -82,10 +70,10 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     }
 
     const { gradientDef, gradientUrl } = getGenderGradient(marker.gender);
-    const genderSticker = `<circle cx="65" cy="35" r="15" fill="${gradientUrl}" stroke="black" stroke-width="0.5"/>`;
+    const genderSticker = `<circle cx="31" cy="9" r="6" fill="${gradientUrl}" stroke="black" stroke-width="0.5"/>`;
 
     const cloudSvg = `
-        <svg width="40" height="30" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-20px, -30px); overflow: visible;">
+        <svg width="20" height="15" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-10px, -15px); overflow: visible;">
             <defs>
                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                     <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="${color}" flood-opacity="1"/>
@@ -96,7 +84,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
                 style="${marker.userId === '0' ? `filter: url(#glow);` : ''}"
                 transform="${marker.userId === '0' ? 'scale(1)' : 'scale(1)'}"
             >
-              <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}" stroke="${strokeColor}" stroke-width="2.5"/>
+              <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}" stroke="hsl(320, 100%, 40%)" stroke-width="2.5"/>
             </g>
             ${genderSticker}
             ${premiumGem}
@@ -140,7 +128,13 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
   return (
     <div className={cn("w-full h-full", className)}>
         <YMapComponentsProvider apiKey={mapApiKey} lang="ru_RU">
-            <YMap location={location} mode="vector" theme={isDarkTheme ? 'dark' : 'light'} className="w-full h-full">
+            <YMap 
+                location={location} 
+                mode="vector" 
+                theme={isDarkTheme ? 'dark' : 'light'} 
+                className="w-full h-full"
+                behaviors={['drag', 'pinchZoom', 'pinchRotate', 'scrollZoom']}
+            >
                 <YMapDefaultSchemeLayer />
                 <YMapDefaultFeaturesLayer />
                 {onUpdate && <YMapListener onUpdate={({location}) => onUpdate(location)} />}
