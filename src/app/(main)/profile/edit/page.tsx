@@ -153,8 +153,8 @@ export default function EditProfilePage() {
 
   return (
     <ScrollArea className="h-full">
-      <div className="container mx-auto p-4 flex flex-col items-center pb-24">
-        <div className="relative mb-2">
+      <div className="container mx-auto p-4 flex flex-col items-center pb-20">
+        <div className="relative mb-1">
           <Avatar className="h-20 w-20 border-4 border-background bg-muted/50">
               {avatarPreview ? (
                   <AvatarImage src={avatarPreview} alt="User Avatar" />
@@ -174,15 +174,15 @@ export default function EditProfilePage() {
 
         <button
           onClick={handleAvatarChangeClick}
-          className="text-sm text-primary active:underline mb-4"
+          className="text-sm text-primary active:underline mb-3"
         >
           {t('changePhoto')}
         </button>
 
         <div className="w-full max-w-md">
           <Card className="bg-card/50">
-            <CardContent className="p-4 space-y-4">
-              <div className="space-y-2">
+            <CardContent className="p-3 space-y-3">
+              <div className="space-y-1.5">
                 <Label htmlFor="nickname">{t('nicknameLabel')}</Label>
                 <Input
                   id="nickname"
@@ -193,7 +193,7 @@ export default function EditProfilePage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2"
+                  className="mt-1"
                   onClick={handleGenerateNickname}
                   disabled={isGenerating}
                 >
@@ -206,7 +206,7 @@ export default function EditProfilePage() {
                 </Button>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label htmlFor="about">{t('aboutLabel')}</Label>
                 <Textarea
                   id="about"
@@ -218,7 +218,7 @@ export default function EditProfilePage() {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Label>{t('yourGenderLabel')}</Label>
                 <Collapsible open={isGenderOpen} onOpenChange={setIsGenderOpen} className="relative">
                   <CollapsibleTrigger asChild>
