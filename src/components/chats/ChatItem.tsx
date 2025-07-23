@@ -56,12 +56,13 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     const deltaX = e.targetTouches[0].clientX - touchStartRef.current;
     
+    // Clamp the swipe distance to a maximum of 10% of the element's width
     const maxSwipe = itemRef.current ? itemRef.current.offsetWidth * 0.10 : 50;
-    const threshold = itemRef.current ? itemRef.current.offsetWidth * 0.02 : 0;
-    
     const clampedSwipeX = Math.max(-maxSwipe, Math.min(maxSwipe, deltaX));
     setSwipeX(clampedSwipeX);
 
+    // Only show the background if the swipe is more than 2% of the element width
+    const threshold = itemRef.current ? itemRef.current.offsetWidth * 0.02 : 0;
     if (Math.abs(clampedSwipeX) > threshold) {
         setActionBackgroundWidth(Math.abs(clampedSwipeX));
     } else {
