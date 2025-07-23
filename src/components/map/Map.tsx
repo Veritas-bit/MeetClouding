@@ -58,13 +58,40 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
             </svg>
         </g>
     ` : '';
+    
+    const getGenderGradient = (gender: Gender) => {
+        const gradientId = `gender-gradient-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}`;
+        let colors = { c1: '#333', c2: '#aaa', c3: '#333' }; // Neutral default
+        if (gender === 'male') {
+            colors = { c1: 'black', c2: '#00BFFF', c3: 'black' }; // black-blue-black
+        } else if (gender === 'female') {
+            colors = { c1: 'black', c2: '#FF69B4', c3: 'black' }; // black-pink-black
+        } else {
+            colors = { c1: 'black', c2: '#C0C0C0', c3: 'black' }; // black-silver-black
+        }
+        
+        return {
+            gradientDef: `
+                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:${colors.c1};" />
+                    <stop offset="50%" style="stop-color:${colors.c2};" />
+                    <stop offset="100%" style="stop-color:${colors.c3};" />
+                </linearGradient>
+            `,
+            gradientId
+        }
+    }
+
+    const { gradientDef, gradientId: genderGradientId } = getGenderGradient(marker.gender);
+    const genderSticker = `<circle cx="70" cy="48" r="8" fill="url(#${genderGradientId})" stroke="black" stroke-width="1"/>`;
 
     const cloudSvg = `
-        <svg width="80" height="50" viewBox="0 0 80 50" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-40px, -50px); overflow: visible;">
+        <svg width="80" height="60" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-40px, -60px); overflow: visible;">
             <defs>
                  <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
                     <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="${color}" flood-opacity="1"/>
                 </filter>
+                ${gradientDef}
             </defs>
             <g 
                 style="${marker.userId === '0' ? `filter: url(#glow);` : ''}"
@@ -72,6 +99,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
             >
               <path d="M64,15.5c-3.6-2.9-8.5-4.6-13.3-4.6c-11.8,0-22.5,5.8-28.9,15C20.9,26.1,20.2,26,19.5,26C8.7,26,0,34.7,0,45.5 S8.7,65,19.5,65h45.4c9.6,0,14.6-7.7,14.6-17.3S73.6,18.4,64,15.5z" transform="scale(0.8) translate(0, -10)" fill="${color}" stroke="${strokeColor}" stroke-width="2.5"/>
             </g>
+            ${marker.userId !== '0' ? genderSticker : ''}
             ${premiumGem}
         </svg>
     `;
