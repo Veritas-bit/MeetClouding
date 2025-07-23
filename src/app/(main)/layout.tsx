@@ -10,6 +10,7 @@ import { FullScreenLoader } from "@/components/common/FullScreenLoader";
 import { useLocationStore } from "@/lib/location-store";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTranslation } from "@/hooks/use-translation";
+import { cn } from "@/lib/utils";
 
 // Heavy components are now lazy-loaded where they are used.
 
@@ -23,6 +24,8 @@ export default function MainLayout({
   const { isRegistered, checkRegistration } = useProfileStore();
   const requestLocation = useLocationStore((state) => state.requestLocation);
   const t = useTranslation();
+
+  const showBottomNav = !pathname.includes('/gallery');
 
   useEffect(() => {
     // This is the key change: ensure we check registration status
@@ -57,8 +60,8 @@ export default function MainLayout({
   return (
     <div className="relative flex flex-col h-svh">
       <Header />
-      <main className="flex-grow overflow-y-auto pb-20">{children}</main>
-      <BottomNavBar />
+      <main className={cn("flex-grow overflow-y-auto", showBottomNav && "pb-20")}>{children}</main>
+      {showBottomNav && <BottomNavBar />}
     </div>
   );
 }
