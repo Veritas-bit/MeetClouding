@@ -40,6 +40,7 @@ const GenderAvatar = ({ gender }: { gender: Gender }) => {
 
 export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCount, avatarHint, isOnline, gender, onDelete, onPin, isPinned }: ChatItemProps) {
   const [swipeX, setSwipeX] = useState(0);
+  const [actionBackgroundWidth, setActionBackgroundWidth] = useState(0);
   const touchStartRef = useRef(0);
   const itemRef = useRef<HTMLDivElement>(null);
   const isActionTriggeredRef = useRef(false);
@@ -55,12 +56,17 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
   const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
     const deltaX = e.targetTouches[0].clientX - touchStartRef.current;
     
-    // Allow swipe only up to a certain percentage of the item width
     const maxSwipe = itemRef.current ? itemRef.current.offsetWidth * 0.10 : 50;
+    const threshold = itemRef.current ? itemRef.current.offsetWidth * 0.02 : 0;
     
-    // Clamp the swipe value
     const clampedSwipeX = Math.max(-maxSwipe, Math.min(maxSwipe, deltaX));
     setSwipeX(clampedSwipeX);
+
+    if (Math.abs(clampedSwipeX) > threshold) {
+        setActionBackgroundWidth(Math.abs(clampedSwipeX));
+    } else {
+        setActionBackgroundWidth(0);
+    }
   };
 
   const handleTouchEnd = () => {
@@ -78,23 +84,23 @@ export function ChatItem({ id, avatarUrl, name, lastMessage, timestamp, unreadCo
     } else if (swipeX > actionThreshold) { // Swipe Right (Pin)
        if (!isActionTriggeredRef.current) {
         isActionTriggeredRef.current = true;
-        setSwipeX(0); // Animate back
         onPin(id);
       }
-    } else {
-      // If the swipe was not enough to trigger an action, animate back to 0
-      setSwipeX(0);
-    }
+    } 
+    
+    // Always animate back to 0 at the end of the swipe if no action was taken
+    setSwipeX(0);
+    setActionBackgroundWidth(0);
   };
 
   return (
     <div className="relative overflow-hidden bg-background">
        {/* Delete Background - only shows on left swipe */}
-       <div className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" style={{ width: `${Math.max(0, -swipeX)}px` }}>
+       <div className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" style={{ width: `${swipeX < 0 ? actionBackgroundWidth : 0}px` }}>
             <Trash2 className="h-6 w-6 text-destructive-foreground" />
        </div>
        {/* Pin Background - only shows on right swipe */}
-       <div className="absolute inset-y-0 left-0 flex items-center justify-start bg-primary pl-6" style={{ width: `${Math.max(0, swipeX)}px` }}>
+       <div className="absolute inset-y-0 left-0 flex items-center justify-start bg-primary pl-6" style={{ width: `${swipeX > 0 ? actionBackgroundWidth : 0}px` }}>
             <Pin className="h-6 w-6 text-primary-foreground" />
        </div>
 
