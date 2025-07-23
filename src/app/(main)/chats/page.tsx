@@ -7,8 +7,10 @@ import type { ChatItemProps } from "@/components/chats/ChatItem";
 import { ChatList } from "@/components/chats/ChatList";
 import type { Gender } from "@/lib/profile-store";
 
+// We remove onDelete from the props type here, as it's handled internally by ChatList
+type ChatItemData = Omit<ChatItemProps, 'onDelete'>;
 
-function transformConversationToProps(conversation: Conversation, currentUser: User): ChatItemProps | null {
+function transformConversationToProps(conversation: Conversation, currentUser: User): ChatItemData | null {
     const otherParticipant = conversation.participants.find(p => p.id !== currentUser.id);
     if (!otherParticipant) return null;
 
@@ -39,8 +41,8 @@ export default async function ChatsPage({ searchParams }: { searchParams?: { [ke
   const mainConvs = allConversations.filter(c => c.id.startsWith('conv-'));
   const friendConvs = allConversations.filter(c => c.id.startsWith('friend-'));
 
-  const mainChatProps = mainConvs.map(c => transformConversationToProps(c, currentUser)).filter(Boolean) as ChatItemProps[];
-  const friendChatProps = friendConvs.map(c => transformConversationToProps(c, currentUser)).filter(Boolean) as ChatItemProps[];
+  const mainChatProps = mainConvs.map(c => transformConversationToProps(c, currentUser)).filter(Boolean) as ChatItemData[];
+  const friendChatProps = friendConvs.map(c => transformConversationToProps(c, currentUser)).filter(Boolean) as ChatItemData[];
 
   return <ChatList mainChats={mainChatProps} friendChats={friendChatProps} activeTab={activeTab} />;
 }
