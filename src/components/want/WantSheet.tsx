@@ -78,8 +78,13 @@ export function WantSheet() {
     <>
       {isLoading && <FullScreenLoader text={t('generatingWish')} />}
       <div className="flex flex-col h-full bg-background">
-        <SheetHeader>
-          <SheetTitle className="sr-only">{t('formulateWishTitle')}</SheetTitle>
+        <SheetHeader className="p-4 flex-row items-center justify-start">
+            <SheetClose asChild>
+              <Button variant="outline" size="lg" className="border-primary/50 text-foreground">
+                  {t('back')}
+              </Button>
+            </SheetClose>
+            <SheetTitle className="sr-only">{t('formulateWishTitle')}</SheetTitle>
         </SheetHeader>
         <div className="p-4 flex-grow flex flex-col justify-center items-center text-center">
           <h1 className="text-3xl font-bold font-headline text-primary mb-4">
@@ -132,14 +137,6 @@ export function WantSheet() {
                   <Send className="h-5 w-5" />
               </Button>
           </div>
-        </div>
-
-        <div className="absolute top-6 left-4">
-          <SheetClose asChild>
-              <Button variant="outline" size="lg" className="border-primary/50 text-foreground">
-                  {t('back')}
-              </Button>
-          </SheetClose>
         </div>
       </div>
     </>

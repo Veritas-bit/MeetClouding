@@ -175,10 +175,9 @@ export function Header() {
         } else if (pathname === '/chats') {
             const activeTab = searchParams.get('tab') === 'friends' ? 'friends' : 'all';
             setHeaderContent(
-                <div className="w-full h-full relative flex items-center justify-between">
-                    <div className="flex items-center">
+                <div className="w-full h-full relative flex items-center justify-end">
+                    <div className="absolute left-0">
                         {shouldShowMapButton && <BackToMapButton />}
-                        <span className="text-xl font-headline text-foreground">{t('chats')}</span>
                     </div>
                     <Tabs 
                         defaultValue={activeTab} 
@@ -199,7 +198,12 @@ export function Header() {
             setHeaderContent(<HeaderWithBackButton titleKey="editProfile" />);
         } else if (pathname === '/settings') {
              setHeaderContent(
-                <HeaderWithBackButton titleKey="settings" showMapButton={shouldShowMapButton} />
+                <div className="w-full h-full relative flex items-center justify-center">
+                    {shouldShowMapButton && <BackToMapButton />}
+                    <Button variant="ghost" size="icon" onClick={() => router.back()} className="text-foreground absolute left-0">
+                        <ArrowLeft className="h-6 w-6" />
+                    </Button>
+                </div>
              );
         } else if (pathname.startsWith('/settings/')) {
             let titleKey = "settings";
