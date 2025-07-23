@@ -15,11 +15,10 @@ export function NeuterIcon({ className }: { className?: string }) {
           <stop offset="100%" style={{ stopColor: "hsl(var(--secondary))", stopOpacity: 1 }} />
         </linearGradient>
       </defs>
-      <g transform="translate(1200 1200) scale(1, -1) translate(-1200 -1200)">
-        <path
-          d="M1200 600 C1000 600 850 700 750 850 C650 1000 600 1200 600 1400 C600 1600 650 1750 700 1850 L500 1850 L550 1950 L1850 1950 L1900 1850 L1700 1850 C1750 1750 1800 1600 1800 1400 C1800 1200 1750 1000 1650 850 C1550 700 1400 600 1200 600 Z M1200 800 C1350 800 1500 900 1550 1050 C1600 1200 1600 1400 1550 1500 C1500 1600 1350 1700 1200 1700 C1050 1700 900 1600 850 1500 C800 1400 800 1200 850 1050 C900 900 1050 800 1200 800 Z"
-          fill="black"
-        />
+       <circle cx="1200" cy="1200" r="1200" fill="url(#logo-gradient)" />
+      <g transform="translate(450, 450) scale(62.5)">
+        <path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" fill="black"/>
+        <path d="M20 20C20 16.6863 16.4183 14 12 14C7.58172 14 4 16.6863 4 20H20Z" fill="black"/>
       </g>
     </svg>
   );
