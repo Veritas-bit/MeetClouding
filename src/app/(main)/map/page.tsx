@@ -110,15 +110,16 @@ function MapContent() {
   useEffect(() => {
     const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
+    const fromChat = searchParams.get('from') === 'chat';
 
     // If map already initialized, do nothing.
     if (mapLocation) return;
     
     // If not a public link or search, and location/users aren't ready, wait.
-    if (!isPublished && (!location || allUsers.length === 0)) return;
+    if (!isPublished && !fromChat && (!location || allUsers.length === 0)) return;
     
     // If it is a public link but users aren't ready, wait.
-    if (isPublished && allUsers.length === 0) return;
+    if ((isPublished || fromChat) && allUsers.length === 0) return;
 
 
     // Set that user has interacted with map to show back button on other pages
@@ -128,24 +129,40 @@ function MapContent() {
     let initialCenter: { latitude: number, longitude: number };
     let initialMarkers: MarkerInfo[] = [];
 
-    if (isPublished) {
-        const lat = parseFloat(searchParams.get('lat') || '0');
-        const lon = parseFloat(searchParams.get('lon') || '0');
-        
-        // If lat/lon are invalid, don't render the map yet.
-        if (!lat || !lon) return;
+    const latParam = parseFloat(searchParams.get('lat') || '0');
+    const lonParam = parseFloat(searchParams.get('lon') || '0');
 
-        initialCenter = { latitude: lat, longitude: lon };
+    if (fromChat) {
+        if (!latParam || !lonParam) return;
+        initialCenter = { latitude: latParam, longitude: lonParam };
+        initialMarkers.push({
+            id: `user-location-${latParam}-${lonParam}`,
+            userId: '0', 
+            latitude: latParam,
+            longitude: lonParam,
+            message: 'Отправленная геопозиция',
+            categoryName: 'Геопозиция',
+            color: 'hsl(var(--accent))',
+            isPremium: false,
+            avatarUrl: avatar,
+            gender: gender,
+        });
+
+    } else if (isPublished) {
+        // If lat/lon are invalid, don't render the map yet.
+        if (!latParam || !lonParam) return;
+
+        initialCenter = { latitude: latParam, longitude: lonParam };
 
         const message = decodeURIComponent(searchParams.get('message') || '');
         const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
         const color = searchParams.get('color') || 'hsl(var(--primary))';
         
         const ownWishMarker: MarkerInfo = {
-            id: `user-wish-${lat}-${lon}`,
+            id: `user-wish-${latParam}-${lonParam}`,
             userId: '0', // Current user's wish
-            latitude: lat,
-            longitude: lon,
+            latitude: latParam,
+            longitude: lonParam,
             message,
             categoryName,
             color,

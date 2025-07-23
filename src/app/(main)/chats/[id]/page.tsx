@@ -51,6 +51,7 @@ const reportReasons = [
 
 export default function ConversationPage() {
   const params = useParams();
+  const router = useRouter();
   const { toast } = useToast();
 
   // Data state
@@ -268,9 +269,7 @@ export default function ConversationPage() {
 
   const handleSendLocation = () => {
     if (location) {
-        const locationUrl = `https://maps.google.com/?q=${location.latitude},${location.longitude}`;
-        sendTextMessage(`Моя геопозиция: ${locationUrl}`);
-        toast({ title: 'Геопозиция отправлена' });
+        router.push(`/map?lat=${location.latitude}&lon=${location.longitude}&from=chat`);
     } else {
         toast({ title: 'Не удалось определить геопозицию', description: 'Попробуйте еще раз позже.', variant: 'destructive'});
     }
@@ -454,4 +453,3 @@ export default function ConversationPage() {
     
 
     
-
