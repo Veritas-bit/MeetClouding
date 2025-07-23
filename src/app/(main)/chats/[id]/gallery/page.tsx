@@ -117,7 +117,7 @@ export default function GalleryPage() {
                    )}
                     <DialogFooter className="!flex-row !justify-center gap-4 p-4 bg-background w-full flex-shrink-0">
                         <DialogClose asChild>
-                            <Button variant="outline" className="w-full max-w-xs">
+                            <Button variant="outline" className="w-full max-w-xs" onClick={() => setPreviewImage(null)}>
                                 <X className="mr-2 h-4 w-4" />
                                 Отмена
                             </Button>
