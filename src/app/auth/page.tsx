@@ -51,7 +51,7 @@ export default function AuthPage() {
                 
                 <div className="w-full mt-8">
                     <Link href="/">
-                        <Button variant="outline" className="w-full h-12 text-base border-primary/50 text-foreground">
+                        <Button variant="outline" className="w-full justify-start pl-4 h-12 text-base border-primary/50 text-foreground">
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             {t('back')}
                         </Button>
