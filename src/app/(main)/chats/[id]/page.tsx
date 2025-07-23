@@ -341,7 +341,7 @@ export default function ConversationPage() {
                       <FileImage className="h-6 w-6 text-muted-foreground" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56">
+                  <DropdownMenuContent side="top" className="w-56">
                     <DropdownMenuItem onClick={() => setIsAttachmentModalOpen(true)}>
                       <Video className="mr-2 h-4 w-4" />
                       <span>Фото или видео</span>
@@ -446,6 +446,8 @@ export default function ConversationPage() {
     </div>
   );
 }
+
+    
 
     
 
