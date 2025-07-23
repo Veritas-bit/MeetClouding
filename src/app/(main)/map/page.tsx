@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useState, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useLocationStore } from '@/lib/location-store';
 import { WISH_CATEGORIES, WishCategoryKey, WISH_CATEGORY_KEYS } from '@/lib/categories';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
@@ -14,6 +14,8 @@ import { useTranslation } from '@/hooks/use-translation';
 import { getAllUsers } from '@/lib/mock-data';
 import type { User } from '@/lib/types';
 import type { YMapLocation } from 'ymap3-components';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 
 // Lazy load the MapComponent
@@ -86,6 +88,7 @@ const generateRandomMarkers = (center: { latitude: number, longitude: number }, 
 
 
 function MapContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslation();
   const { location, requestLocation } = useLocationStore();
@@ -97,6 +100,8 @@ function MapContent() {
   
   // Map view state
   const [mapLocation, setMapLocation] = useState<YMapLocation | null>(null);
+
+  const isFromChat = searchParams.get('from') === 'chat';
 
   useEffect(() => {
     // Request location only if not coming from a public link
@@ -207,6 +212,17 @@ function MapContent() {
 
   return (
     <div className="flex-grow w-full relative">
+        {isFromChat && (
+            <Button
+                variant="default"
+                size="icon"
+                className="absolute top-4 left-4 z-10 rounded-full h-12 w-12 shadow-lg"
+                onClick={() => router.back()}
+            >
+                <ArrowLeft className="h-6 w-6" />
+                <span className="sr-only">Назад в чат</span>
+            </Button>
+        )}
         <MapComponent 
             location={mapLocation} 
             markers={markers} 
