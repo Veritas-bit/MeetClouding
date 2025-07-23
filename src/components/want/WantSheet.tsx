@@ -10,7 +10,6 @@ import { SheetClose, SheetHeader, SheetTitle } from "../ui/sheet";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "../ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { GradientCloudIcon } from "../icons/GradientCloudIcon";
 import { FullScreenLoader } from "../common/FullScreenLoader";
 import { WISHES } from "@/lib/wishes";
 import { WISH_CATEGORY_KEYS, type WishCategoryKey } from "@/lib/categories";
@@ -113,30 +112,41 @@ export function WantSheet() {
 
 
         <div className="p-4 border-t bg-background mt-auto">
-          <div className="relative flex items-end gap-2">
-              <div className="p-2.5 pb-3 text-muted-foreground shrink-0 hidden sm:block">
-                  <GradientCloudIcon className="h-6 w-6" />
-              </div>
-              <Textarea
-                  ref={textareaRef}
-                  id="message" 
-                  placeholder={t('writeOwnOptionPlaceholder')} 
-                  rows={1}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="flex-1 pr-2 py-2.5 max-h-24"
-              />
-              <Button
-                  className="shrink-0"
-                  size="icon"
-                  onClick={handleNext}
-                  disabled={isSendDisabled}
-                  aria-label={t('nextButtonLabel')}
-              >
-                  <Send className="h-5 w-5" />
-              </Button>
-          </div>
+            <div
+                className={cn(
+                    "relative w-full rounded-lg p-px",
+                    "bg-gradient-to-r from-primary/30 to-secondary/30",
+                    "transition-all duration-300",
+                    "focus-within:from-primary/80 focus-within:to-secondary/80"
+                )}
+            >
+                <div className="relative flex items-center bg-muted/50 rounded-[7px]">
+                    <Textarea
+                        ref={textareaRef}
+                        placeholder={t('writeOwnOptionPlaceholder')}
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleNext();
+                            }
+                        }}
+                        rows={1}
+                        className="flex-1 max-h-24 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
+                    />
+                    <Button
+                        className="shrink-0"
+                        size="icon"
+                        variant="ghost"
+                        onClick={handleNext}
+                        disabled={isSendDisabled}
+                        aria-label={t('nextButtonLabel')}
+                    >
+                        <Send className={cn("h-5 w-5 text-muted-foreground", !isSendDisabled && "text-primary", "transition-colors")} />
+                    </Button>
+                </div>
+            </div>
         </div>
       </div>
     </>
