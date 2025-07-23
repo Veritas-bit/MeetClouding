@@ -217,8 +217,8 @@ export function ChatAttachmentModal({ onClose, onMediaSend }: ChatAttachmentModa
         
         if (activeView === 'gallery') {
             return (
-                <div className="flex flex-col h-full w-full p-4">
-                    <div className="relative flex-grow p-px rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 overflow-hidden">
+                <div className="flex flex-col h-full w-full p-4 pb-0">
+                    <div className="relative flex-grow p-px rounded-lg bg-gradient-to-r from-primary/20 to-secondary/20 overflow-hidden mb-4">
                         <div className="bg-black/50 rounded-[7px] h-full p-2 overflow-y-auto">
                             {galleryImages.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center text-center text-muted-foreground h-full">
