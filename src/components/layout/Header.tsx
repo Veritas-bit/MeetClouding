@@ -32,6 +32,21 @@ const GenderAvatar = ({ gender }: { gender: Gender }) => {
     }
 };
 
+const BackButton = ({ onClick, text, srText }: { onClick: () => void, text: string, srText: string }) => {
+    return (
+        <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={onClick} 
+            className="text-foreground absolute left-0 hover:bg-transparent active:bg-transparent"
+        >
+            <span className="text-2xl font-bold active:text-primary">&lt;</span>
+            <span className="sr-only">{srText}</span>
+        </Button>
+    )
+}
+
+
 const BackToMapButton = () => {
     const router = useRouter();
     const t = useTranslation();
@@ -42,12 +57,7 @@ const BackToMapButton = () => {
         router.push('/map');
     }
 
-    return (
-        <Button variant="ghost" size="icon" onClick={handleClick} className="text-foreground absolute left-0">
-            <MapIcon className="h-6 w-6" />
-            <span className="sr-only">{t('backToMap')}</span>
-        </Button>
-    )
+    return <BackButton onClick={handleClick} text="<" srText={t('backToMap')} />;
 };
 
 
@@ -74,10 +84,7 @@ const HeaderWithBackButton = ({ titleKey, showMapButton }: { titleKey: string, s
     return (
          <div className="w-full h-full relative flex items-center justify-center">
              {showMapButton ? <BackToMapButton /> : (
-                <Button variant="ghost" size="icon" onClick={handleBack} className="text-foreground absolute left-0">
-                    <ArrowLeft className="h-6 w-6" />
-                    <span className="sr-only">{t('back')}</span>
-                </Button>
+                <BackButton onClick={handleBack} text="<" srText={t('back')} />
              )}
              <span className="text-xl font-headline text-foreground">{t(titleKey)}</span>
          </div>
@@ -99,15 +106,9 @@ const ChatHeader = ({ chatInfo, showMapButton }: { chatInfo: User, showMapButton
         <div className="w-full h-full relative flex items-center justify-center">
             <div className="absolute left-0">
                  {showMapButton ? (
-                    <Button variant="ghost" size="icon" onClick={handleBackToMap} className="text-foreground">
-                        <MapIcon className="h-6 w-6" />
-                        <span className="sr-only">{t('backToMap')}</span>
-                    </Button>
+                    <BackButton onClick={handleBackToMap} text="<" srText={t('backToMap')} />
                 ) : (
-                    <Button variant="ghost" size="icon" onClick={() => router.back()} className="text-foreground">
-                        <ArrowLeft className="h-6 w-6" />
-                        <span className="sr-only">{t('back')}</span>
-                    </Button>
+                    <BackButton onClick={() => router.back()} text="<" srText={t('back')} />
                 )}
             </div>
             
@@ -199,9 +200,7 @@ export function Header() {
         } else if (pathname === '/settings') {
              setHeaderContent(
                 <div className="w-full h-full relative flex items-center">
-                    <Button variant="ghost" size="icon" onClick={() => router.back()} className="text-foreground absolute left-0">
-                        <ArrowLeft className="h-6 w-6" />
-                    </Button>
+                    <BackButton onClick={() => router.back()} text="<" srText={t('back')} />
                 </div>
              );
         } else if (pathname.startsWith('/settings/')) {
