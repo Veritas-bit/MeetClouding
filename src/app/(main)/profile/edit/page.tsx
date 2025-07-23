@@ -153,7 +153,7 @@ export default function EditProfilePage() {
 
   return (
     <ScrollArea className="h-full">
-      <div className="container mx-auto p-4 py-6 flex flex-col items-center pb-24">
+      <div className="container mx-auto p-4 flex flex-col items-center pb-24">
         <div className="relative mb-2">
           <Avatar className="h-20 w-20 border-4 border-background bg-muted/50">
               {avatarPreview ? (
