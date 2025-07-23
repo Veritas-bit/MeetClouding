@@ -339,7 +339,7 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-            <DialogContent className="sm:max-w-full w-full h-full max-h-screen p-0 m-0 gap-0" hideCloseButton>
+            <DialogContent className="sm:max-w-full w-full h-svh max-h-svh p-0 m-0 gap-0" hideCloseButton>
                 <DialogHeader className="sr-only">
                     <DialogTitle>Прикрепить медиа</DialogTitle>
                     <DialogDescription>
@@ -373,7 +373,7 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
                             <span className="sr-only">Закрыть</span>
                         </Button>
                     </div>
-                    <div className="flex-grow relative overflow-hidden">
+                    <div className="flex-grow relative overflow-y-auto">
                         {renderContent()}
                     </div>
                 </div>
@@ -381,6 +381,3 @@ export function ChatAttachmentModal({ isOpen, onClose, onMediaSend }: ChatAttach
         </Dialog>
     );
 }
-
-    
-    
