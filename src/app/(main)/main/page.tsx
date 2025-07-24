@@ -33,7 +33,7 @@ export default function MainPage() {
         <Sheet>
             <SheetTrigger asChild>
                 <Button className="w-72 h-12 text-xl font-bold rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground">
-                {t('findCompanyButton')}
+                СОЗДАТЬ ОБЛАЧКО
                 </Button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
@@ -46,7 +46,7 @@ export default function MainPage() {
         <Sheet>
             <SheetTrigger asChild>
             <button className="text-xl uppercase font-bold text-primary active:text-accent transition-colors">
-                {t('searchWishesButton')}
+                НАЙТИ ОБЛАЧКО
             </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
