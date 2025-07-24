@@ -255,16 +255,22 @@ export default function ConversationPage() {
 
     const viewportRect = viewportRef.current.getBoundingClientRect();
     const footerRect = footerRef.current.getBoundingClientRect();
-    const availableHeight = footerRect.top - viewportRect.top;
+    
+    // This is a temp div to measure the menu's height
+    const tempMenu = document.createElement('div');
+    tempMenu.className = 'fixed z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md';
+    tempMenu.style.visibility = 'hidden';
+    document.body.appendChild(tempMenu);
+    const menuHeight = tempMenu.offsetHeight;
+    document.body.removeChild(tempMenu);
 
-    const menuHeight = 150; // Approximate height of the menu
     let top;
 
     // Position menu above if it overflows below
     if (rect.bottom + menuHeight > footerRect.top) {
-        top = rect.top - menuHeight;
+        top = rect.top - menuHeight - 8; // Position above with 8px margin
     } else {
-        top = rect.bottom + 8;
+        top = rect.bottom + 8; // Position below with 8px margin
     }
 
     // Ensure it doesn't go above the viewport
@@ -502,8 +508,8 @@ export default function ConversationPage() {
                             fill
                             className="object-contain"
                         />
-                        <DialogClose asChild>
-                            <button className="absolute top-4 right-4 z-10 text-primary-foreground rounded-full bg-black/50 p-2">
+                         <DialogClose asChild>
+                            <button className="absolute top-4 right-4 z-10 text-primary-foreground rounded-full bg-transparent p-2">
                                 <X className="h-6 w-6" />
                                 <span className="sr-only">Close</span>
                             </button>
