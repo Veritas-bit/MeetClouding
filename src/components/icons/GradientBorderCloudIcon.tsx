@@ -44,14 +44,6 @@ export function GradientBorderCloudIcon({ className }: { className?: string }) {
             strokeWidth="0.5"
             strokeOpacity="1"
         />
-        {/* Upper copy is hidden as requested */}
-        <path
-            d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"
-            fill="none"
-            stroke="url(#logo-gradient)"
-            strokeWidth="1"
-            display="none" 
-        />
       </g>
     </svg>
   );
