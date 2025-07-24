@@ -16,6 +16,7 @@ interface MessageViewProps {
     wishText?: string;
     wishCategory?: WishCategoryKey;
     onPreviewImage: (src: string) => void;
+    onReply: (message: Message) => void;
 }
 
 const WishHeader = ({ wishText, wishCategory }: { wishText: string, wishCategory?: WishCategoryKey }) => {
@@ -38,13 +39,13 @@ const WishHeader = ({ wishText, wishCategory }: { wishText: string, wishCategory
 };
 
 
-export function MessageView({ messages, currentUser, otherParticipant, onOpenMenu, wishText, wishCategory, onPreviewImage }: MessageViewProps) {
+export function MessageView({ messages, currentUser, otherParticipant, onOpenMenu, wishText, wishCategory, onPreviewImage, onReply }: MessageViewProps) {
   
   if (!otherParticipant) return null;
 
   return (
     <div className="h-full">
-      <div className="p-4 space-y-6 pb-4">
+      <div className="p-4 space-y-2 pb-4">
         {wishText && <WishHeader wishText={wishText} wishCategory={wishCategory} />}
         {messages.map((message) => (
           <MessageItem 
@@ -54,6 +55,7 @@ export function MessageView({ messages, currentUser, otherParticipant, onOpenMen
             otherParticipant={otherParticipant} 
             onOpenMenu={onOpenMenu}
             onPreviewImage={onPreviewImage}
+            onReply={onReply}
           />
         ))}
       </div>

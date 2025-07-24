@@ -363,6 +363,7 @@ export default function ConversationPage() {
             wishText={conversation.wishText}
             wishCategory={conversation.wishCategory}
             onPreviewImage={setPreviewImage}
+            onReply={handleReply}
         />
       </div>
 

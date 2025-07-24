@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useRef, useTransition, useCallback } from 'react';
+import React, { useState, useRef, useTransition, useCallback, type TouchEvent } from 'react';
 import { cn } from '@/lib/utils';
 import type { Message, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -27,6 +27,7 @@ interface MessageItemProps {
   otherParticipant: User;
   onOpenMenu: (messageId: string, rect: DOMRect) => void;
   onPreviewImage: (src: string) => void;
+  onReply: (message: Message) => void;
 }
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
@@ -133,7 +134,7 @@ function ReplyContent({ message, isSentByCurrentUser }: { message: Message, isSe
 }
 
 
-export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu, onPreviewImage }: MessageItemProps) {
+export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu, onPreviewImage, onReply }: MessageItemProps) {
   const [isPending, startTransition] = useTransition();
   const [translatedText, setTranslatedText] = useState<string | null>(message.translation || null);
   const [showTranslation, setShowTranslation] = useState(false);
@@ -144,6 +145,11 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   const messageRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
   const touchStartPos = useRef<{ x: number, y: number } | null>(null);
+
+  // Swipe state
+  const [swipeX, setSwipeX] = useState(0);
+  const touchStartX = useRef(0);
+  const isActionTriggered = useRef(false);
 
   const handleTranslate = () => {
     if (showTranslation) {
@@ -178,27 +184,49 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
       pressTimer.current = null;
     }
   }, []);
-
-  const handlePressStart = (e: React.TouchEvent) => {
-    if (message.location || message.image || message.video) return; // Disable long press for special content
-    clearLongPressTimer();
-    touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    pressTimer.current = setTimeout(openMenu, 700);
+  
+  // --- Swipe to Reply Logic ---
+  const handleSwipeStart = (e: TouchEvent) => {
+    clearLongPressTimer(); // Prevent context menu on swipe
+    touchStartX.current = e.targetTouches[0].clientX;
+    isActionTriggered.current = false;
+    if (messageRef.current) {
+        messageRef.current.style.transition = 'none';
+    }
   };
 
-  const handlePressEnd = () => {
-    clearLongPressTimer();
+  const handleSwipeMove = (e: TouchEvent) => {
+    const deltaX = e.targetTouches[0].clientX - touchStartX.current;
+    // Only allow swiping left (negative delta)
+    if (deltaX < 0) {
+       setSwipeX(deltaX);
+    }
   };
+  
+  const handleSwipeEnd = () => {
+    if (!messageRef.current) return;
+    
+    messageRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+    const actionThreshold = -80; // Swipe at least 80px to the left
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-     if (!pressTimer.current || !touchStartPos.current) return;
-     const dx = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
-     const dy = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
-     if (dx > 10 || dy > 10) {
-        clearLongPressTimer();
-     }
+    if (swipeX < actionThreshold && !isActionTriggered.current) {
+        isActionTriggered.current = true;
+        // Animate out of view
+        setSwipeX(-messageRef.current.offsetWidth - 50); 
+        // Trigger reply after animation
+        setTimeout(() => {
+            onReply(message);
+            // Reset position after action
+            if (messageRef.current) {
+                messageRef.current.style.transition = 'none';
+                setSwipeX(0);
+            }
+        }, 300);
+    } else {
+        // Not enough swipe, animate back to origin
+        setSwipeX(0);
+    }
   };
-
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -212,58 +240,74 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   const messageColorClass = isSentByCurrentUser ? 'bg-primary text-primary-foreground' : 'bg-card border';
   
   return (
-      <div className={cn('flex items-end space-x-3', isSentByCurrentUser ? 'justify-end' : '')}>
-        {!isSentByCurrentUser && (
-          <Avatar className="h-8 w-8 shrink-0 bg-muted/50">
-            {sender.avatarUrl ? (
-                <AvatarImage src={sender.avatarUrl} alt={sender.name} />
-            ) : null}
-            <AvatarFallback>
-                <GenderAvatar gender={sender.gender} />
-            </AvatarFallback>
-          </Avatar>
-        )}
-        <div
-          ref={messageRef}
-          onContextMenu={handleContextMenu}
-          onTouchStart={handlePressStart}
-          onTouchEnd={handlePressEnd}
-          onTouchMove={handleTouchMove}
-          onTouchCancel={handlePressEnd}
-          className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}
+    <div className="relative overflow-hidden">
+        {/* Background Reply Icon */}
+        <div 
+          className="absolute inset-y-0 right-0 flex items-center justify-center bg-accent pr-6 pointer-events-none" 
+          style={{ 
+              width: `${Math.abs(swipeX)}px`, 
+              opacity: Math.min(Math.abs(swipeX) / 80, 1),
+              transform: `translateX(${Math.max(0, 80 + swipeX)}px)`
+          }}
         >
-          <ReplyContent message={message} isSentByCurrentUser={isSentByCurrentUser} />
-           {!message.location && (
-                <div className="text-sm whitespace-pre-wrap break-words">
-                    {parseMessageContent(textToShow)}
-                    {showTranslation && <p className="text-xs opacity-70 mt-2 pt-2 border-t border-t-white/20">{t('original')}: {message.text}</p>}
-                </div>
-            )}
-           <MediaContent message={message} onPreviewImage={onPreviewImage} />
-           <LocationContent message={message} />
-          <div className={cn("flex items-center gap-2 mt-2 self-end text-xs", isSentByCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
-            {message.edited && <span className="text-xs opacity-70">изменено</span>}
-            {isPending && <GradientBorderCloudIcon className="h-3 w-3" />}
-            {!message.location && (
-                <TooltipProvider>
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleTranslate(); }} disabled={isPending}>
-                            <Languages className="h-4 w-4" />
-                        </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                        <p>{showTranslation ? t('showOriginal') : `${t('translateTo')} ${targetLanguage}`}</p>
-                        </TooltipContent>
-                    </Tooltip>
-                </TooltipProvider>
-            )}
-            <span>{format(new Date(message.timestamp), 'p')}</span>
-            {isSentByCurrentUser && <MessageStatus status={message.status} />}
-          </div>
-          {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+            <MessageSquareReply className="h-6 w-6 text-accent-foreground" />
         </div>
-      </div>
+        
+        <div
+            className={cn('flex items-end space-x-3 relative z-10 bg-background touch-pan-y', isSentByCurrentUser ? 'justify-end' : '')}
+            style={{ transform: `translateX(${swipeX}px)` }}
+            onTouchStart={handleSwipeStart}
+            onTouchMove={handleSwipeMove}
+            onTouchEnd={handleSwipeEnd}
+        >
+            {!isSentByCurrentUser && (
+            <Avatar className="h-8 w-8 shrink-0 bg-muted/50">
+                {sender.avatarUrl ? (
+                    <AvatarImage src={sender.avatarUrl} alt={sender.name} />
+                ) : null}
+                <AvatarFallback>
+                    <GenderAvatar gender={sender.gender} />
+                </AvatarFallback>
+            </Avatar>
+            )}
+            <div
+            ref={messageRef}
+            onContextMenu={handleContextMenu}
+            className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}
+            >
+            <ReplyContent message={message} isSentByCurrentUser={isSentByCurrentUser} />
+            {!message.location && (
+                    <div className="text-sm whitespace-pre-wrap break-words">
+                        {parseMessageContent(textToShow)}
+                        {showTranslation && <p className="text-xs opacity-70 mt-2 pt-2 border-t border-t-white/20">{t('original')}: {message.text}</p>}
+                    </div>
+                )}
+            <MediaContent message={message} onPreviewImage={onPreviewImage} />
+            <LocationContent message={message} />
+            <div className={cn("flex items-center gap-2 mt-2 self-end text-xs", isSentByCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground')}>
+                {message.edited && <span className="text-xs opacity-70">изменено</span>}
+                {isPending && <GradientBorderCloudIcon className="h-3 w-3" />}
+                {!message.location && (
+                    <TooltipProvider>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); handleTranslate(); }} disabled={isPending}>
+                                <Languages className="h-4 w-4" />
+                            </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                            <p>{showTranslation ? t('showOriginal') : `${t('translateTo')} ${targetLanguage}`}</p>
+                            </TooltipContent>
+                        </Tooltip>
+                    </TooltipProvider>
+                )}
+                <span>{format(new Date(message.timestamp), 'p')}</span>
+                {isSentByCurrentUser && <MessageStatus status={message.status} />}
+            </div>
+            {error && <p className="text-xs text-destructive mt-1">{error}</p>}
+            </div>
+        </div>
+    </div>
   );
 }
 
@@ -331,5 +375,3 @@ export function ChatMessageMenu({ message, isSentByCurrentUser, position, onRepl
     </div>
   );
 }
-
-    
