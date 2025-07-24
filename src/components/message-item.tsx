@@ -144,7 +144,6 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
 
   const messageRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
-  const touchStartPos = useRef<{ x: number, y: number } | null>(null);
 
   // Swipe state
   const [swipeX, setSwipeX] = useState(0);
@@ -197,9 +196,10 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
 
   const handleSwipeMove = (e: TouchEvent) => {
     const deltaX = e.targetTouches[0].clientX - touchStartX.current;
-    // Only allow swiping left (negative delta)
+    // Only allow swiping left (negative delta) and limit to 20% of screen width
+    const maxSwipe = -window.innerWidth * 0.2;
     if (deltaX < 0) {
-       setSwipeX(deltaX);
+       setSwipeX(Math.max(deltaX, maxSwipe));
     }
   };
   
@@ -211,21 +211,11 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
 
     if (swipeX < actionThreshold && !isActionTriggered.current) {
         isActionTriggered.current = true;
-        // Animate out of view
-        setSwipeX(-messageRef.current.offsetWidth - 50); 
-        // Trigger reply after animation
-        setTimeout(() => {
-            onReply(message);
-            // Reset position after action
-            if (messageRef.current) {
-                messageRef.current.style.transition = 'none';
-                setSwipeX(0);
-            }
-        }, 300);
-    } else {
-        // Not enough swipe, animate back to origin
-        setSwipeX(0);
+        onReply(message);
     }
+    
+    // Animate back to origin in all cases
+    setSwipeX(0);
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -240,19 +230,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   const messageColorClass = isSentByCurrentUser ? 'bg-primary text-primary-foreground' : 'bg-card border';
   
   return (
-    <div className="relative overflow-hidden">
-        {/* Background Reply Icon */}
-        <div 
-          className="absolute inset-y-0 right-0 flex items-center justify-center bg-accent pr-6 pointer-events-none" 
-          style={{ 
-              width: `${Math.abs(swipeX)}px`, 
-              opacity: Math.min(Math.abs(swipeX) / 80, 1),
-              transform: `translateX(${Math.max(0, 80 + swipeX)}px)`
-          }}
-        >
-            <MessageSquareReply className="h-6 w-6 text-accent-foreground" />
-        </div>
-        
+    <div className="relative overflow-x-hidden">
         <div
             className={cn('flex items-end space-x-3 relative z-10 bg-background touch-pan-y', isSentByCurrentUser ? 'justify-end' : '')}
             style={{ transform: `translateX(${swipeX}px)` }}
