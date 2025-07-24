@@ -251,10 +251,9 @@ export default function ConversationPage() {
   // --- Context Menu Logic ---
   const handleOpenMenu = (messageId: string, rect: DOMRect) => {
     const message = messages.find(m => m.id === messageId);
-    if (!message || !viewportRef.current || !footerRef.current) return;
+    if (!message || !viewportRef.current) return;
 
     const viewportRect = viewportRef.current.getBoundingClientRect();
-    const footerRect = footerRef.current.getBoundingClientRect();
     
     // This is a temp div to measure the menu's height
     const tempMenu = document.createElement('div');
@@ -265,12 +264,13 @@ export default function ConversationPage() {
     document.body.removeChild(tempMenu);
 
     let top;
+    const margin = 8; // Small margin between message and menu
 
-    // Position menu above if it overflows below
-    if (rect.bottom + menuHeight > footerRect.top) {
-        top = rect.top - menuHeight - 8; // Position above with 8px margin
+    // Position menu above if it overflows below the viewport boundary
+    if (rect.bottom + menuHeight > viewportRect.bottom) {
+        top = rect.top - menuHeight - margin; // Position above
     } else {
-        top = rect.bottom + 8; // Position below with 8px margin
+        top = rect.bottom + margin; // Position below
     }
 
     // Ensure it doesn't go above the viewport
@@ -509,7 +509,7 @@ export default function ConversationPage() {
                             className="object-contain"
                         />
                          <DialogClose asChild>
-                            <button className="absolute top-4 right-4 z-10 text-primary-foreground rounded-full bg-transparent p-2">
+                            <button className="absolute top-4 right-4 z-10 text-primary-foreground rounded-full bg-black/20 p-2 backdrop-blur-sm">
                                 <X className="h-6 w-6" />
                                 <span className="sr-only">Close</span>
                             </button>
