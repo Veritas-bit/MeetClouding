@@ -45,7 +45,7 @@ export function MessageView({ messages, currentUser, otherParticipant, onOpenMen
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-4 space-y-6">
+      <div className="p-4 space-y-6 pb-4">
         {wishText && <WishHeader wishText={wishText} wishCategory={wishCategory} />}
         {messages.map((message) => (
           <MessageItem 
