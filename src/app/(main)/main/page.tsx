@@ -30,32 +30,34 @@ export default function MainPage() {
         </p>
 
         <div className="flex flex-col gap-6 items-center">
-        <Sheet>
-            <SheetTrigger asChild>
-                <Button className="w-72 h-12 text-xl font-bold rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground">
-                СОЗДАТЬ ОБЛАЧКО
-                </Button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
-                <SheetHeader>
-                    <SheetTitle className="sr-only">{t('createWishTitle')}</SheetTitle>
-                </SheetHeader>
-                <WantSheet />
-            </SheetContent>
-        </Sheet>
-        <Sheet>
-            <SheetTrigger asChild>
-            <button className="text-xl uppercase font-bold text-primary active:text-accent transition-colors">
-                НАЙТИ ОБЛАЧКО
-            </button>
-            </SheetTrigger>
-            <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
-                <SheetHeader>
-                    <SheetTitle className="sr-only">{t('searchTitle')}</SheetTitle>
-                </SheetHeader>
-                <SearchSheet />
-            </SheetContent>
-        </Sheet>
+            <div className="p-1 rounded-lg bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary">
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button className="w-72 h-12 text-xl font-bold rounded-md uppercase bg-background text-foreground hover:bg-background/90">
+                        СОЗДАТЬ ОБЛАЧКО
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
+                        <SheetHeader>
+                            <SheetTitle className="sr-only">{t('createWishTitle')}</SheetTitle>
+                        </SheetHeader>
+                        <WantSheet />
+                    </SheetContent>
+                </Sheet>
+            </div>
+            <Sheet>
+                <SheetTrigger asChild>
+                <button className="text-xl uppercase font-bold bg-clip-text text-transparent bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary active:opacity-80 transition-opacity">
+                    НАЙТИ ОБЛАЧКО
+                </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
+                    <SheetHeader>
+                        <SheetTitle className="sr-only">{t('searchTitle')}</SheetTitle>
+                    </SheetHeader>
+                    <SearchSheet />
+                </SheetContent>
+            </Sheet>
         </div>
         
     </div>
