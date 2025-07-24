@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useRef, useTransition, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import type { Message, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -79,7 +79,7 @@ function LocationContent({ message, isSentByCurrentUser }: { message: Message, i
                 "p-2 rounded-lg flex items-center gap-3",
                  isSentByCurrentUser ? "bg-black/10 dark:bg-white/10" : "bg-muted"
             )}>
-                 <MapPin className="h-10 w-10 text-primary shrink-0" />
+                 <MapPin className="h-10 w-10 text-destructive shrink-0" />
                  <div className="flex-1">
                      <p className="text-sm font-semibold">Геопозиция</p>
                      <p className="text-xs opacity-80 truncate">Нажмите, чтобы посмотреть</p>
@@ -291,4 +291,3 @@ export function ChatMessageMenu({ message, isSentByCurrentUser, position, onRepl
     </div>
   );
 }
-
