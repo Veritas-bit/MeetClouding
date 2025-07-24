@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { getConversationById, getCurrentUser } from '@/lib/mock-data';
 import type { User, Conversation, Message } from '@/lib/types';
@@ -41,6 +41,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useLocationStore } from '@/lib/location-store';
 import Link from 'next/link';
 import Image from 'next/image';
+
+const getDistance = (touches: React.TouchList) => {
+    const [first, second] = [touches[0], touches[1]];
+    return Math.sqrt(
+        Math.pow(second.clientX - first.clientX, 2) +
+        Math.pow(second.clientY - first.clientY, 2)
+    );
+};
 
 
 const reportReasons = [
@@ -87,6 +95,14 @@ export default function ConversationPage() {
   
   const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Zoom and Pan state
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const imageRef = useRef<HTMLDivElement>(null);
+  const lastTap = useRef(0);
+  const startDistance = useRef<number | null>(null);
+  const startPosition = useRef({ x: 0, y: 0 });
 
 
   // Initial data fetch
@@ -338,7 +354,75 @@ export default function ConversationPage() {
     } else {
         toast({ title: 'Не удалось определить геопозицию', description: 'Попробуйте еще раз позже.', variant: 'destructive'});
     }
-  }
+  };
+  
+  const resetZoomAndPan = useCallback(() => {
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+  }, []);
+  
+  const handlePreviewImage = (src: string) => {
+      setPreviewImage(src);
+      resetZoomAndPan();
+  };
+  
+  const handleClosePreview = useCallback(() => {
+      setPreviewImage(null);
+      resetZoomAndPan();
+  }, [resetZoomAndPan]);
+  
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+      if (e.touches.length === 2) {
+          startDistance.current = getDistance(e.touches);
+      } else if (e.touches.length === 1) {
+          startPosition.current = { x: e.touches[0].clientX - position.x, y: e.touches[0].clientY - position.y };
+          
+          const now = Date.now();
+          const DOUBLE_TAP_DELAY = 300;
+          if (now - lastTap.current < DOUBLE_TAP_DELAY) {
+              e.preventDefault();
+              if (scale > 1) {
+                  resetZoomAndPan();
+              } else {
+                  setScale(2.5);
+              }
+          }
+          lastTap.current = now;
+      }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+      if (e.touches.length === 2 && startDistance.current !== null) {
+          const newDistance = getDistance(e.touches);
+          const newScale = Math.max(1, scale * (newDistance / startDistance.current));
+          setScale(newScale);
+          startDistance.current = newDistance;
+      } else if (e.touches.length === 1 && scale > 1) {
+          e.preventDefault();
+          const newX = e.touches[0].clientX - startPosition.current.x;
+          const newY = e.touches[0].clientY - startPosition.current.y;
+          setPosition({ x: newX, y: newY });
+      }
+  };
+
+  const handleTouchEnd = () => {
+      startDistance.current = null;
+  };
+  
+  useEffect(() => {
+      const handleWheel = (e: WheelEvent) => {
+          if (previewImage) {
+              e.preventDefault();
+              const newScale = scale - e.deltaY * 0.01;
+              setScale(Math.max(1, newScale));
+          }
+      };
+      const dialogElement = document.querySelector('[role="dialog"]');
+      dialogElement?.addEventListener('wheel', handleWheel, { passive: false });
+      return () => {
+          dialogElement?.removeEventListener('wheel', handleWheel);
+      };
+  }, [previewImage, scale]);
 
 
   if (conversation === null || currentUser === null) {
@@ -362,7 +446,7 @@ export default function ConversationPage() {
             onOpenMenu={handleOpenMenu}
             wishText={conversation.wishText}
             wishCategory={conversation.wishCategory}
-            onPreviewImage={setPreviewImage}
+            onPreviewImage={handlePreviewImage}
             onReply={handleReply}
         />
       </div>
@@ -506,25 +590,43 @@ export default function ConversationPage() {
             </DialogContent>
         </Dialog>
 
-        <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
-            <DialogContent className="h-svh w-screen max-w-full p-0 gap-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm border-none" hideCloseButton>
+        <Dialog open={!!previewImage} onOpenChange={(open) => !open && handleClosePreview()}>
+            <DialogContent 
+                className="h-svh w-screen max-w-full p-0 gap-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm border-none touch-none" 
+                hideCloseButton
+            >
                <DialogTitle className="sr-only">Предпросмотр изображения</DialogTitle>
                {previewImage && (
-                    <div className="relative w-full h-full flex-grow">
-                        <Image
-                            src={previewImage}
-                            alt="Image preview"
-                            fill
-                            className="object-contain"
-                        />
-                         <DialogClose asChild>
-                            <button className="absolute top-4 right-4 z-10 text-primary rounded-full bg-background/20 p-2 backdrop-blur-sm">
-                                <X className="h-6 w-6" />
-                                <span className="sr-only">Close</span>
-                            </button>
-                        </DialogClose>
+                    <div 
+                        className="relative w-full h-full flex-grow flex items-center justify-center overflow-hidden"
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                    >
+                        <div
+                            ref={imageRef}
+                            className="relative transition-transform duration-200"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                                touchAction: 'none'
+                            }}
+                        >
+                            <Image
+                                src={previewImage}
+                                alt="Image preview"
+                                fill
+                                className="object-contain"
+                                draggable={false}
+                            />
+                        </div>
                     </div>
                )}
+                <button onClick={handleClosePreview} className="absolute top-4 right-4 z-10 p-2">
+                    <X className="h-6 w-6 text-primary" />
+                    <span className="sr-only">Close</span>
+                </button>
             </DialogContent>
         </Dialog>
     </div>
