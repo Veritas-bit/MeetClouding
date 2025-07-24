@@ -113,7 +113,7 @@ export default function GalleryPage() {
             </div>
 
             <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
-                <DialogContent className="h-screen w-screen max-w-full p-0 gap-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm border-none" hideCloseButton>
+                <DialogContent className="h-svh w-screen max-w-full p-0 gap-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm border-none" hideCloseButton>
                    <DialogTitle className="sr-only">Предпросмотр изображения</DialogTitle>
                    {previewImage && (
                         <div className="relative w-full h-full flex-grow">
