@@ -63,9 +63,9 @@ const BackToMapButton = () => {
 
 const defaultHeader = (
     <>
-        <Link href="/main" className="flex items-center space-x-2 bg-gradient-to-r from-primary to-secondary bg-clip-text">
-           <GradientCloudIcon className="h-8 w-8 text-transparent" />
-           <span className="text-3xl font-headline text-transparent">MeetCloud</span>
+        <Link href="/main" className="flex items-center space-x-2">
+           <GradientCloudIcon className="h-8 w-8" />
+           <span className="text-3xl font-headline bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">MeetCloud</span>
         </Link>
          <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-1">
