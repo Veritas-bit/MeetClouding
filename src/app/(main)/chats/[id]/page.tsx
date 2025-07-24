@@ -484,7 +484,7 @@ export default function ConversationPage() {
   }
 
   const isMessageEmpty = newMessage.trim() === '';
-  const showIcons = !isInputFocused && newMessage === '';
+  const showIcons = !isInputFocused && isMessageEmpty;
 
   return (
     <div className="flex flex-col h-full">
@@ -529,32 +529,34 @@ export default function ConversationPage() {
           )}
         >
           <div className="relative flex items-center bg-muted/50 rounded-[7px]">
-            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
-                <ShieldAlert className="h-6 w-6 text-muted-foreground" />
-            </Button>
-            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
-                <UserPlus className="h-6 w-6 text-muted-foreground" />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
-                    <FileImage className="h-6 w-6 text-muted-foreground" />
+            <div className={cn("flex items-center transition-all duration-300", showIcons ? "w-auto opacity-100" : "w-0 opacity-0")}>
+                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
+                    <ShieldAlert className="h-6 w-6 text-muted-foreground" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent side="top" align="start" className="w-56 mb-1">
-                <DropdownMenuItem>
-                    <Link href={`/chats/${params.id}/gallery`} className="flex items-center w-full">
-                        <Video className="mr-3 h-5 w-5" />
-                        <span>Фото или видео</span>
-                    </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSendLocation}>
-                  <MapPin className="mr-3 h-5 w-5" />
-                  <span>Геопозиция</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <div className={cn("w-px h-6 bg-border transition-all duration-300")}></div>
+                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
+                    <UserPlus className="h-6 w-6 text-muted-foreground" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
+                        <FileImage className="h-6 w-6 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="top" align="start" className="w-56 mb-1">
+                    <DropdownMenuItem>
+                        <Link href={`/chats/${params.id}/gallery`} className="flex items-center w-full">
+                            <Video className="mr-3 h-5 w-5" />
+                            <span>Фото или видео</span>
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleSendLocation}>
+                      <MapPin className="mr-3 h-5 w-5" />
+                      <span>Геопозиция</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <div className={cn("w-px h-6 bg-border transition-all duration-300")}></div>
+            </div>
               <Textarea
                   ref={textareaRef}
                   placeholder="Сообщение..."
