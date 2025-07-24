@@ -92,7 +92,7 @@ function LocationContent({ message, isSentByCurrentUser }: { message: Message, i
 function MediaContent({ message, onPreviewImage }: { message: Message, onPreviewImage: (src: string) => void }) {
   if (message.image) {
     return (
-      <button onClick={() => onPreviewImage(message.image!)} className="relative w-full max-w-[250px] aspect-square block overflow-hidden rounded-lg">
+      <button onClick={() => onPreviewImage(message.image!)} className="relative w-full max-w-[250px] aspect-[4/5] block overflow-hidden rounded-lg">
         <Image
           src={message.image}
           alt=""
