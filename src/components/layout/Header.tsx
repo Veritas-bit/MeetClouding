@@ -231,6 +231,7 @@ export function Header() {
                 if (pathname !== '/settings') {
                     titleKey = "settings";
                     if (pathname.includes('account')) titleKey = "account";
+                    if (pathname.includes('blocked')) titleKey = "blockedUsers";
                     if (pathname.includes('help')) titleKey = "help";
                     if (pathname.includes('notifications')) titleKey = "notifications";
                     if (pathname.includes('language')) titleKey = "language";
