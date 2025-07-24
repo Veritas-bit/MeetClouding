@@ -354,7 +354,7 @@ export default function ConversationPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div ref={viewportRef} className="flex-1 overflow-y-auto">
+      <div ref={viewportRef} className="flex-1 overflow-y-auto hide-scrollbar">
         <MessageView
             messages={messages}
             currentUser={currentUser}
