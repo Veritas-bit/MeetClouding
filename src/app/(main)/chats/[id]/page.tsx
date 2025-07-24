@@ -87,6 +87,8 @@ export default function ConversationPage() {
   
   const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const footerRef = useRef<HTMLDivElement>(null);
+
 
   // Initial data fetch
   useEffect(() => {
@@ -249,14 +251,30 @@ export default function ConversationPage() {
   // --- Context Menu Logic ---
   const handleOpenMenu = (messageId: string, rect: DOMRect) => {
     const message = messages.find(m => m.id === messageId);
-    if (!message || !viewportRef.current) return;
+    if (!message || !viewportRef.current || !footerRef.current) return;
 
     const viewportRect = viewportRef.current.getBoundingClientRect();
-    const top = rect.bottom + 8; // Position below the message
+    const footerRect = footerRef.current.getBoundingClientRect();
+    const availableHeight = footerRect.top - viewportRect.top;
+
+    const menuHeight = 150; // Approximate height of the menu
+    let top;
+
+    // Position menu above if it overflows below
+    if (rect.bottom + menuHeight > footerRect.top) {
+        top = rect.top - menuHeight;
+    } else {
+        top = rect.bottom + 8;
+    }
+
+    // Ensure it doesn't go above the viewport
+    top = Math.max(viewportRect.top, top);
+
     const left = Math.max(8, Math.min(rect.left, viewportRect.width - 200)); // Keep within bounds
 
     setMenuState({ message, position: { top, left } });
   };
+
 
   const handleCloseMenu = () => {
     setMenuState({ message: null, position: null });
@@ -334,7 +352,7 @@ export default function ConversationPage() {
         />
       </div>
 
-      <div className="p-4 border-t bg-background flex-shrink-0">
+      <div ref={footerRef} className="p-4 border-t bg-background flex-shrink-0">
         {replyToMessage && (
             <ReplyToView 
                 message={replyToMessage}
@@ -362,39 +380,32 @@ export default function ConversationPage() {
           )}
         >
           <div className="relative flex items-center bg-muted/50 rounded-[7px]">
-            <div className={cn("flex items-center transition-all duration-300", showIcons ? "w-[120px] opacity-100" : "w-0 opacity-0")}>
-                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
-                    <ShieldAlert className="h-6 w-6 text-muted-foreground" />
+            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
+                <ShieldAlert className="h-6 w-6 text-muted-foreground" />
+            </Button>
+            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
+                <UserPlus className="h-6 w-6 text-muted-foreground" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
+                    <FileImage className="h-6 w-6 text-muted-foreground" />
                 </Button>
-                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
-                    <UserPlus className="h-6 w-6 text-muted-foreground" />
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <div className="flex">
-                       <Link href={`/chats/${params.id}/gallery`}>
-                            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
-                                <FileImage className="h-6 w-6 text-muted-foreground" />
-                            </Button>
-                        </Link>
-                    </div>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent side="top" align="start" className="w-56 mb-1">
-                    <DropdownMenuItem>
-                        <Link href={`/chats/${params.id}/gallery`} className="flex items-center w-full">
-                            <Video className="mr-3 h-5 w-5" />
-                            <span>Фото или видео</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={handleSendLocation}>
-                      <MapPin className="mr-3 h-5 w-5" />
-                      <span>Геопозиция</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-            </div>
-
-              <div className={cn("w-px h-6 bg-border transition-all duration-300", showIcons ? "opacity-100" : "opacity-0")}></div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-56 mb-1">
+                <DropdownMenuItem>
+                    <Link href={`/chats/${params.id}/gallery`} className="flex items-center w-full">
+                        <Video className="mr-3 h-5 w-5" />
+                        <span>Фото или видео</span>
+                    </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSendLocation}>
+                  <MapPin className="mr-3 h-5 w-5" />
+                  <span>Геопозиция</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <div className={cn("w-px h-6 bg-border transition-all duration-300")}></div>
               <Textarea
                   ref={textareaRef}
                   placeholder="Сообщение..."
@@ -501,8 +512,6 @@ export default function ConversationPage() {
                )}
             </DialogContent>
         </Dialog>
-
     </div>
   );
 }
-
