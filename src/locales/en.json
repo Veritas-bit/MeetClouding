@@ -45,6 +45,8 @@
   "mainPageSlogan": "Find company for your wish!",
   "findCompanyButton": "Find Company",
   "searchWishesButton": "Search for wishes",
+  "createCloudButton": "CREATE A CLOUD",
+  "findCloudButton": "FIND A CLOUD",
   "createWishTitle": "Create a wish",
   "searchTitle": "Search",
   "generatingWish": "Generating a wish...",

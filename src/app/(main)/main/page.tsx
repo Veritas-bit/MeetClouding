@@ -36,7 +36,7 @@ export default function MainPage() {
                         size="lg"
                         className="w-72 h-12 text-lg rounded-lg uppercase bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary text-primary-foreground font-bold"
                     >
-                    СОЗДАТЬ ОБЛАЧКО
+                    {t('createCloudButton')}
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
@@ -49,7 +49,7 @@ export default function MainPage() {
             <Sheet>
                 <SheetTrigger asChild>
                 <button className="text-xl uppercase font-bold bg-clip-text text-transparent bg-[linear-gradient(135deg,var(--tw-gradient-stops))] from-primary to-secondary active:opacity-80 transition-opacity">
-                    НАЙТИ ОБЛАЧКО
+                    {t('findCloudButton')}
                 </button>
                 </SheetTrigger>
                 <SheetContent side="bottom" className="h-svh p-0" hideCloseButton>
