@@ -184,18 +184,17 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
     }
   }, []);
 
-  const handlePressStart = () => {
-    // Don't open menu for media messages
+  const handlePointerDown = () => {
     if (message.location || message.image || message.video) return;
     
     clearLongPressTimer();
     pressTimer.current = setTimeout(() => {
         openMenu();
         pressTimer.current = null;
-    }, 500); // 500ms for long press
+    }, 500);
   };
 
-  const handlePressEnd = () => {
+  const handlePointerUp = () => {
       clearLongPressTimer();
   };
   
@@ -265,11 +264,10 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
             )}
             <div
             ref={messageRef}
-            onClick={() => {}} // Add this empty onClick to fix Safari touch events
             onContextMenu={handleContextMenu}
-            onTouchStart={handlePressStart}
-            onTouchEnd={handlePressEnd}
-            onTouchCancel={handlePressEnd}
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
             className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}
             >
             <ReplyContent message={message} isSentByCurrentUser={isSentByCurrentUser} />
