@@ -145,11 +145,6 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   const messageRef = useRef<HTMLDivElement>(null);
   const pressTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Swipe state
-  const [swipeX, setSwipeX] = useState(0);
-  const touchStartX = useRef(0);
-  const isActionTriggered = useRef(false);
-
   const handleTranslate = () => {
     if (showTranslation) {
       setShowTranslation(false);
@@ -197,40 +192,6 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   const handlePointerUp = () => {
       clearLongPressTimer();
   };
-  
-  // --- Swipe to Reply Logic ---
-  const handleSwipeStart = (e: TouchEvent) => {
-    clearLongPressTimer(); // Prevent context menu on swipe
-    touchStartX.current = e.targetTouches[0].clientX;
-    isActionTriggered.current = false;
-    if (messageRef.current) {
-        messageRef.current.style.transition = 'none';
-    }
-  };
-
-  const handleSwipeMove = (e: TouchEvent) => {
-    const deltaX = e.targetTouches[0].clientX - touchStartX.current;
-    const maxSwipe = -window.innerWidth * 0.2;
-    // Only allow swiping left
-    if (deltaX < 0) {
-       setSwipeX(Math.max(deltaX, maxSwipe));
-    }
-  };
-  
-  const handleSwipeEnd = () => {
-    if (!messageRef.current) return;
-    
-    messageRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-    const actionThreshold = -window.innerWidth * 0.18;
-
-    if (swipeX < actionThreshold && !isActionTriggered.current) {
-        isActionTriggered.current = true;
-        onReply(message);
-    }
-    
-    // Animate back to origin in all cases
-    setSwipeX(0);
-  };
 
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -244,14 +205,8 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   const messageColorClass = isSentByCurrentUser ? 'bg-primary text-primary-foreground' : 'bg-card border';
   
   return (
-    <div className="relative overflow-x-hidden">
-        <div
-            className={cn('flex items-end space-x-3 relative z-10 bg-transparent touch-pan-y', isSentByCurrentUser ? 'justify-end' : '')}
-            style={{ transform: `translateX(${swipeX}px)` }}
-            onTouchStart={handleSwipeStart}
-            onTouchMove={handleSwipeMove}
-            onTouchEnd={handleSwipeEnd}
-        >
+    <div className="relative">
+        <div className={cn('flex items-end space-x-3 relative z-10 bg-transparent', isSentByCurrentUser ? 'justify-end' : '')}>
             {!isSentByCurrentUser && (
             <Avatar className="h-8 w-8 shrink-0 bg-muted/50">
                 {sender.avatarUrl ? (
@@ -263,12 +218,12 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
             </Avatar>
             )}
             <div
-            ref={messageRef}
-            onContextMenu={handleContextMenu}
-            onPointerDown={handlePointerDown}
-            onPointerUp={handlePointerUp}
-            onPointerLeave={handlePointerUp}
-            className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}
+                ref={messageRef}
+                onContextMenu={handleContextMenu}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
+                className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}
             >
             <ReplyContent message={message} isSentByCurrentUser={isSentByCurrentUser} />
             {!message.location && (
