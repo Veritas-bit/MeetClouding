@@ -17,40 +17,32 @@ function AutoThemeProvider({ children }: { children: React.ReactNode }) {
 
         const applyAutoTheme = () => {
             const hour = new Date().getHours();
-            let newThemeClass = 'light';
+            let newTheme: string;
 
             if (hour >= 5 && hour < 9) {
-                newThemeClass = 'light'; // Утро
+                newTheme = 'light'; // Утро
             } else if (hour >= 9 && hour < 17) {
-                newThemeClass = 'early-morning'; // День
+                newTheme = 'early-morning'; // День
             } else if (hour >= 17 && hour < 21) {
-                newThemeClass = 'evening'; // Вечер
+                newTheme = 'evening'; // Вечер
             } else {
-                newThemeClass = 'dark'; // Ночь
+                newTheme = 'dark'; // Ночь
             }
             
-            // This sets the class on the HTML element for CSS to pick up.
-            const doc = document.documentElement;
-            doc.classList.remove('light', 'dark', 'early-morning', 'evening');
-            doc.classList.add(newThemeClass);
+            // Set theme using next-themes' setTheme function
+            // to ensure context is updated correctly across the app.
+            setTheme(newTheme);
         };
 
         if (theme === 'auto') {
             applyAutoTheme();
             interval = setInterval(applyAutoTheme, AUTO_THEME_INTERVAL);
-        } else {
-             // When theme is not 'auto', let next-themes handle it.
-             // We just need to remove our custom auto classes.
-             const doc = document.documentElement;
-             if(theme !== 'early-morning' && theme !== 'evening') {
-                doc.classList.remove('early-morning', 'evening');
-             }
         }
 
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [theme, systemTheme]);
+    }, [theme, setTheme]);
 
     return <>{children}</>;
 }
