@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -10,7 +9,7 @@ import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { MessageView } from '@/components/message-view';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Send, FileImage, Pencil, X, UserPlus, ShieldAlert, Video, MapPin, Share } from 'lucide-react';
+import { Send, FileImage, Pencil, X, UserPlus, ShieldAlert, Video, MapPin, Share, Mic } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
 // import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
@@ -574,15 +573,26 @@ export default function ConversationPage() {
                   className="flex-1 max-h-24 bg-transparent border-none focus-visible:ring-0 focus-visible:ring-offset-0 p-2"
               />
               <div className="w-px h-6 bg-border"></div>
-              <Button
-                  variant="ghost"
-                  size="icon"
-                  className="shrink-0 hover:bg-transparent active:bg-transparent"
-                  onClick={handleSendMessage}
-                  disabled={isSending || isMessageEmpty}
-              >
-                  <Send className={cn("h-5 w-5 text-muted-foreground", !isMessageEmpty && "text-primary", "transition-colors")} />
-              </Button>
+              {isMessageEmpty ? (
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 hover:bg-transparent active:bg-transparent"
+                    onClick={() => { /* TODO: Implement voice message recording */ }}
+                >
+                    <Mic className="h-5 w-5 text-muted-foreground transition-colors" />
+                </Button>
+              ) : (
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="shrink-0 hover:bg-transparent active:bg-transparent"
+                    onClick={handleSendMessage}
+                    disabled={isSending}
+                >
+                    <Send className="h-5 w-5 text-primary transition-colors" />
+                </Button>
+              )}
           </div>
         </div>
       </div>
@@ -689,3 +699,5 @@ export default function ConversationPage() {
     </div>
   );
 }
+
+    
