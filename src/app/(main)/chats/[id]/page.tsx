@@ -87,7 +87,6 @@ export default function ConversationPage() {
   
   const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
 
 
   // Initial data fetch
@@ -259,6 +258,16 @@ export default function ConversationPage() {
     const tempMenu = document.createElement('div');
     tempMenu.className = 'fixed z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md';
     tempMenu.style.visibility = 'hidden';
+    // Add dummy content to get the correct height based on items
+    tempMenu.innerHTML = `
+        <button class="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm">Reply</button>
+        <button class="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm">Copy</button>
+        ${message.senderId === currentUser?.id ? `
+        <div class="-mx-1 my-1 h-px bg-muted"></div>
+        <button class="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm">Edit</button>
+        <button class="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm">Delete</button>
+        ` : ''}
+    `;
     document.body.appendChild(tempMenu);
     const menuHeight = tempMenu.offsetHeight;
     document.body.removeChild(tempMenu);
@@ -345,20 +354,19 @@ export default function ConversationPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto">
+      <div ref={viewportRef} className="flex-1 overflow-y-auto">
         <MessageView
             messages={messages}
             currentUser={currentUser}
             otherParticipant={otherParticipant!}
             onOpenMenu={handleOpenMenu}
-            viewportRef={viewportRef}
             wishText={conversation.wishText}
             wishCategory={conversation.wishCategory}
             onPreviewImage={setPreviewImage}
         />
       </div>
 
-      <div ref={footerRef} className="p-4 border-t bg-background flex-shrink-0">
+      <div className="p-4 border-t bg-background flex-shrink-0">
         {replyToMessage && (
             <ReplyToView 
                 message={replyToMessage}
