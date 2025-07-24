@@ -32,9 +32,10 @@ interface SendOptionsMenuProps {
   position: { top: number; left: number; width: number; } | null;
   onSelect: (option: ViewOptions) => void;
   onClose: () => void;
+  containerRef: React.RefObject<HTMLDivElement>;
 }
 
-function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) {
+function SendOptionsMenu({ position, onSelect, onClose, containerRef }: SendOptionsMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -44,12 +45,16 @@ function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) 
       }
     };
     if (position) {
-      document.addEventListener('mousedown', handleClickOutside);
+      // We listen on the container of the dialog content to avoid issues with other modals
+      const container = containerRef.current;
+      container?.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      const container = containerRef.current;
+      container?.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [position, onClose]);
+  }, [position, onClose, containerRef]);
+
 
   if (!position) return null;
 
@@ -64,12 +69,16 @@ function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) 
     <div
       ref={menuRef}
       style={{ top: position.top - 8, left: position.left, width: position.width, transform: 'translateY(-100%)' }}
-      className="fixed z-[100] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+      className="absolute z-[100] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
     >
       {options.map((option) => (
         <button
           key={option.value}
-          onClick={() => { onSelect(option.value); onClose(); }}
+          onClick={(e) => {
+             e.stopPropagation(); // Prevent the click from bubbling up to the dialog overlay
+             onSelect(option.value);
+             onClose();
+          }}
           className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
         >
           <option.icon className="mr-2 h-4 w-4" />
@@ -100,6 +109,7 @@ export default function GalleryPage() {
     const [sendMenuState, setSendMenuState] = useState<{ position: { top: number; left: number; width: number } | null }>({ position: null });
     const pressTimer = useRef<NodeJS.Timeout | null>(null);
     const sendButtonRef = useRef<HTMLButtonElement>(null);
+    const dialogContentRef = useRef<HTMLDivElement>(null);
 
 
     const handleUploadClick = () => {
@@ -150,6 +160,7 @@ export default function GalleryPage() {
     const handleClosePreview = useCallback(() => {
         setPreviewImage(null);
         resetZoomAndPan();
+        setSendMenuState({ position: null }); // Ensure menu closes with dialog
     }, [resetZoomAndPan]);
     
     const handleDeleteImage = () => {
@@ -165,16 +176,12 @@ export default function GalleryPage() {
     const handleSendImage = (viewOptions: ViewOptions | null = null) => {
         if (!previewImage) return;
 
+        // Regular click handling, which now includes calls from the menu
         if (pressTimer.current) {
             clearTimeout(pressTimer.current);
             pressTimer.current = null;
-            // if menu was just opened, don't send
-            if(sendMenuState.position) {
-                setSendMenuState({position: null});
-                return;
-            }
         }
-        
+
         const dataToSend = JSON.stringify({ src: previewImage.src, viewOptions });
         sessionStorage.setItem('pending-image-to-send', dataToSend);
         
@@ -194,39 +201,61 @@ export default function GalleryPage() {
         router.back();
     };
 
+
     // --- Long press for send options ---
     const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+        // Only react to primary mouse button or touch
         if (e.pointerType === 'mouse' && e.button !== 0) return;
         
+        // Clear any existing timer
         if (pressTimer.current) clearTimeout(pressTimer.current);
         
+        // Start a new timer
         pressTimer.current = setTimeout(() => {
             if (sendButtonRef.current) {
                 const rect = sendButtonRef.current.getBoundingClientRect();
-                setSendMenuState({ position: { top: rect.top, left: rect.left, width: rect.width } });
+                 const dialogRect = dialogContentRef.current?.getBoundingClientRect();
+                 if (dialogRect) {
+                     setSendMenuState({
+                         position: {
+                             top: rect.top - dialogRect.top, // position relative to dialog
+                             left: rect.left - dialogRect.left,
+                             width: rect.width,
+                         },
+                     });
+                 }
             }
             pressTimer.current = null;
-        }, 500);
+        }, 500); // 500ms for long press
     };
 
-    const clearPressTimer = useCallback(() => {
+    const handlePointerUp = () => {
+        // If the pointer is released before the timer fires, it's a click, not a long press.
+        // The onClick handler will take care of it. Just clear the timer.
         if (pressTimer.current) {
             clearTimeout(pressTimer.current);
             pressTimer.current = null;
         }
-    }, []);
-
-    const handlePointerUp = () => {
-        clearPressTimer();
     };
 
     const handleContextMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
+        // Prevent the default browser context menu
         e.preventDefault();
-        clearPressTimer();
-        if (sendButtonRef.current) {
-            const rect = sendButtonRef.current.getBoundingClientRect();
-            setSendMenuState({ position: { top: rect.top, left: rect.left, width: rect.width } });
-        }
+        // Clear the long press timer if it's running
+        clearTimeout(pressTimer.current!);
+         if (sendButtonRef.current) {
+             const rect = sendButtonRef.current.getBoundingClientRect();
+             const dialogRect = dialogContentRef.current?.getBoundingClientRect();
+             if (dialogRect) {
+                 setSendMenuState({
+                     position: {
+                         top: rect.top - dialogRect.top,
+                         left: rect.left - dialogRect.left,
+                         width: rect.width,
+                     },
+                 });
+             }
+         }
     };
     
     // --- Touch Events for Zoom and Pan ---
@@ -321,7 +350,8 @@ export default function GalleryPage() {
             </div>
 
             <Dialog open={!!previewImage} onOpenChange={(open) => !open && handleClosePreview()}>
-                <DialogContent 
+                <DialogContent
+                    ref={dialogContentRef}
                     className="h-svh w-screen max-w-full p-0 gap-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm border-none touch-none" 
                     hideCloseButton
                 >
@@ -354,7 +384,7 @@ export default function GalleryPage() {
                             
                         </div>
                    )}
-                   <button onClick={handleClosePreview} className="absolute top-4 right-4 z-10 p-2">
+                   <button onClick={handleClosePreview} className="absolute top-4 right-4 z-[110] p-2">
                         <X className="h-6 w-6 text-primary" />
                         <span className="sr-only">Close</span>
                     </button>
@@ -376,14 +406,15 @@ export default function GalleryPage() {
                             Отправить
                         </Button>
                     </DialogFooter>
+                    <SendOptionsMenu
+                        containerRef={dialogContentRef}
+                        position={sendMenuState.position}
+                        onClose={() => setSendMenuState({ position: null })}
+                        onSelect={handleSendImage}
+                    />
                 </DialogContent>
             </Dialog>
 
-            <SendOptionsMenu
-                position={sendMenuState.position}
-                onClose={() => setSendMenuState({ position: null })}
-                onSelect={handleSendImage}
-            />
         </div>
     );
 }
