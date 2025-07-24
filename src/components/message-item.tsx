@@ -93,7 +93,7 @@ function MediaContent({ message, onPreviewImage }: { message: Message, onPreview
   if (message.image) {
     const isPrivate = !!message.viewOptions;
     return (
-      <button onClick={() => onPreviewImage(message)} className="relative w-full max-w-[250px] aspect-[4/5] block overflow-hidden rounded-lg">
+      <button onClick={() => onPreviewImage(message)} className="relative w-64 aspect-[4/5] block overflow-hidden rounded-lg">
         <Image
           src={message.image}
           alt={isPrivate ? "Private image" : "Image attachment"}
@@ -202,7 +202,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
                 className={cn(
                     'max-w-xs md:max-w-md lg:max-w-lg rounded-2xl flex flex-col', 
                     messageColorClass,
-                    (message.image || message.location || message.video) ? 'p-0 overflow-hidden' : 'p-1.5'
+                    (message.image || message.location || message.video) ? 'p-1 overflow-hidden' : 'p-1.5'
                 )}
             >
                 <div className={cn(hasTextContent && 'px-1')}>
