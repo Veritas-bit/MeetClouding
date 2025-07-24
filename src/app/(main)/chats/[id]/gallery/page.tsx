@@ -304,7 +304,6 @@ export default function GalleryPage() {
                     multiple
                 />
                 <Button className="w-full max-w-[50%]" size="lg" onClick={handleUploadClick}>
-                    <Upload className="mr-2 h-4 w-4" />
                     Загрузить фотографию
                 </Button>
             </div>
