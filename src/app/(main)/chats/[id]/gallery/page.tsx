@@ -217,7 +217,7 @@ export default function GalleryPage() {
                         >
                              <div
                                 ref={imageRef}
-                                className="relative transition-transform duration-200"
+                                className="relative"
                                 style={{
                                     width: '100%',
                                     height: '100%',
