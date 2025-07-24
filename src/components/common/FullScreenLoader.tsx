@@ -3,6 +3,7 @@
 
 import { GradientBorderCloudIcon } from '@/components/icons/GradientBorderCloudIcon';
 import { cn } from '@/lib/utils';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
 interface FullScreenLoaderProps {
     text?: string;
