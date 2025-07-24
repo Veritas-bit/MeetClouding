@@ -265,6 +265,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
             )}
             <div
             ref={messageRef}
+            onClick={() => {}} // Add this empty onClick to fix Safari touch events
             onContextMenu={handleContextMenu}
             onTouchStart={handlePressStart}
             onTouchEnd={handlePressEnd}
