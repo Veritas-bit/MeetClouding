@@ -183,6 +183,21 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
       pressTimer.current = null;
     }
   }, []);
+
+  const handlePressStart = () => {
+    // Don't open menu for media messages
+    if (message.location || message.image || message.video) return;
+    
+    clearLongPressTimer();
+    pressTimer.current = setTimeout(() => {
+        openMenu();
+        pressTimer.current = null;
+    }, 500); // 500ms for long press
+  };
+
+  const handlePressEnd = () => {
+      clearLongPressTimer();
+  };
   
   // --- Swipe to Reply Logic ---
   const handleSwipeStart = (e: TouchEvent) => {
@@ -251,6 +266,9 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
             <div
             ref={messageRef}
             onContextMenu={handleContextMenu}
+            onTouchStart={handlePressStart}
+            onTouchEnd={handlePressEnd}
+            onTouchCancel={handlePressEnd}
             className={cn('max-w-xs md:max-w-md lg:max-w-lg p-3 rounded-2xl flex flex-col', messageColorClass)}
             >
             <ReplyContent message={message} isSentByCurrentUser={isSentByCurrentUser} />
