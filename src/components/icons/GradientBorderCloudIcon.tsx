@@ -31,14 +31,14 @@ export function GradientBorderCloudIcon({ className }: { className?: string }) {
 
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
             {/* Create a blurred copy */}
-            <feGaussianBlur in="SourceGraphic" stdDeviation="0.5" result="blurred" />
+            <feGaussianBlur in="SourceGraphic" stdDeviation="0.75" result="blurred" />
             {/* Create a flood layer of blue */}
-            <feFlood floodColor="hsl(var(--accent) / 0.5)" result="accent-flood" />
+            <feFlood floodColor="hsl(var(--primary) / 0.8)" result="primary-flood" />
             {/* Composite the blue flood over the blurred alpha */}
-            <feComposite in="accent-flood" in2="blurred" operator="in" result="colored-blur"/>
+            <feComposite in="primary-flood" in2="blurred" operator="in" result="colored-blur"/>
             {/* Boost the brightness */}
             <feComponentTransfer in="colored-blur" result="boosted">
-                <feFuncA type="linear" slope="3" intercept="0" />
+                <feFuncA type="linear" slope="2" intercept="0" />
             </feComponentTransfer>
             {/* Composite the glow under the original graphic */}
             <feMerge>
