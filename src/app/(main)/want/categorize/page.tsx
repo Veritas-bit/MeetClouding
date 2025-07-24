@@ -28,7 +28,6 @@ function CategorizeWishForm() {
     const t = useTranslation();
 
     const [message, setMessage] = useState('');
-    const [isLoading, setIsLoading] = useState(true);
     const [isPublishing, setIsPublishing] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<WishCategoryKey | null>(null);
 
@@ -40,7 +39,6 @@ function CategorizeWishForm() {
     useEffect(() => {
         const messageParam = searchParams.get('message');
         if (!messageParam) {
-            setIsLoading(false);
             return;
         }
 
@@ -63,7 +61,6 @@ function CategorizeWishForm() {
         }
 
         setSelectedCategory(categoryToSet);
-        setIsLoading(false);
 
     }, [searchParams, isPremium]);
 
@@ -122,10 +119,6 @@ function CategorizeWishForm() {
     // Helper type
     type Coordinates = { latitude: number; longitude: number };
 
-
-    if (isLoading) {
-      return <FullScreenLoader text={t('categorizingWish')} />;
-    }
 
     if (!message) {
          return (

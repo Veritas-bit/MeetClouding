@@ -19,27 +19,34 @@ export default function WelcomePage() {
   useEffect(() => {
     checkRegistration();
     
+    // Set a 5-second timer for the initial loading experience.
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [checkRegistration]);
 
 
   useEffect(() => {
+    // This effect runs when either isRegistered changes or the initial loading finishes.
     if (isLoading) return;
 
     if (isRegistered === true) {
+      // If user is registered, and loading is done, redirect.
       router.replace('/main');
     } 
+    // If isRegistered is false, the welcome screen will be shown.
   }, [isRegistered, router, isLoading]);
 
+  // Show a loader during the 5-second period OR while we check registration.
+  // Also show a loader after login (isRegistered === true) until redirect happens.
   if (isLoading || isRegistered === null || isRegistered === true) {
     return <FullScreenLoader text={isRegistered ? t('signingIn') : t('loading')} />;
   }
 
-  // Only render the welcome screen if the user is not registered (isRegistered === false).
+  // Only render the welcome screen if the user is not registered (isRegistered === false)
+  // and the initial loading period is over.
   return (
     <div className="flex h-screen w-full">
       <div className="flex-grow flex flex-col items-center justify-center">

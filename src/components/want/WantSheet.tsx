@@ -10,7 +10,6 @@ import { SheetClose, SheetHeader, SheetTitle } from "../ui/sheet";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "../ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { FullScreenLoader } from "../common/FullScreenLoader";
 import { WISHES } from "@/lib/wishes";
 import { WISH_CATEGORY_KEYS, type WishCategoryKey } from "@/lib/categories";
 import { useTranslation } from "@/hooks/use-translation";
@@ -20,14 +19,14 @@ import { GradientBorderCloudIcon } from "../icons/GradientBorderCloudIcon";
 export function WantSheet() {
   const [message, setMessage] = useState("");
   const [placeholderWish, setPlaceholderWish] = useState<{key: string, category: WishCategoryKey} | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
   const router = useRouter();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { toast } = useToast();
   const t = useTranslation();
 
   const fetchNewWish = () => {
-    setIsLoading(true);
+    setIsGenerating(true);
     
     const availableCategories = WISH_CATEGORY_KEYS.filter(key => WISHES[key] && WISHES[key].length > 0);
     const randomCategoryKey = availableCategories[Math.floor(Math.random() * availableCategories.length)];
@@ -37,7 +36,7 @@ export function WantSheet() {
 
     setPlaceholderWish({ key: randomWishKey, category: randomCategoryKey });
 
-    setTimeout(() => setIsLoading(false), 200); 
+    setTimeout(() => setIsGenerating(false), 200); 
   };
 
   useEffect(() => {
@@ -56,7 +55,7 @@ export function WantSheet() {
   };
 
   const handleSelectWish = () => {
-      if (isLoading || !placeholderWish) return;
+      if (isGenerating || !placeholderWish) return;
       const wishText = t(placeholderWish.key as any);
       const wishToPublish = `${t('iWant')} ${wishText}`;
       const encodedMessage = encodeURIComponent(wishToPublish);
@@ -76,7 +75,6 @@ export function WantSheet() {
 
   return (
     <>
-      {isLoading && <FullScreenLoader text={t('generatingWish')} />}
       <div className="flex flex-col h-full bg-background">
         <SheetHeader className="p-4 flex-row items-center justify-start">
             <SheetClose asChild>
@@ -92,7 +90,7 @@ export function WantSheet() {
           </h1>
           <Card className="bg-muted/50 border-dashed w-full max-w-sm min-h-[6rem] flex items-center justify-center">
               <CardContent className="p-3">
-                  {isLoading || !placeholderWish ? (
+                  {isGenerating || !placeholderWish ? (
                       <GradientBorderCloudIcon className="h-8 w-8" />
                   ) : (
                       <p className="text-muted-foreground">{t('iWant')} {t(placeholderWish.key as any)}</p>
@@ -100,11 +98,11 @@ export function WantSheet() {
               </CardContent>
           </Card>
           <div className="mt-2 flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleSelectWish} disabled={isLoading}>
+              <Button variant="outline" size="sm" onClick={handleSelectWish} disabled={isGenerating}>
                   <Check className="mr-2 h-4 w-4"/>
                   {t('selectButton')}
               </Button>
-              <Button variant="ghost" size="sm" onClick={fetchNewWish} className="text-muted-foreground" disabled={isLoading}>
+              <Button variant="ghost" size="sm" onClick={fetchNewWish} className="text-muted-foreground" disabled={isGenerating}>
                   <Shuffle className="mr-2 h-4 w-4"/>
                   {t('anotherOptionButton')}
               </Button>
