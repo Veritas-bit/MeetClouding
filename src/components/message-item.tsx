@@ -79,7 +79,7 @@ function LocationContent({ message, isSentByCurrentUser }: { message: Message, i
                 "p-2 rounded-lg flex items-center gap-3",
                  isSentByCurrentUser ? "bg-black/10 dark:bg-white/10" : "bg-muted"
             )}>
-                 <MapPin className="h-8 w-8 text-primary shrink-0" />
+                 <MapPin className="h-10 w-10 text-primary shrink-0" />
                  <div className="flex-1">
                      <p className="text-sm font-semibold">Геопозиция</p>
                      <p className="text-xs opacity-80 truncate">Нажмите, чтобы посмотреть</p>
@@ -95,7 +95,7 @@ function MediaContent({ message, onPreviewImage }: { message: Message, onPreview
       <button onClick={() => onPreviewImage(message.image!)} className="relative w-full max-w-[250px] aspect-square block overflow-hidden rounded-lg">
         <Image
           src={message.image}
-          alt="Attached image"
+          alt=""
           layout="fill"
           objectFit="cover"
         />
@@ -107,7 +107,7 @@ function MediaContent({ message, onPreviewImage }: { message: Message, onPreview
         <video 
             src={message.video} 
             controls 
-            className="w-full max-w-[250px] rounded-lg mt-2" 
+            className="w-full max-w-[250px] rounded-lg" 
         />
      )
   }
@@ -119,7 +119,7 @@ function ReplyContent({ message, isSentByCurrentUser }: { message: Message, isSe
 
   return (
     <div className={cn(
-        "p-2 rounded-lg mb-2 border-l-2",
+        "p-2 rounded-lg mb-1 border-l-2",
         isSentByCurrentUser ? "border-white/50 bg-white/10" : "border-primary bg-primary/10"
     )}>
         <p className="text-xs font-semibold">{message.replyTo.senderName}</p>
@@ -146,7 +146,9 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
     }
   }, []);
 
-  const handlePointerDown = () => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Only set timer for touch or pen, or left mouse button
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
     clearLongPressTimer();
     pressTimer.current = setTimeout(() => {
         openMenu();
@@ -155,6 +157,10 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   };
 
   const handlePointerUp = () => {
+      clearLongPressTimer();
+  };
+  
+  const handlePointerLeave = () => {
       clearLongPressTimer();
   };
 
@@ -166,13 +172,13 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   const isSentByCurrentUser = message.senderId === currentUser.id;
   const sender = isSentByCurrentUser ? currentUser : otherParticipant;
   const messageColorClass = isSentByCurrentUser ? 'bg-primary text-primary-foreground' : 'bg-card border';
-  const hasTextContent = message.text && !message.image && !message.location;
+  const hasTextContent = message.text && !message.image && !message.location && !message.video;
 
   return (
     <div className="relative">
-        <div className={cn('flex items-end space-x-3 relative z-10 bg-transparent', isSentByCurrentUser ? 'justify-end' : '')}>
+        <div className={cn('flex items-end space-x-2 relative z-10 bg-transparent', isSentByCurrentUser ? 'justify-end' : '')}>
             {!isSentByCurrentUser && (
-            <Avatar className="h-8 w-8 shrink-0 bg-muted/50">
+            <Avatar className="h-8 w-8 shrink-0 bg-muted/50 self-end mb-1">
                 {sender.avatarUrl ? (
                     <AvatarImage src={sender.avatarUrl} alt={sender.name} />
                 ) : null}
@@ -186,15 +192,14 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
                 onContextMenu={handleContextMenu}
                 onPointerDown={handlePointerDown}
                 onPointerUp={handlePointerUp}
-                onPointerLeave={handlePointerUp}
+                onPointerLeave={handlePointerLeave}
                 className={cn(
                     'max-w-xs md:max-w-md lg:max-w-lg rounded-2xl flex flex-col', 
                     messageColorClass,
-                    (message.image || message.location) && 'p-0 overflow-hidden', // No padding for media
-                    hasTextContent && 'p-3' // Padding only for text
+                    (message.image || message.location || message.video) ? 'p-0 overflow-hidden' : 'p-1.5'
                 )}
             >
-                <div className={cn(hasTextContent && 'p-3')}>
+                <div className={cn(hasTextContent && 'px-1')}>
                     <ReplyContent message={message} isSentByCurrentUser={isSentByCurrentUser} />
                     {hasTextContent && (
                         <div className="text-sm whitespace-pre-wrap break-words">
@@ -209,7 +214,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
                 <div className={cn(
                     "flex items-center gap-2 self-end text-xs", 
                     isSentByCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground',
-                    (message.image || message.location) ? 'p-1' : 'mt-2'
+                     (message.image || message.location || message.video) ? 'p-1' : 'mt-1'
                 )}>
                     {message.edited && <span className="text-xs opacity-70">изменено</span>}
                     <span>{format(new Date(message.timestamp), 'p')}</span>
@@ -286,3 +291,4 @@ export function ChatMessageMenu({ message, isSentByCurrentUser, position, onRepl
     </div>
   );
 }
+

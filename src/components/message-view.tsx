@@ -45,7 +45,7 @@ export function MessageView({ messages, currentUser, otherParticipant, onOpenMen
 
   return (
     <div className="h-full">
-      <div className="p-4 space-y-1 pb-4">
+      <div className="p-4 space-y-2 pb-4">
         {wishText && <WishHeader wishText={wishText} wishCategory={wishCategory} />}
         {messages.map((message) => (
           <MessageItem 
@@ -62,3 +62,4 @@ export function MessageView({ messages, currentUser, otherParticipant, onOpenMen
     </div>
   );
 }
+
