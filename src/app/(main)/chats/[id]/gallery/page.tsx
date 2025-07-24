@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Upload, Send, X } from 'lucide-react';
+import { Upload, Send, X, Trash2 } from 'lucide-react';
 import { useRef, type ChangeEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -61,6 +61,16 @@ export default function GalleryPage() {
     const handleImageClick = (image: GalleryImage) => {
         setPreviewImage(image);
     };
+    
+    const handleDeleteImage = () => {
+        if (!previewImage) return;
+        setImages(prevImages => prevImages.filter(img => img.id !== previewImage.id));
+        setPreviewImage(null);
+        toast({
+            title: "Изображение удалено",
+            variant: "destructive",
+        })
+    };
 
     const handleSendImage = () => {
         if (!previewImage) return;
@@ -103,7 +113,7 @@ export default function GalleryPage() {
             </div>
 
             <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
-                <DialogContent className="h-screen w-screen max-w-full p-0 gap-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm border-none">
+                <DialogContent className="h-screen w-screen max-w-full p-0 gap-0 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm border-none" hideCloseButton>
                    <DialogTitle className="sr-only">Предпросмотр изображения</DialogTitle>
                    {previewImage && (
                         <div className="relative w-full h-full flex-grow">
@@ -113,15 +123,19 @@ export default function GalleryPage() {
                                 fill
                                 className="object-contain"
                             />
+                            <DialogClose asChild>
+                                <button className="absolute top-4 right-4 z-10 text-primary rounded-full bg-background/20 p-2 backdrop-blur-sm">
+                                    <X className="h-6 w-6" />
+                                    <span className="sr-only">Close</span>
+                                </button>
+                            </DialogClose>
                         </div>
                    )}
                     <DialogFooter className="!flex-row !justify-center gap-4 p-4 bg-background w-full flex-shrink-0">
-                        <DialogClose asChild>
-                            <Button variant="outline" className="w-full max-w-xs" onClick={() => setPreviewImage(null)}>
-                                <X className="mr-2 h-4 w-4" />
-                                Отмена
-                            </Button>
-                        </DialogClose>
+                        <Button variant="destructive" className="w-full max-w-xs" onClick={handleDeleteImage}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Удалить
+                        </Button>
                         <Button onClick={handleSendImage} className="w-full max-w-xs">
                             <Send className="mr-2 h-4 w-4" />
                             Отправить

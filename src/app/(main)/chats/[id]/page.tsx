@@ -518,7 +518,7 @@ export default function ConversationPage() {
                             className="object-contain"
                         />
                          <DialogClose asChild>
-                            <button className="absolute top-4 right-4 z-10 text-primary-foreground rounded-full bg-black/20 p-2 backdrop-blur-sm">
+                            <button className="absolute top-4 right-4 z-10 text-primary rounded-full bg-background/20 p-2 backdrop-blur-sm">
                                 <X className="h-6 w-6" />
                                 <span className="sr-only">Close</span>
                             </button>
