@@ -79,7 +79,7 @@ function SendOptionsMenu({ position, onSelect, onClose, containerRef }: SendOpti
              onSelect(option.value);
              onClose();
           }}
-          className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+          className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors"
         >
           <option.icon className="mr-2 h-4 w-4" />
           {option.label}
@@ -229,12 +229,13 @@ export default function GalleryPage() {
         }, 500); // 500ms for long press
     };
 
-    const handlePointerUp = () => {
-        // If the pointer is released before the timer fires, it's a click, not a long press.
-        // The onClick handler will take care of it. Just clear the timer.
+    const handlePointerUp = (isClick: boolean) => {
         if (pressTimer.current) {
             clearTimeout(pressTimer.current);
             pressTimer.current = null;
+            if (isClick) {
+                 handleSendImage(null);
+            }
         }
     };
 
@@ -395,11 +396,11 @@ export default function GalleryPage() {
                         </Button>
                         <Button 
                           ref={sendButtonRef}
-                          onClick={() => handleSendImage(null)} 
+                          onClick={() => handlePointerUp(true)}
                           onContextMenu={handleContextMenu}
                           onPointerDown={handlePointerDown}
-                          onPointerUp={handlePointerUp}
-                          onPointerLeave={handlePointerUp}
+                          onPointerUp={() => handlePointerUp(false)}
+                          onPointerLeave={() => handlePointerUp(false)}
                           className="w-full max-w-xs"
                         >
                             <Send className="mr-2 h-4 w-4" />
