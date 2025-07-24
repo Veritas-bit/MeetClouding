@@ -3,7 +3,7 @@
 
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Upload, Send, X, Trash2 } from 'lucide-react';
+import { Upload, Send, X, Trash2, Timer, EyeOff } from 'lucide-react';
 import { useRef, type ChangeEvent, useState, type TouchEvent, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -53,10 +53,10 @@ function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) 
   if (!position) return null;
 
   const options = [
-    { label: 'На 5 секунд', value: '5s' },
-    { label: 'На 15 секунд', value: '15s' },
-    { label: 'На 30 секунд', value: '30s' },
-    { label: 'Одноразовый просмотр', value: 'once' },
+    { label: 'На 5 секунд', value: '5s', icon: Timer },
+    { label: 'На 15 секунд', value: '15s', icon: Timer },
+    { label: 'На 30 секунд', value: '30s', icon: Timer },
+    { label: 'Разовый просмотр', value: 'once', icon: EyeOff },
   ];
 
   return (
@@ -71,6 +71,7 @@ function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) 
           onClick={() => { onSelect(option.label); onClose(); }}
           className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
         >
+          <option.icon className="mr-2 h-4 w-4" />
           {option.label}
         </button>
       ))}
