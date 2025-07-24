@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogFooter, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import type { ViewOptions } from '@/lib/types';
 
 
 interface GalleryImage {
@@ -29,7 +30,7 @@ const getDistance = (touches: React.TouchList) => {
 // --- Send Options Menu ---
 interface SendOptionsMenuProps {
   position: { top: number; left: number; width: number; } | null;
-  onSelect: (option: string) => void;
+  onSelect: (option: ViewOptions) => void;
   onClose: () => void;
 }
 
@@ -52,7 +53,7 @@ function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) 
 
   if (!position) return null;
 
-  const options = [
+  const options: { label: string, value: ViewOptions, icon: React.ElementType }[] = [
     { label: 'На 5 секунд', value: '5s', icon: Timer },
     { label: 'На 15 секунд', value: '15s', icon: Timer },
     { label: 'На 30 секунд', value: '30s', icon: Timer },
@@ -68,7 +69,7 @@ function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) 
       {options.map((option) => (
         <button
           key={option.value}
-          onClick={() => { onSelect(option.label); onClose(); }}
+          onClick={() => { onSelect(option.value); onClose(); }}
           className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
         >
           <option.icon className="mr-2 h-4 w-4" />
@@ -161,41 +162,44 @@ export default function GalleryPage() {
         })
     };
 
-    const handleSendImage = () => {
+    const handleSendImage = (viewOptions: ViewOptions | null = null) => {
         if (!previewImage) return;
-        // Prevent sending if menu was just opened
+
         if (pressTimer.current) {
             clearTimeout(pressTimer.current);
             pressTimer.current = null;
-        }
-        if (sendMenuState.position) {
-            setSendMenuState({ position: null });
-            return;
+            // if menu was just opened, don't send
+            if(sendMenuState.position) {
+                setSendMenuState({position: null});
+                return;
+            }
         }
         
-        sessionStorage.setItem('pending-image-to-send', previewImage.src);
-        router.back();
-    };
-
-    const handleTimedSend = (option: string) => {
-        toast({
-            title: `Изображение будет отправлено`,
-            description: `Режим: ${option}`,
-        });
-        sessionStorage.setItem('pending-image-to-send', previewImage!.src);
+        const dataToSend = JSON.stringify({ src: previewImage.src, viewOptions });
+        sessionStorage.setItem('pending-image-to-send', dataToSend);
+        
+        if (viewOptions) {
+             const optionLabels: Record<ViewOptions, string> = {
+                '5s': 'На 5 секунд',
+                '15s': 'На 15 секунд',
+                '30s': 'На 30 секунд',
+                'once': 'Один просмотр',
+            }
+             toast({
+                title: `Изображение будет отправлено`,
+                description: `Режим: ${optionLabels[viewOptions]}`,
+            });
+        }
+        
         router.back();
     };
 
     // --- Long press for send options ---
-    const clearLongPressTimer = useCallback(() => {
-        if (pressTimer.current) {
-          clearTimeout(pressTimer.current);
-          pressTimer.current = null;
-        }
-    }, []);
-
     const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-        clearLongPressTimer();
+        if (e.pointerType === 'mouse' && e.button !== 0) return;
+        
+        if (pressTimer.current) clearTimeout(pressTimer.current);
+        
         pressTimer.current = setTimeout(() => {
             if (sendButtonRef.current) {
                 const rect = sendButtonRef.current.getBoundingClientRect();
@@ -205,12 +209,20 @@ export default function GalleryPage() {
         }, 500);
     };
 
+    const clearPressTimer = useCallback(() => {
+        if (pressTimer.current) {
+            clearTimeout(pressTimer.current);
+            pressTimer.current = null;
+        }
+    }, []);
+
     const handlePointerUp = () => {
-        clearLongPressTimer();
+        clearPressTimer();
     };
-    
+
     const handleContextMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
+        clearPressTimer();
         if (sendButtonRef.current) {
             const rect = sendButtonRef.current.getBoundingClientRect();
             setSendMenuState({ position: { top: rect.top, left: rect.left, width: rect.width } });
@@ -353,7 +365,7 @@ export default function GalleryPage() {
                         </Button>
                         <Button 
                           ref={sendButtonRef}
-                          onClick={handleSendImage} 
+                          onClick={() => handleSendImage(null)} 
                           onContextMenu={handleContextMenu}
                           onPointerDown={handlePointerDown}
                           onPointerUp={handlePointerUp}
@@ -370,7 +382,7 @@ export default function GalleryPage() {
             <SendOptionsMenu
                 position={sendMenuState.position}
                 onClose={() => setSendMenuState({ position: null })}
-                onSelect={handleTimedSend}
+                onSelect={handleSendImage}
             />
         </div>
     );

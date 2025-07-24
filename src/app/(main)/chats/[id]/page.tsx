@@ -5,7 +5,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { getConversationById, getCurrentUser } from '@/lib/mock-data';
-import type { User, Conversation, Message } from '@/lib/types';
+import type { User, Conversation, Message, ViewOptions } from '@/lib/types';
 import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { MessageView } from '@/components/message-view';
 import { Textarea } from '@/components/ui/textarea';
@@ -76,7 +76,7 @@ export default function ConversationPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<{src: string; viewOptions?: ViewOptions | null, messageId?: string} | null>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
   
   // Context Menu State
@@ -103,6 +103,10 @@ export default function ConversationPage() {
   const lastTap = useRef(0);
   const startDistance = useRef<number | null>(null);
   const startPosition = useRef({ x: 0, y: 0 });
+  
+  // Timer state for timed images
+  const [countdown, setCountdown] = useState<number | null>(null);
+  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
 
   // Initial data fetch
@@ -129,13 +133,25 @@ export default function ConversationPage() {
 
   // Check for sent image from gallery
   useEffect(() => {
-    const pendingImage = sessionStorage.getItem('pending-image-to-send');
-    if (pendingImage && currentUser) {
-        handleMediaSend({ src: pendingImage, type: 'image' }, 'gallery');
+    const pendingImageStr = sessionStorage.getItem('pending-image-to-send');
+    if (pendingImageStr && currentUser) {
+      try {
+        const pendingImage = JSON.parse(pendingImageStr);
+        if (pendingImage.src) {
+          handleMediaSend(
+            { src: pendingImage.src, type: 'image', viewOptions: pendingImage.viewOptions || null },
+            'gallery'
+          );
+        }
+      } catch (e) {
+        // Fallback for old format
+        handleMediaSend({ src: pendingImageStr, type: 'image' }, 'gallery');
+      } finally {
         sessionStorage.removeItem('pending-image-to-send');
+      }
     }
-  // We only want to run this once on mount, but need currentUser to be available
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // We only want to run this once on mount, but need currentUser to be available
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
 
@@ -146,7 +162,7 @@ export default function ConversationPage() {
     }
   }, [messages]);
   
-  const handleMediaSend = (media: { src: string; type: 'image' | 'video' }, source: 'camera' | 'gallery') => {
+  const handleMediaSend = (media: { src: string; type: 'image' | 'video', viewOptions?: ViewOptions | null }, source: 'camera' | 'gallery') => {
     if (!currentUser || !conversation) return;
 
     const mediaMessage: Message = {
@@ -157,6 +173,7 @@ export default function ConversationPage() {
       status: 'sent',
       [media.type]: media.src, // image: '...' or video: '...'
       source,
+      viewOptions: media.viewOptions
     };
 
     setMessages(prev => [...prev, mediaMessage]);
@@ -361,15 +378,48 @@ export default function ConversationPage() {
       setPosition({ x: 0, y: 0 });
   }, []);
   
-  const handlePreviewImage = (src: string) => {
-      setPreviewImage(src);
+  const handlePreviewImage = (message: Message) => {
+      if (!message.image) return;
+      setPreviewImage({ src: message.image, viewOptions: message.viewOptions, messageId: message.id });
       resetZoomAndPan();
   };
   
   const handleClosePreview = useCallback(() => {
-      setPreviewImage(null);
-      resetZoomAndPan();
-  }, [resetZoomAndPan]);
+    if (previewImage?.viewOptions === 'once' && previewImage.messageId) {
+        setMessages(prev => prev.filter(m => m.id !== previewImage.messageId));
+    }
+    setPreviewImage(null);
+    resetZoomAndPan();
+    if (countdownTimerRef.current) {
+        clearInterval(countdownTimerRef.current);
+    }
+    setCountdown(null);
+  }, [previewImage, resetZoomAndPan]);
+  
+  useEffect(() => {
+    if (previewImage?.viewOptions && previewImage.viewOptions !== 'once') {
+        const duration = parseInt(previewImage.viewOptions.replace('s', ''));
+        setCountdown(duration);
+
+        countdownTimerRef.current = setInterval(() => {
+            setCountdown(prev => {
+                if (prev === null || prev <= 1) {
+                    clearInterval(countdownTimerRef.current!);
+                    if (previewImage.messageId) {
+                        setMessages(p => p.filter(m => m.id !== previewImage.messageId));
+                    }
+                    handleClosePreview();
+                    return null;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    }
+    return () => {
+        if(countdownTimerRef.current) clearInterval(countdownTimerRef.current);
+    }
+  }, [previewImage, handleClosePreview]);
+
   
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
       if (e.touches.length === 2) {
@@ -603,6 +653,11 @@ export default function ConversationPage() {
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
                     >
+                         {countdown !== null && (
+                            <div className="absolute top-4 left-4 z-20 bg-black/50 text-white rounded-full h-10 w-10 flex items-center justify-center text-lg font-mono">
+                                {countdown}
+                            </div>
+                        )}
                         <div
                             ref={imageRef}
                             className="relative"
@@ -614,7 +669,7 @@ export default function ConversationPage() {
                             }}
                         >
                             <Image
-                                src={previewImage}
+                                src={previewImage.src}
                                 alt="Image preview"
                                 fill
                                 className="object-contain"

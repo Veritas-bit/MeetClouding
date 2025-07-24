@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import type { Message, User } from '@/lib/types';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Check, CheckCheck, MessageSquareReply, Copy, Pencil, Trash2, MapPin } from 'lucide-react';
+import { Check, CheckCheck, MessageSquareReply, Copy, Pencil, Trash2, MapPin, Lock } from 'lucide-react';
 import { format } from 'date-fns';
 import Image from 'next/image';
 import type { Gender } from '@/lib/profile-store';
@@ -21,7 +21,7 @@ interface MessageItemProps {
   currentUser: User;
   otherParticipant: User;
   onOpenMenu: (messageId: string, rect: DOMRect) => void;
-  onPreviewImage: (src: string) => void;
+  onPreviewImage: (message: Message) => void;
   onReply: (message: Message) => void;
 }
 
@@ -89,16 +89,23 @@ function LocationContent({ message, isSentByCurrentUser }: { message: Message, i
     );
 }
 
-function MediaContent({ message, onPreviewImage }: { message: Message, onPreviewImage: (src: string) => void }) {
+function MediaContent({ message, onPreviewImage }: { message: Message, onPreviewImage: (message: Message) => void }) {
   if (message.image) {
+    const isPrivate = !!message.viewOptions;
     return (
-      <button onClick={() => onPreviewImage(message.image!)} className="relative w-full max-w-[250px] aspect-[4/5] block overflow-hidden rounded-lg">
+      <button onClick={() => onPreviewImage(message)} className="relative w-full max-w-[250px] aspect-[4/5] block overflow-hidden rounded-lg">
         <Image
           src={message.image}
-          alt=""
+          alt={isPrivate ? "Private image" : "Image attachment"}
           layout="fill"
           objectFit="cover"
+          className={cn(isPrivate && "blur-md")}
         />
+        {isPrivate && (
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                <Lock className="h-8 w-8 text-white" />
+            </div>
+        )}
       </button>
     );
   }
@@ -147,7 +154,6 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   }, []);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    // Only set timer for touch or pen, or left mouse button
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     clearLongPressTimer();
     pressTimer.current = setTimeout(() => {

@@ -15,7 +15,7 @@ interface MessageViewProps {
     onOpenMenu: (messageId: string, rect: DOMRect) => void;
     wishText?: string;
     wishCategory?: WishCategoryKey;
-    onPreviewImage: (src: string) => void;
+    onPreviewImage: (message: Message) => void;
     onReply: (message: Message) => void;
 }
 
@@ -62,4 +62,3 @@ export function MessageView({ messages, currentUser, otherParticipant, onOpenMen
     </div>
   );
 }
-
