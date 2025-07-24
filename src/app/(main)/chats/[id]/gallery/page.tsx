@@ -26,6 +26,58 @@ const getDistance = (touches: React.TouchList) => {
     );
 };
 
+// --- Send Options Menu ---
+interface SendOptionsMenuProps {
+  position: { top: number; left: number } | null;
+  onSelect: (option: string) => void;
+  onClose: () => void;
+}
+
+function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) {
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    if (position) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [position, onClose]);
+
+  if (!position) return null;
+
+  const options = [
+    { label: 'На 5 секунд', value: '5s' },
+    { label: 'На 15 секунд', value: '15s' },
+    { label: 'На 30 секунд', value: '30s' },
+    { label: 'Одноразовый просмотр', value: 'once' },
+  ];
+
+  return (
+    <div
+      ref={menuRef}
+      style={{ top: position.top, left: position.left, transform: 'translateY(-100%)' }}
+      className="fixed z-[100] min-w-[220px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+    >
+      {options.map((option) => (
+        <button
+          key={option.value}
+          onClick={() => { onSelect(option.label); onClose(); }}
+          className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground"
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 
 export default function GalleryPage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -41,6 +93,11 @@ export default function GalleryPage() {
     const lastTap = useRef(0);
     const startDistance = useRef<number | null>(null);
     const startPosition = useRef({ x: 0, y: 0 });
+
+    // Send options menu state
+    const [sendMenuState, setSendMenuState] = useState<{ position: { top: number; left: number } | null }>({ position: null });
+    const pressTimer = useRef<NodeJS.Timeout | null>(null);
+    const sendButtonRef = useRef<HTMLButtonElement>(null);
 
 
     const handleUploadClick = () => {
@@ -105,9 +162,57 @@ export default function GalleryPage() {
 
     const handleSendImage = () => {
         if (!previewImage) return;
-        // Store image in session storage to be picked up by the chat page
+        // Prevent sending if menu was just opened
+        if (pressTimer.current) {
+            clearTimeout(pressTimer.current);
+            pressTimer.current = null;
+        }
+        if (sendMenuState.position) {
+            setSendMenuState({ position: null });
+            return;
+        }
+        
         sessionStorage.setItem('pending-image-to-send', previewImage.src);
         router.back();
+    };
+
+    const handleTimedSend = (option: string) => {
+        toast({
+            title: `Изображение будет отправлено`,
+            description: `Режим: ${option}`,
+        });
+        handleSendImage();
+    };
+
+    // --- Long press for send options ---
+    const clearLongPressTimer = useCallback(() => {
+        if (pressTimer.current) {
+          clearTimeout(pressTimer.current);
+          pressTimer.current = null;
+        }
+    }, []);
+
+    const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+        clearLongPressTimer();
+        pressTimer.current = setTimeout(() => {
+            if (sendButtonRef.current) {
+                const rect = sendButtonRef.current.getBoundingClientRect();
+                setSendMenuState({ position: { top: rect.top, left: rect.left } });
+            }
+            pressTimer.current = null;
+        }, 500);
+    };
+
+    const handlePointerUp = () => {
+        clearLongPressTimer();
+    };
+    
+    const handleContextMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        if (sendButtonRef.current) {
+            const rect = sendButtonRef.current.getBoundingClientRect();
+            setSendMenuState({ position: { top: rect.top, left: rect.left } });
+        }
     };
     
     // --- Touch Events for Zoom and Pan ---
@@ -245,13 +350,27 @@ export default function GalleryPage() {
                             <Trash2 className="mr-2 h-4 w-4" />
                             Удалить
                         </Button>
-                        <Button onClick={handleSendImage} className="w-full max-w-xs">
+                        <Button 
+                          ref={sendButtonRef}
+                          onClick={handleSendImage} 
+                          onContextMenu={handleContextMenu}
+                          onPointerDown={handlePointerDown}
+                          onPointerUp={handlePointerUp}
+                          onPointerLeave={handlePointerUp}
+                          className="w-full max-w-xs"
+                        >
                             <Send className="mr-2 h-4 w-4" />
                             Отправить
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <SendOptionsMenu
+                position={sendMenuState.position}
+                onClose={() => setSendMenuState({ position: null })}
+                onSelect={handleTimedSend}
+            />
         </div>
     );
 }
