@@ -19,6 +19,7 @@ import { FemaleIcon } from "@/components/icons/gender/FemaleIcon";
 import { NeuterIcon } from "@/components/icons/gender/NeuterIcon";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BackIcon } from "../icons/BackIcon";
+import { MeetCloudLogo } from "../icons/MeetCloudLogo";
 
 const GenderAvatar = ({ gender }: { gender: Gender }) => {
     const iconProps = { className: "w-full h-full p-1.5" };
@@ -64,8 +65,7 @@ const BackToMapButton = () => {
 const defaultHeader = (
     <>
         <Link href="/main" className="flex items-center space-x-2">
-           <GradientCloudIcon className="h-8 w-8" />
-           <span className="text-3xl font-headline bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">MeetCloud</span>
+           <MeetCloudLogo />
         </Link>
          <div className="flex flex-1 items-center justify-end space-x-4">
             <nav className="flex items-center space-x-1">
