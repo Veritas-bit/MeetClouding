@@ -31,28 +31,26 @@ export function GradientBorderCloudIcon({ className }: { className?: string }) {
 
         <filter id="glow">
             <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
-            <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
-            </feMerge>
         </filter>
 
       </defs>
       
-      {/* The animated running line with the glow filter applied */}
-      <g mask="url(#fade-mask)" filter="url(#glow)">
+      {/* The animated running line */}
+      <g mask="url(#fade-mask)">
         <path
             d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"
             fill="none"
             stroke="url(#logo-gradient)"
-            strokeWidth="2.5"
-            strokeOpacity="0.7"
+            strokeWidth="0.5"
+            strokeOpacity="1"
         />
+        {/* Upper copy is hidden as requested */}
         <path
             d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"
             fill="none"
             stroke="url(#logo-gradient)"
             strokeWidth="1"
+            display="none" 
         />
       </g>
     </svg>
