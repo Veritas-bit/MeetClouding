@@ -196,8 +196,8 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
 
   const handleSwipeMove = (e: TouchEvent) => {
     const deltaX = e.targetTouches[0].clientX - touchStartX.current;
-    // Only allow swiping left (negative delta) and limit to 20% of screen width
     const maxSwipe = -window.innerWidth * 0.2;
+    // Only allow swiping left
     if (deltaX < 0) {
        setSwipeX(Math.max(deltaX, maxSwipe));
     }
@@ -207,7 +207,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
     if (!messageRef.current) return;
     
     messageRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
-    const actionThreshold = -80; // Swipe at least 80px to the left
+    const actionThreshold = -window.innerWidth * 0.18;
 
     if (swipeX < actionThreshold && !isActionTriggered.current) {
         isActionTriggered.current = true;
@@ -232,7 +232,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
   return (
     <div className="relative overflow-x-hidden">
         <div
-            className={cn('flex items-end space-x-3 relative z-10 bg-background touch-pan-y', isSentByCurrentUser ? 'justify-end' : '')}
+            className={cn('flex items-end space-x-3 relative z-10 bg-transparent touch-pan-y', isSentByCurrentUser ? 'justify-end' : '')}
             style={{ transform: `translateX(${swipeX}px)` }}
             onTouchStart={handleSwipeStart}
             onTouchMove={handleSwipeMove}
