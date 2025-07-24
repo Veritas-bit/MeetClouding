@@ -28,7 +28,7 @@ const getDistance = (touches: React.TouchList) => {
 
 // --- Send Options Menu ---
 interface SendOptionsMenuProps {
-  position: { top: number; left: number } | null;
+  position: { top: number; left: number; width: number; } | null;
   onSelect: (option: string) => void;
   onClose: () => void;
 }
@@ -62,8 +62,8 @@ function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) 
   return (
     <div
       ref={menuRef}
-      style={{ top: position.top, left: position.left, transform: 'translateY(-100%)' }}
-      className="fixed z-[100] min-w-[220px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
+      style={{ top: position.top - 8, left: position.left, width: position.width, transform: 'translateY(-100%)' }}
+      className="fixed z-[100] rounded-md border bg-popover p-1 text-popover-foreground shadow-md animate-in fade-in-0 zoom-in-95"
     >
       {options.map((option) => (
         <button
@@ -96,7 +96,7 @@ export default function GalleryPage() {
     const startPosition = useRef({ x: 0, y: 0 });
 
     // Send options menu state
-    const [sendMenuState, setSendMenuState] = useState<{ position: { top: number; left: number } | null }>({ position: null });
+    const [sendMenuState, setSendMenuState] = useState<{ position: { top: number; left: number; width: number } | null }>({ position: null });
     const pressTimer = useRef<NodeJS.Timeout | null>(null);
     const sendButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -182,7 +182,8 @@ export default function GalleryPage() {
             title: `Изображение будет отправлено`,
             description: `Режим: ${option}`,
         });
-        handleSendImage();
+        sessionStorage.setItem('pending-image-to-send', previewImage!.src);
+        router.back();
     };
 
     // --- Long press for send options ---
@@ -198,7 +199,7 @@ export default function GalleryPage() {
         pressTimer.current = setTimeout(() => {
             if (sendButtonRef.current) {
                 const rect = sendButtonRef.current.getBoundingClientRect();
-                setSendMenuState({ position: { top: rect.top, left: rect.left } });
+                setSendMenuState({ position: { top: rect.top, left: rect.left, width: rect.width } });
             }
             pressTimer.current = null;
         }, 500);
@@ -212,7 +213,7 @@ export default function GalleryPage() {
         e.preventDefault();
         if (sendButtonRef.current) {
             const rect = sendButtonRef.current.getBoundingClientRect();
-            setSendMenuState({ position: { top: rect.top, left: rect.left } });
+            setSendMenuState({ position: { top: rect.top, left: rect.left, width: rect.width } });
         }
     };
     
