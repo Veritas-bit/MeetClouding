@@ -3,7 +3,6 @@
 
 import React from 'react';
 import type { User, Message } from '@/lib/types';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageItem } from './message-item';
 import { Sparkles } from 'lucide-react';
 import { WISH_CATEGORIES, WishCategoryKey } from '@/lib/categories';
@@ -44,7 +43,7 @@ export function MessageView({ messages, currentUser, otherParticipant, onOpenMen
   if (!otherParticipant) return null;
 
   return (
-    <ScrollArea className="h-full">
+    <div className="h-full">
       <div className="p-4 space-y-6 pb-4">
         {wishText && <WishHeader wishText={wishText} wishCategory={wishCategory} />}
         {messages.map((message) => (
@@ -58,6 +57,6 @@ export function MessageView({ messages, currentUser, otherParticipant, onOpenMen
           />
         ))}
       </div>
-    </ScrollArea>
+    </div>
   );
 }
