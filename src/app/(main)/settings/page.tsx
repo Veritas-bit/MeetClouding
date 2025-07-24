@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { LifeBuoy, Bell, Palette, Languages, Star, Info, Gem, Sun, Moon, Laptop, UserCog, LogOut, Pencil, Sunrise, Sunset, Orbit } from "lucide-react";
+import { LifeBuoy, Bell, Palette, Languages, Star, Info, Gem, Sun, Moon, Laptop, UserCog, LogOut, Pencil, Sunrise, Sunset, Orbit, ShieldX } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
   Collapsible,
@@ -108,6 +108,7 @@ export default function SettingsPage() {
 
   const settingsItems: SettingsButtonProps[] = [
     { icon: UserCog, text: t('accountManagement'), href: "/settings/account" },
+    { icon: ShieldX, text: t('blockedUsers'), href: "/settings/blocked" },
     { icon: LifeBuoy, text: t('help'), href: "/settings/help" },
     { icon: Bell, text: t('notifications'), href: "/settings/notifications" },
     { icon: Languages, text: t('language'), href: "/settings/language" },
@@ -193,3 +194,4 @@ export default function SettingsPage() {
     </ScrollArea>
   );
 }
+

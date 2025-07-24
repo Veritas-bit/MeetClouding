@@ -9,7 +9,7 @@ import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { MessageView } from '@/components/message-view';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Send, FileImage, Pencil, X, UserPlus, ShieldAlert, Video, MapPin, Share, Mic } from 'lucide-react';
+import { Send, FileImage, Pencil, X, UserPlus, ShieldAlert, Video, MapPin, Share, Mic, ShieldX } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ChatMessageMenu } from '@/components/message-item';
 // import { ChatAttachmentModal } from '@/components/chats/ChatAttachmentModal';
@@ -40,6 +40,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useLocationStore } from '@/lib/location-store';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useBlockedUsersStore } from '@/lib/blocked-users-store';
+import { Separator } from '@/components/ui/separator';
 
 const getDistance = (touches: React.TouchList) => {
     const [first, second] = [touches[0], touches[1]];
@@ -63,6 +65,7 @@ export default function ConversationPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const { blockUser, isUserBlocked } = useBlockedUsersStore();
 
   // Data state
   const [conversation, setConversation] = useState<Conversation | null | undefined>(null);
@@ -120,11 +123,18 @@ export default function ConversationPage() {
       setConversation(convData);
       setCurrentUser(currentUserData as User);
       if (convData) {
+        // Check if the other participant is blocked
+        const otherP = convData.participants.find(p => p.id !== currentUserData?.id);
+        if (otherP && isUserBlocked(otherP.id)) {
+            toast({ title: 'Пользователь заблокирован', description: 'Вы не можете просматривать этот чат.', variant: 'destructive' });
+            router.back();
+            return;
+        }
         setMessages(convData.messages);
       }
     }
     fetchData();
-  }, [params.id]);
+  }, [params.id, isUserBlocked, toast, router]);
   
   useEffect(() => {
     requestLocation();
@@ -260,6 +270,14 @@ export default function ConversationPage() {
     toast({ title: "Жалоба отправлена", description: `Ваша жалоба на пользователя ${otherParticipant?.name} будет рассмотрена модераторами.`, variant: "destructive" });
     setDialogState(null);
     setSelectedReportReasons([]);
+  }
+
+  const handleBlockUser = () => {
+    if (!otherParticipant) return;
+    blockUser(otherParticipant);
+    toast({ title: "Пользователь заблокирован", description: `${otherParticipant.name} добавлен в черный список.`, variant: "destructive" });
+    setDialogState(null);
+    router.back();
   }
 
   const handleReportReasonChange = (reasonId: string) => {
@@ -643,11 +661,13 @@ export default function ConversationPage() {
                         </div>
                     ))}
                 </div>
-                <DialogFooter className="!flex-row !justify-center gap-4">
-                    <DialogClose asChild>
-                        <Button type="button" variant="default" className="max-w-[40%]">Отмена</Button>
-                    </DialogClose>
-                    <Button type="submit" variant="destructive" className="max-w-[50%]" onClick={handleReport} disabled={selectedReportReasons.length === 0}>Отправить жалобу</Button>
+                <DialogFooter className="!flex-col sm:!flex-col sm:space-x-0 gap-2">
+                     <Button type="submit" variant="destructive" className="w-full" onClick={handleReport} disabled={selectedReportReasons.length === 0}>Отправить жалобу</Button>
+                     <Separator />
+                     <Button type="button" variant="outline" className="w-full" onClick={handleBlockUser}>
+                        <ShieldX className="mr-2 h-4 w-4" />
+                        Заблокировать
+                     </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
