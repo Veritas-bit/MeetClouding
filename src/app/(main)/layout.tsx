@@ -25,7 +25,8 @@ export default function MainLayout({
   const requestLocation = useLocationStore((state) => state.requestLocation);
   const t = useTranslation();
 
-  const showBottomNav = !pathname.includes('/gallery');
+  const showBottomNav = !pathname.includes('/gallery') && !pathname.includes('/profile/edit');
+  const showHeader = !pathname.includes('/profile/edit');
 
   useEffect(() => {
     // This is the key change: ensure we check registration status
@@ -57,6 +58,11 @@ export default function MainLayout({
   }
   
   // If the user is registered, show the main app layout.
+  // The new edit/profile/layout.tsx will handle its own nav rendering.
+  if (pathname.startsWith('/profile/edit')) {
+    return <main className="flex-grow overflow-y-auto">{children}</main>;
+  }
+
   return (
     <div className="relative flex flex-col h-svh">
       <Header />

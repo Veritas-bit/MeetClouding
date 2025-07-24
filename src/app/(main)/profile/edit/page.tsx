@@ -146,7 +146,7 @@ export default function EditProfilePage() {
     if (isFirstSave) {
       router.push('/main');
     } else {
-      router.push('/settings');
+      router.back();
     }
   };
   
