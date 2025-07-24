@@ -56,7 +56,7 @@ function SendOptionsMenu({ position, onSelect, onClose }: SendOptionsMenuProps) 
     { label: 'На 5 секунд', value: '5s', icon: Timer },
     { label: 'На 15 секунд', value: '15s', icon: Timer },
     { label: 'На 30 секунд', value: '30s', icon: Timer },
-    { label: 'Разовый просмотр', value: 'once', icon: EyeOff },
+    { label: 'Один просмотр', value: 'once', icon: EyeOff },
   ];
 
   return (
