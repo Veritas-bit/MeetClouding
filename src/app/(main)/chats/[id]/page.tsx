@@ -550,12 +550,12 @@ export default function ConversationPage() {
                 <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('report')}>
                     <ShieldAlert className="h-6 w-6 text-muted-foreground" />
                 </Button>
-                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={() => setDialogState('friendRequest')}>
+                <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent -ml-2" onClick={() => setDialogState('friendRequest')}>
                     <UserPlus className="h-6 w-6 text-muted-foreground" />
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent">
+                    <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent -ml-2">
                         <FileImage className="h-6 w-6 text-muted-foreground" />
                     </Button>
                   </DropdownMenuTrigger>
