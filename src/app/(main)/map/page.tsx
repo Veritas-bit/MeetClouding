@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Suspense, useEffect, useState, useCallback } from 'react';
@@ -47,7 +48,10 @@ const WishHeader = ({ wishText, categoryKey }: { wishText: string, categoryKey: 
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-5rem)] max-w-sm">
             <div className="p-3 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg">
                 <div className="flex items-center gap-3">
-                    <Icon className="h-5 w-5 text-primary shrink-0" />
+                    <Icon 
+                        className="h-5 w-5 shrink-0"
+                        style={{ color: category?.color || 'hsl(var(--primary))' }}
+                    />
                     <div className="flex-1 overflow-hidden">
                         <p className="text-sm font-semibold text-foreground">{t('yourWishLabel')}</p>
                         <p className="text-xs text-muted-foreground truncate">{wishText}</p>
