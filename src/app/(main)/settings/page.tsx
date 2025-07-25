@@ -129,7 +129,7 @@ export default function SettingsPage() {
     <ScrollArea className="h-full">
         <div className="container mx-auto p-4 pb-24">
         <ProfileSection />
-        <Card className="w-full max-w-md mx-auto">
+        <Card className="w-full max-w-md mx-auto bg-primary/10">
             <CardContent className="p-0">
             <div className="flex flex-col">
                 {settingsItems.map((item, index) => (
@@ -194,6 +194,7 @@ export default function SettingsPage() {
     </ScrollArea>
   );
 }
+
 
 
 
