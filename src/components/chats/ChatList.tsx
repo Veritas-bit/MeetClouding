@@ -66,23 +66,21 @@ export function ChatList({ mainChats: initialMainChats, friendChats: initialFrie
 
   return (
     <div className="flex-grow flex flex-col p-2 h-full">
-        <div className="flex-grow rounded-lg p-px bg-gradient-to-r from-primary/20 to-secondary/20">
-            <ScrollArea className="flex-grow rounded-[7px] bg-primary/10 h-full">
-                <div>
-                    <div className="flex flex-col">
-                    {chatsToShow.map((chat) => (
-                        <ChatItem 
-                            key={chat.id} 
-                            {...chat} 
-                            onDelete={(id) => handleDelete(id, chatType)}
-                            onPin={handlePin}
-                            isPinned={pinnedChats.has(chat.id)}
-                        />
-                    ))}
-                    </div>
+        <ScrollArea className="flex-grow rounded-lg bg-background h-full">
+            <div>
+                <div className="flex flex-col">
+                {chatsToShow.map((chat) => (
+                    <ChatItem 
+                        key={chat.id} 
+                        {...chat} 
+                        onDelete={(id) => handleDelete(id, chatType)}
+                        onPin={handlePin}
+                        isPinned={pinnedChats.has(chat.id)}
+                    />
+                ))}
                 </div>
-            </ScrollArea>
-        </div>
+            </div>
+        </ScrollArea>
     </div>
   );
 }
