@@ -80,7 +80,7 @@ function ProfileSection() {
                     <p className="text-xs text-muted-foreground">{getGenderText()}</p>
                 </div>
 
-                <Card className="bg-card/50 w-full mt-2">
+                <Card className="bg-primary/10 w-full mt-2">
                     <CardContent className="p-2">
                         <h2 className="text-sm font-semibold">{t('aboutSelf')}</h2>
                         <p className="text-xs text-muted-foreground mt-0.5">
@@ -194,4 +194,5 @@ export default function SettingsPage() {
     </ScrollArea>
   );
 }
+
 
