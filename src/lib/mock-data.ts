@@ -46,6 +46,8 @@ const conversations: Conversation[] = [
   {
     id: 'friend-1',
     participants: [users[0], users[5]],
+    wishText: "Я хочу найти компанию для прогулки по парку",
+    wishCategory: 'walk',
     messages: [
        { id: 'msg-4-1', text: 'Привет! Давно не виделись!', timestamp: Date.now() - 1000 * 60 * 60 * 24, senderId: 'friend-1', status: 'read' },
     ],
@@ -53,6 +55,8 @@ const conversations: Conversation[] = [
   {
     id: 'friend-2',
     participants: [users[0], users[6]],
+     wishText: "Я хочу сходить в кино на новый фильм",
+    wishCategory: 'entertainment',
     messages: [
        { id: 'msg-5-1', text: 'Какие планы на выходные?', timestamp: Date.now() - 1000 * 60 * 60 * 4, senderId: 'user-1', status: 'delivered' },
     ],

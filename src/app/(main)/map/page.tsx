@@ -12,11 +12,12 @@ import { useProfileStore, type Gender } from '@/lib/profile-store';
 import { useInteractionStore } from '@/lib/interaction-store';
 import { WISHES } from '@/lib/wishes';
 import { useTranslation } from '@/hooks/use-translation';
-import { getAllUsers } from '@/lib/mock-data';
-import type { User } from '@/lib/types';
+import { getAllUsers, getConversations } from '@/lib/mock-data';
+import type { User, Conversation } from '@/lib/types';
 import type { YMapLocation } from 'ymap3-components';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles, Users } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 
 // Lazy load the MapComponent
@@ -39,15 +40,15 @@ export interface MarkerInfo {
   gender: Gender;
 }
 
-const WishHeader = ({ wishText, categoryKey }: { wishText: string, categoryKey: WishCategoryKey }) => {
+const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount }: { wishText: string, categoryKey: WishCategoryKey, onFilterFriends: () => void, friendCount: number }) => {
     const category = WISH_CATEGORIES[categoryKey];
     const Icon = category ? category.icon : Sparkles;
     const t = useTranslation();
 
     return (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-5rem)] max-w-sm">
-            <div className="p-3 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg">
-                <div className="flex items-center gap-3">
+            <div className="p-3 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3 flex-1 overflow-hidden">
                     <Icon 
                         className="h-5 w-5 shrink-0"
                         style={{ color: category?.color || 'hsl(var(--primary))' }}
@@ -57,6 +58,11 @@ const WishHeader = ({ wishText, categoryKey }: { wishText: string, categoryKey: 
                         <p className="text-xs text-muted-foreground truncate">{wishText}</p>
                     </div>
                 </div>
+                 {friendCount > 0 && (
+                    <Button variant="ghost" size="icon" className="shrink-0" onClick={onFilterFriends}>
+                        <Users className="h-5 w-5 text-primary" />
+                    </Button>
+                )}
             </div>
         </div>
     );
@@ -73,6 +79,9 @@ const generateRandomMarkers = (center: { latitude: number, longitude: number }, 
 
     for (let i = 0; i < count; i++) {
         const randomUser = users[Math.floor(Math.random() * users.length)];
+        // Ensure we don't pick the current user for random markers
+        if (randomUser.id === 'user-1') continue;
+
         const currentCategoryKey = category || WISH_CATEGORY_KEYS[Math.floor(Math.random() * WISH_CATEGORY_KEYS.length)];
         const categoryInfo = WISH_CATEGORIES[currentCategoryKey];
         const wishesForCategory = WISHES[currentCategoryKey];
@@ -116,12 +125,16 @@ function MapContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useTranslation();
+  const { toast } = useToast();
   const { location, requestLocation } = useLocationStore();
   const { isPremium, avatar, gender } = useProfileStore();
   const setHasInteractedWithMap = useInteractionStore((state) => state.setHasInteractedWithMap);
   
   const [allUsers, setAllUsers] = useState<User[]>([]);
-  const [markers, setMarkers] = useState<MarkerInfo[]>([]);
+  const [friendIds, setFriendIds] = useState<string[]>([]);
+  const [allMarkers, setAllMarkers] = useState<MarkerInfo[]>([]);
+  const [visibleMarkers, setVisibleMarkers] = useState<MarkerInfo[]>([]);
+  const [isFriendFilterActive, setIsFriendFilterActive] = useState(false);
   
   // Map view state
   const [mapLocation, setMapLocation] = useState<YMapLocation | null>(null);
@@ -134,7 +147,18 @@ function MapContent() {
     if (!isPublished) {
       requestLocation();
     }
-    getAllUsers().then(setAllUsers);
+    async function fetchInitialData() {
+        const [users, convos] = await Promise.all([getAllUsers(), getConversations()]);
+        setAllUsers(users);
+
+        const currentUser = users.find(u => u.id === 'user-1');
+        if (currentUser) {
+            const friendConvos = convos.filter(c => c.id.startsWith('friend-'));
+            const fIds = friendConvos.map(c => c.participants.find(p => p.id !== currentUser.id)?.id).filter(Boolean) as string[];
+            setFriendIds(fIds);
+        }
+    }
+    fetchInitialData();
   }, [requestLocation, isPublished]);
 
   // Effect to initialize markers and view state
@@ -219,10 +243,32 @@ function MapContent() {
         return;
     }
     
-    setMarkers(initialMarkers);
+    setAllMarkers(initialMarkers);
+    setVisibleMarkers(initialMarkers);
     setMapLocation({ center: [initialCenter.longitude, initialCenter.latitude], zoom: 12 });
     
   }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapLocation, isFromChat, isPublished]);
+  
+  // Effect to update visible markers when filter changes
+  useEffect(() => {
+    if (isFriendFilterActive) {
+        setVisibleMarkers(allMarkers.filter(m => friendIds.includes(m.userId) || m.userId === '0'));
+    } else {
+        setVisibleMarkers(allMarkers);
+    }
+  }, [isFriendFilterActive, allMarkers, friendIds]);
+
+
+  const handleFilterFriends = () => {
+    if (friendIds.length === 0) {
+        toast({
+            title: "У вас пока нет друзей",
+            variant: "destructive"
+        });
+        return;
+    }
+    setIsFriendFilterActive(prev => !prev);
+  }
   
   const handleMapUpdate = useCallback((newLocation: YMapLocation) => {
     // We can use this callback to update state if needed, e.g., for saving map position
@@ -250,12 +296,17 @@ function MapContent() {
         </Button>
 
         {isPublished && publishedMessage && publishedCategoryKey && (
-             <WishHeader wishText={publishedMessage} categoryKey={publishedCategoryKey} />
+             <WishHeader 
+                wishText={publishedMessage} 
+                categoryKey={publishedCategoryKey}
+                onFilterFriends={handleFilterFriends}
+                friendCount={friendIds.length}
+             />
         )}
        
         <MapComponent 
             location={mapLocation} 
-            markers={markers} 
+            markers={visibleMarkers} 
             className="w-full h-full"
             onUpdate={handleMapUpdate}
         />
