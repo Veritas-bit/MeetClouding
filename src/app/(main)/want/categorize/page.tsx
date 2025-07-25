@@ -130,60 +130,62 @@ function CategorizeWishForm() {
     }
     
     return (
-        <div className="flex-grow flex flex-col items-center justify-center p-4">
-            <div className="w-full max-w-lg">
-                <Card>
-                    <CardContent className="p-3">
-                        <div className="grid w-full gap-3">
-                            <div className="p-3 border rounded-lg bg-muted/50">
-                                <Label>{t('yourWishLabel')}:</Label>
-                                <p className="text-sm text-muted-foreground italic mt-1">"{message}"</p>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                {Object.entries(WISH_CATEGORIES).map(([key, cat]) => {
-                                    const isSelected = selectedCategory === key;
-                                    const isDisabled = !isPremium;
+        <div className="h-full flex flex-col">
+             <div className="flex-grow flex flex-col items-center justify-center p-4">
+                <div className="w-full max-w-lg">
+                    <Card>
+                        <CardContent className="p-3">
+                            <div className="grid w-full gap-3">
+                                <div className="p-3 border rounded-lg bg-muted/50">
+                                    <Label>{t('yourWishLabel')}:</Label>
+                                    <p className="text-sm text-muted-foreground italic mt-1">"{message}"</p>
+                                </div>
+                                
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                    {Object.entries(WISH_CATEGORIES).map(([key, cat]) => {
+                                        const isSelected = selectedCategory === key;
+                                        const isDisabled = !isPremium;
 
-                                    return (
-                                        <Button
-                                            key={key}
-                                            variant={isSelected ? 'default' : 'outline'}
-                                            onClick={() => setSelectedCategory(key as WishCategoryKey)}
-                                            className={cn(
-                                                "h-16 flex flex-col gap-1 relative transition-all",
-                                                isDisabled && !isSelected && "blur-sm pointer-events-none"
-                                            )}
-                                            disabled={isDisabled && !isSelected}
-                                            style={{
-                                                '--category-color': cat.color,
-                                                borderColor: isSelected ? cat.color : 'hsl(var(--border))',
-                                                color: isSelected ? 'hsl(var(--primary-foreground))' : cat.color,
-                                                backgroundColor: isSelected ? cat.color : 'transparent',
-                                            } as React.CSSProperties}
-                                        >
-                                            <cat.icon className="h-5 w-5" />
-                                            <span className="text-xs">{t(cat.name as any)}</span>
+                                        return (
+                                            <Button
+                                                key={key}
+                                                variant={isSelected ? 'default' : 'outline'}
+                                                onClick={() => setSelectedCategory(key as WishCategoryKey)}
+                                                className={cn(
+                                                    "h-16 flex flex-col gap-1 relative transition-all",
+                                                    isDisabled && !isSelected && "blur-sm pointer-events-none"
+                                                )}
+                                                disabled={isDisabled && !isSelected}
+                                                style={{
+                                                    '--category-color': cat.color,
+                                                    borderColor: isSelected ? cat.color : 'hsl(var(--border))',
+                                                    color: isSelected ? 'hsl(var(--primary-foreground))' : cat.color,
+                                                    backgroundColor: isSelected ? cat.color : 'transparent',
+                                                } as React.CSSProperties}
+                                            >
+                                                <cat.icon className="h-5 w-5" />
+                                                <span className="text-xs">{t(cat.name as any)}</span>
+                                            </Button>
+                                        )
+                                    })}
+                                </div>
+                                {!isPremium && (
+                                    <Link href="/settings/premium?from=categorize" className="w-full">
+                                        <Button variant="secondary" className="w-full">
+                                            {t('unlockWithPremium')}
                                         </Button>
-                                    )
-                                })}
+                                    </Link>
+                                )}
                             </div>
-                            {!isPremium && (
-                                <Link href="/settings/premium?from=categorize" className="w-full">
-                                    <Button variant="secondary" className="w-full">
-                                        {t('unlockWithPremium')}
-                                    </Button>
-                                </Link>
-                            )}
-                        </div>
-                    </CardContent>
-                    <CardFooter className="p-3">
-                        <Button className="w-full" onClick={handlePublish} disabled={isPublishing || !selectedCategory}>
-                            {isPublishing && <GradientBorderCloudIcon className="mr-2 h-4 w-4" />}
-                            {isPublishing ? t('publishingWish') : t('publishOnMap')}
-                        </Button>
-                    </CardFooter>
-                </Card>
+                        </CardContent>
+                        <CardFooter className="p-3">
+                            <Button className="w-full" onClick={handlePublish} disabled={isPublishing || !selectedCategory}>
+                                {isPublishing && <GradientBorderCloudIcon className="mr-2 h-4 w-4" />}
+                                {isPublishing ? t('publishingWish') : t('publishOnMap')}
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                </div>
             </div>
         </div>
     );
