@@ -62,7 +62,7 @@ function CategorizeWishForm() {
 
         setSelectedCategory(categoryToSet);
 
-    }, [searchParams, isPremium]);
+    }, [searchParams, isPremium, t]);
 
     const handlePublish = async () => {
         if (!message || !selectedCategory) return;
@@ -130,7 +130,7 @@ function CategorizeWishForm() {
     }
     
     return (
-        <div className="flex-grow flex flex-col items-center p-4 py-2">
+        <div className="flex-grow flex flex-col items-center justify-center p-4">
             <div className="w-full max-w-lg">
                 <Card>
                     <CardContent className="p-3">
