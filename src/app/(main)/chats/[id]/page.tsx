@@ -410,21 +410,24 @@ export default function ConversationPage() {
   }, []);
   
   const handlePreviewImage = (message: Message) => {
-      if (!message.image || !message.id) return;
-      
-      // Start timer on first view only
-      if (message.viewOptions && !activeTimers.current.has(message.id)) {
-        if (message.viewOptions === 'once') {
-            // It will be removed on close
-        } else {
-           const durationMs = parseInt(message.viewOptions.replace('s', ''), 10) * 1000;
-           activeTimers.current.set(message.id, Date.now() + durationMs);
-        }
-      }
+    if (!message.image || !message.id || !currentUser) return;
 
-      setPreviewImage({ src: message.image, viewOptions: message.viewOptions, messageId: message.id });
-      resetZoomAndPan();
-  };
+    const isSentByCurrentUser = message.senderId === currentUser.id;
+
+    // Start timer on first view only for the receiver
+    if (!isSentByCurrentUser && message.viewOptions && !activeTimers.current.has(message.id)) {
+        if (message.viewOptions === 'once') {
+            // 'once' is handled on close
+        } else {
+            const durationMs = parseInt(message.viewOptions.replace('s', ''), 10) * 1000;
+            activeTimers.current.set(message.id, Date.now() + durationMs);
+        }
+    }
+
+    setPreviewImage({ src: message.image, viewOptions: message.viewOptions, messageId: message.id });
+    resetZoomAndPan();
+};
+
   
   const handleClosePreview = useCallback(() => {
     if (previewImageRef.current?.viewOptions === 'once' && previewImageRef.current.messageId) {
@@ -716,5 +719,7 @@ export default function ConversationPage() {
     </div>
   );
 }
+
+    
 
     
