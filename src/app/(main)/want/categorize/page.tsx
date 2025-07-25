@@ -130,18 +130,18 @@ function CategorizeWishForm() {
     }
     
     return (
-        <div className="flex-grow flex flex-col justify-center items-center p-4">
+        <div className="flex-grow flex flex-col items-center p-4">
             <div className="w-full max-w-lg">
                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 font-headline">
-                            <LayoutGrid className="h-6 w-6 text-primary" />
+                    <CardHeader className="p-3">
+                        <CardTitle className="flex items-center gap-2 font-headline text-lg">
+                            <LayoutGrid className="h-5 w-5 text-primary" />
                             {t('selectCategoryTitle')}
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="grid w-full gap-4">
-                            <div className="p-4 border rounded-lg bg-muted/50">
+                    <CardContent className="p-3">
+                        <div className="grid w-full gap-3">
+                            <div className="p-3 border rounded-lg bg-muted/50">
                                 <Label>{t('yourWishLabel')}:</Label>
                                 <p className="text-sm text-muted-foreground italic mt-1">"{message}"</p>
                             </div>
@@ -183,7 +183,7 @@ function CategorizeWishForm() {
                             )}
                         </div>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="p-3">
                         <Button className="w-full" onClick={handlePublish} disabled={isPublishing || !selectedCategory}>
                             {isPublishing && <GradientBorderCloudIcon className="mr-2 h-4 w-4" />}
                             {isPublishing ? t('publishingWish') : t('publishOnMap')}
