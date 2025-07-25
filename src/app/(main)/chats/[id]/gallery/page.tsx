@@ -110,6 +110,7 @@ export default function GalleryPage() {
     const pressTimer = useRef<NodeJS.Timeout | null>(null);
     const sendButtonRef = useRef<HTMLButtonElement>(null);
     const dialogContentRef = useRef<HTMLDivElement>(null);
+    const isLongPress = useRef(false);
 
 
     const handleUploadClick = () => {
@@ -175,13 +176,7 @@ export default function GalleryPage() {
 
     const handleSendImage = (viewOptions: ViewOptions | null = null) => {
         if (!previewImage) return;
-
-        // Regular click handling, which now includes calls from the menu
-        if (pressTimer.current) {
-            clearTimeout(pressTimer.current);
-            pressTimer.current = null;
-        }
-
+        
         const dataToSend = JSON.stringify({ src: previewImage.src, viewOptions });
         sessionStorage.setItem('pending-image-to-send', dataToSend);
         
@@ -204,14 +199,11 @@ export default function GalleryPage() {
 
     // --- Long press for send options ---
     const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
-        // Only react to primary mouse button or touch
         if (e.pointerType === 'mouse' && e.button !== 0) return;
+        isLongPress.current = false;
         
-        // Clear any existing timer
-        if (pressTimer.current) clearTimeout(pressTimer.current);
-        
-        // Start a new timer
         pressTimer.current = setTimeout(() => {
+            isLongPress.current = true;
             if (sendButtonRef.current) {
                 const rect = sendButtonRef.current.getBoundingClientRect();
                  const dialogRect = dialogContentRef.current?.getBoundingClientRect();
@@ -225,24 +217,25 @@ export default function GalleryPage() {
                      });
                  }
             }
-            pressTimer.current = null;
         }, 500); // 500ms for long press
     };
-
-    const handlePointerUp = (isClick: boolean) => {
+    
+    const handlePointerUp = () => {
         if (pressTimer.current) {
             clearTimeout(pressTimer.current);
             pressTimer.current = null;
-            if (isClick) {
-                 handleSendImage(null);
-            }
+        }
+    };
+    
+    const handleSendClick = () => {
+        if (!isLongPress.current) {
+            handleSendImage(null);
         }
     };
 
+
     const handleContextMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
-        // Prevent the default browser context menu
         e.preventDefault();
-        // Clear the long press timer if it's running
         clearTimeout(pressTimer.current!);
          if (sendButtonRef.current) {
              const rect = sendButtonRef.current.getBoundingClientRect();
@@ -396,11 +389,11 @@ export default function GalleryPage() {
                         </Button>
                         <Button 
                           ref={sendButtonRef}
-                          onClick={() => handlePointerUp(true)}
+                          onClick={handleSendClick}
                           onContextMenu={handleContextMenu}
                           onPointerDown={handlePointerDown}
-                          onPointerUp={() => handlePointerUp(false)}
-                          onPointerLeave={() => handlePointerUp(false)}
+                          onPointerUp={handlePointerUp}
+                          onPointerLeave={handlePointerUp}
                           className="w-full max-w-xs"
                         >
                             <Send className="mr-2 h-4 w-4" />
