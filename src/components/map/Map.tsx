@@ -16,6 +16,17 @@ import { useTheme } from 'next-themes';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import type { Gender } from '@/lib/profile-store';
+import { useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 
 interface MapProps {
@@ -25,7 +36,7 @@ interface MapProps {
     onUpdate?: (location: YMapLocation) => void;
 }
 
-const getPlacemarkLayout = (marker: MarkerInfo): string => {
+const getPlacemarkLayout = (marker: MarkerInfo, isCooperative: boolean): string => {
     let color = marker.color || '#FF7F50';
     let glowStdDeviation = '6';
 
@@ -95,8 +106,16 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
     };
     const strokeColor = getStrokeColor(color);
 
+    const cooperativeIcon = isCooperative ? `
+      <g transform="translate(20, 55)">
+        <circle cx="0" cy="0" r="2" fill="${color}" />
+        <circle cx="7" cy="0" r="2" fill="${color}" />
+        <circle cx="14" cy="0" r="2" fill="${color}" />
+      </g>
+    ` : '';
+
     const cloudSvg = `
-        <svg width="40" height="30" viewBox="0 0 80 60" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-20px, -30px); overflow: visible;">
+        <svg width="40" height="40" viewBox="0 0 80 70" xmlns="http://www.w3.org/2000/svg" style="transform: translate(-20px, -30px); overflow: visible;">
             <defs>
                  <filter id="glow-${marker.id.replace(/[^a-zA-Z0-9]/g, '')}" x="-50%" y="-50%" width="200%" height="200%">
                     <feDropShadow dx="0" dy="0" stdDeviation="${glowStdDeviation}" flood-color="${color}" flood-opacity="1"/>
@@ -111,6 +130,7 @@ const getPlacemarkLayout = (marker: MarkerInfo): string => {
             </g>
             ${genderSticker}
             ${premiumGem}
+            ${cooperativeIcon}
         </svg>
     `;
     
@@ -121,6 +141,10 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
   const router = useRouter();
   const { toast } = useToast();
   const { theme } = useTheme();
+  
+  const [cooperativeWishes, setCooperativeWishes] = useState<Set<string>>(new Set());
+  const [dialogState, setDialogState] = useState<{ open: boolean, marker: MarkerInfo | null }>({ open: false, marker: null });
+
 
   const mapApiKey = process.env.NEXT_PUBLIC_YANDEX_MAP_API_KEY || "";
 
@@ -139,13 +163,26 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
 
   const handleMarkerClick = (marker: MarkerInfo) => {
     if (marker.userId === '0') {
-      toast({
-        title: "Это ваше желание",
-        description: "Другие пользователи его уже видят!",
-      });
-      return;
+      if (cooperativeWishes.has(marker.id)) {
+          toast({ title: "Это ваше кооперативное желание" });
+          return;
+      }
+      setDialogState({ open: true, marker });
+    } else {
+      router.push(`/chats/conv-2?from=map`);
     }
-    router.push(`/chats/conv-2?from=map`);
+  };
+  
+  const handleMakeCooperative = () => {
+    if (dialogState.marker) {
+      setCooperativeWishes(prev => new Set(prev).add(dialogState.marker!.id));
+      // TODO: Here would be logic to convert the chat to multi-user
+      toast({
+          title: "Желание стало кооперативным!",
+          description: "Теперь другие могут присоединиться к вашей группе."
+      });
+    }
+    setDialogState({ open: false, marker: null });
   };
 
   return (
@@ -169,12 +206,27 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
                         onClick={() => handleMarkerClick(marker)}
                     >
                         <div
-                            dangerouslySetInnerHTML={{ __html: getPlacemarkLayout(marker)}}
+                            dangerouslySetInnerHTML={{ __html: getPlacemarkLayout(marker, cooperativeWishes.has(marker.id))}}
                         />
                     </YMapMarker>
                 ))}
             </YMap>
         </YMapComponentsProvider>
+        
+        <AlertDialog open={dialogState.open} onOpenChange={(isOpen) => setDialogState(prev => ({ ...prev, open: isOpen }))}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Сделать желание кооперативным?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        Вы хотите, чтобы другие пользователи могли присоединиться к этому желанию в виде группового чата?
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="!flex-row !justify-center gap-4">
+                    <AlertDialogCancel className="max-w-[40%]" onClick={() => setDialogState({ open: false, marker: null })}>Нет</AlertDialogCancel>
+                    <AlertDialogAction className="max-w-[40%]" onClick={handleMakeCooperative}>Да</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </div>
   );
 }
