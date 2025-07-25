@@ -98,7 +98,7 @@ export default function ConversationPage() {
   const viewportRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Zoom and Pan state
+  // Zoom and Pan state for image preview
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const imageRef = useRef<HTMLDivElement>(null);
@@ -106,9 +106,67 @@ export default function ConversationPage() {
   const startDistance = useRef<number | null>(null);
   const startPosition = useRef({ x: 0, y: 0 });
   
-  // Timer state for timed images
+  // New Timer state logic for timed images
   const [countdown, setCountdown] = useState<number | null>(null);
-  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const activeTimers = useRef<Map<string, { endTime: number }>>(new Map());
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Function to remove a message by ID
+  const removeMessage = useCallback((messageId: string) => {
+    setMessages(prev => prev.filter(m => m.id !== messageId));
+    activeTimers.current.delete(messageId);
+  }, []);
+
+  // Timer update function
+  const updateTimers = useCallback(() => {
+    const now = Date.now();
+    let isPreviewingTimedImage = false;
+
+    activeTimers.current.forEach((timer, messageId) => {
+      const timeLeft = Math.round((timer.endTime - now) / 1000);
+      
+      if (previewImage?.messageId === messageId) {
+        setCountdown(timeLeft > 0 ? timeLeft : 0);
+        isPreviewingTimedImage = true;
+      }
+      
+      if (timeLeft <= 0) {
+        removeMessage(messageId);
+        // If the expired image was being previewed, close it
+        if (previewImage?.messageId === messageId) {
+            setPreviewImage(null);
+            setScale(1);
+            setPosition({ x: 0, y: 0 });
+        }
+      }
+    });
+
+    // If no timed image is being previewed, set countdown to null
+    if (!isPreviewingTimedImage) {
+        setCountdown(null);
+    }
+  }, [previewImage, removeMessage]);
+
+  // Start/Stop the master interval timer
+  useEffect(() => {
+    // Start interval if there are active timers and it's not already running
+    if (activeTimers.current.size > 0 && !intervalRef.current) {
+        intervalRef.current = setInterval(updateTimers, 1000);
+    }
+    
+    // Stop interval if there are no active timers
+    if (activeTimers.current.size === 0 && intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+    }
+
+    // Cleanup on unmount
+    return () => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+    };
+  }, [updateTimers]); // Dependency array should be stable
 
 
   // Initial data fetch
@@ -123,7 +181,6 @@ export default function ConversationPage() {
       setConversation(convData);
       setCurrentUser(currentUserData as User);
       if (convData) {
-        // Check if the other participant is blocked
         const otherP = convData.participants.find(p => p.id !== currentUserData?.id);
         if (otherP && isUserBlocked(otherP.id)) {
             toast({ title: 'Пользователь заблокирован', description: 'Вы не можете просматривать этот чат.', variant: 'destructive' });
@@ -153,13 +210,11 @@ export default function ConversationPage() {
           );
         }
       } catch (e) {
-        // Fallback for old format
         handleMediaSend({ src: pendingImageStr, type: 'image' }, 'gallery');
       } finally {
         sessionStorage.removeItem('pending-image-to-send');
       }
     }
-    // We only want to run this once on mount, but need currentUser to be available
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
@@ -180,14 +235,13 @@ export default function ConversationPage() {
       timestamp: Date.now(),
       senderId: currentUser.id,
       status: 'sent',
-      [media.type]: media.src, // image: '...' or video: '...'
+      [media.type]: media.src,
       source,
       viewOptions: media.viewOptions
     };
 
     setMessages(prev => [...prev, mediaMessage]);
 
-    // Simulate network delay and auto-reply
     setTimeout(() => {
         setMessages(prev => prev.map(m => m.id === mediaMessage.id ? {...m, status: 'delivered'} : m));
         setTimeout(() => {
@@ -198,8 +252,6 @@ export default function ConversationPage() {
   
   const sendTextMessage = (text: string) => {
     if (!currentUser || !conversation) return;
-
-     // Logic for sending a new message
       const sentMessage: Message = {
         id: `msg-${Date.now()}`,
         text: text,
@@ -215,7 +267,6 @@ export default function ConversationPage() {
 
       setMessages(prev => [...prev, sentMessage]);
       
-      // Simulate network delay and auto-reply
       setTimeout(() => {
           setMessages(prev => prev.map(m => m.id === sentMessage.id ? {...m, status: 'delivered'} : m));
           
@@ -227,7 +278,7 @@ export default function ConversationPage() {
                       text: `Это автоматический ответ на ваше сообщение: "${sentMessage.text}"`,
                       timestamp: Date.now(),
                       senderId: otherParticipant.id,
-                      status: 'sent', // from other's perspective
+                      status: 'sent',
                   };
                   setMessages(prev => [...prev, replyMessage]);
               }
@@ -238,11 +289,9 @@ export default function ConversationPage() {
 
   const handleSendMessage = async () => {
     if (newMessage.trim() === '' || !currentUser || !conversation) return;
-
     setIsSending(true);
 
     if (editMessage) {
-      // Logic for editing a message
       setMessages(prev => prev.map(m => 
         m.id === editMessage.id ? { ...m, text: newMessage.trim(), edited: true } : m
       ));
@@ -297,45 +346,30 @@ export default function ConversationPage() {
     setNewMessage('');
   };
   
-  // --- Context Menu Logic ---
   const handleOpenMenu = (messageId: string, rect: DOMRect) => {
     const message = messages.find(m => m.id === messageId);
     if (!message || !viewportRef.current) return;
 
     const viewportRect = viewportRef.current.getBoundingClientRect();
-    
-    // This is a temp div to measure the menu's height
     const tempMenu = document.createElement('div');
     tempMenu.className = 'fixed z-50 min-w-[180px] rounded-md border bg-popover p-1 text-popover-foreground shadow-md';
     tempMenu.style.visibility = 'hidden';
-    // Add dummy content to get the correct height based on items
-    tempMenu.innerHTML = `
-        <button class="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm">Reply</button>
-        <button class="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm">Copy</button>
-        ${message.senderId === currentUser?.id ? `
-        <div class="-mx-1 my-1 h-px bg-muted"></div>
-        <button class="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm">Edit</button>
-        <button class="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm">Delete</button>
-        ` : ''}
-    `;
+    tempMenu.innerHTML = `<button class="relative flex w-full cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm">Reply</button>`;
     document.body.appendChild(tempMenu);
     const menuHeight = tempMenu.offsetHeight;
     document.body.removeChild(tempMenu);
 
     let top;
-    const margin = 8; // Small margin between message and menu
+    const margin = 8; 
 
-    // Position menu above if it overflows below the viewport boundary
     if (rect.bottom + menuHeight > viewportRect.bottom) {
-        top = rect.top - menuHeight - margin; // Position above
+        top = rect.top - menuHeight - margin;
     } else {
-        top = rect.bottom + margin; // Position below
+        top = rect.bottom + margin;
     }
 
-    // Ensure it doesn't go above the viewport
     top = Math.max(viewportRect.top, top);
-
-    const left = Math.max(8, Math.min(rect.left, viewportRect.width - 200)); // Keep within bounds
+    const left = Math.max(8, Math.min(rect.left, viewportRect.width - 200));
 
     setMenuState({ message, position: { top, left } });
   };
@@ -346,7 +380,7 @@ export default function ConversationPage() {
   };
   
   const handleReply = (message: Message) => {
-    setEditMessage(null); // Cancel edit if active
+    setEditMessage(null);
     setReplyToMessage(message);
     textareaRef.current?.focus();
   };
@@ -355,13 +389,13 @@ export default function ConversationPage() {
     toast({ title: 'Скопировано!', description: 'Текст сообщения скопирован в буфер обмена.' });
   };
   const handleEdit = (message: Message) => {
-    setReplyToMessage(null); // Cancel reply if active
+    setReplyToMessage(null);
     setEditMessage(message);
     setNewMessage(message.text);
     textareaRef.current?.focus();
   };
   const handleDelete = (messageId: string) => {
-    setMessages(prev => prev.filter(m => m.id !== messageId));
+    removeMessage(messageId);
     toast({ title: 'Сообщение удалено', variant: 'destructive' });
   };
 
@@ -380,7 +414,6 @@ export default function ConversationPage() {
             }
         };
         setMessages(prev => [...prev, locationMessage]);
-        // Simulate sending
         setTimeout(() => {
             setMessages(prev => prev.map(m => m.id === locationMessage.id ? {...m, status: 'read'} : m));
         }, 500);
@@ -396,47 +429,33 @@ export default function ConversationPage() {
   }, []);
   
   const handlePreviewImage = (message: Message) => {
-      if (!message.image) return;
+      if (!message.image || !message.id) return;
+
+      if (message.viewOptions && !activeTimers.current.has(message.id)) {
+        if (message.viewOptions === 'once') {
+           removeMessage(message.id);
+        } else {
+           const durationMs = parseInt(message.viewOptions.replace('s', ''), 10) * 1000;
+           activeTimers.current.set(message.id, { endTime: Date.now() + durationMs });
+           // Start the master timer if it's not already running
+           if (!intervalRef.current) {
+             intervalRef.current = setInterval(updateTimers, 1000);
+           }
+        }
+      }
+
       setPreviewImage({ src: message.image, viewOptions: message.viewOptions, messageId: message.id });
       resetZoomAndPan();
   };
   
   const handleClosePreview = useCallback(() => {
     if (previewImage?.viewOptions === 'once' && previewImage.messageId) {
-        setMessages(prev => prev.filter(m => m.id !== previewImage.messageId));
+        removeMessage(previewImage.messageId);
     }
     setPreviewImage(null);
     resetZoomAndPan();
-    if (countdownTimerRef.current) {
-        clearInterval(countdownTimerRef.current);
-    }
     setCountdown(null);
-  }, [previewImage, resetZoomAndPan]);
-  
-  useEffect(() => {
-    if (previewImage?.viewOptions && previewImage.viewOptions !== 'once') {
-        const duration = parseInt(previewImage.viewOptions.replace('s', ''));
-        setCountdown(duration);
-
-        countdownTimerRef.current = setInterval(() => {
-            setCountdown(prev => {
-                if (prev === null || prev <= 1) {
-                    clearInterval(countdownTimerRef.current!);
-                    if (previewImage.messageId) {
-                        setMessages(p => p.filter(m => m.id !== previewImage.messageId));
-                    }
-                    handleClosePreview();
-                    return null;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-    }
-    return () => {
-        if(countdownTimerRef.current) clearInterval(countdownTimerRef.current);
-    }
-  }, [previewImage, handleClosePreview]);
-
+  }, [previewImage, removeMessage, resetZoomAndPan]);
   
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
       if (e.touches.length === 2) {
@@ -719,5 +738,3 @@ export default function ConversationPage() {
     </div>
   );
 }
-
-    
