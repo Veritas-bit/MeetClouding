@@ -146,7 +146,7 @@ function CategorizeWishForm() {
                                 <p className="text-sm text-muted-foreground italic mt-1">"{message}"</p>
                             </div>
                             
-                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                                 {Object.entries(WISH_CATEGORIES).map(([key, cat]) => {
                                     const isSelected = selectedCategory === key;
                                     const isDisabled = !isPremium;
