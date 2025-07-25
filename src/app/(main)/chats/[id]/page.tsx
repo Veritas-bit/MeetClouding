@@ -686,7 +686,7 @@ export default function ConversationPage() {
                         onTouchEnd={handleTouchEnd}
                     >
                          {countdown !== null && (
-                            <div className="absolute top-4 left-4 z-20 bg-black/50 text-white rounded-full h-10 w-10 flex items-center justify-center text-lg font-mono">
+                            <div className="absolute top-4 right-4 z-20 bg-black/50 text-white rounded-full h-8 w-8 flex items-center justify-center text-base font-mono">
                                 {countdown}
                             </div>
                         )}
