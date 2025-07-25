@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { Suspense, useEffect, useState, useCallback } from 'react';
@@ -16,7 +15,7 @@ import { getAllUsers, getConversations } from '@/lib/mock-data';
 import type { User, Conversation } from '@/lib/types';
 import type { YMapLocation } from 'ymap3-components';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Sparkles, Users } from 'lucide-react';
+import { Sparkles, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { BackIcon } from '@/components/icons/BackIcon';
@@ -297,33 +296,19 @@ function MapContent() {
     return <FullScreenLoader text={text} />;
   }
 
-  const publishedMessage = isPublished ? decodeURIComponent(searchParams.get('message') || '') : '';
-  const publishedCategoryKey = (isPublished ? searchParams.get('categoryKey') : null) as WishCategoryKey | null;
-
+  const wishText = decodeURIComponent(searchParams.get('message') || t('wish_other_1'));
+  const categoryKey = (searchParams.get('categoryKey') || 'other') as WishCategoryKey;
 
   return (
     <div className="h-full w-full relative">
-        {(isPublished || isFromChat) && publishedMessage && publishedCategoryKey && (
-             <WishHeader 
-                wishText={publishedMessage} 
-                categoryKey={publishedCategoryKey}
-                onFilterFriends={handleFilterFriends}
-                friendCount={friendIds.length}
-                isFilterActive={isFriendFilterActive}
-                onBack={() => router.back()}
-             />
-        )}
-        {!isPublished && !isFromChat && (
-             <Button
-                variant="default"
-                size="icon"
-                className="absolute top-4 left-4 z-10 rounded-full h-12 w-12 shadow-lg"
-                onClick={() => router.back()}
-            >
-                <ArrowLeft className="h-6 w-6" />
-                <span className="sr-only">Назад</span>
-            </Button>
-        )}
+      <WishHeader 
+        wishText={wishText} 
+        categoryKey={categoryKey}
+        onFilterFriends={handleFilterFriends}
+        friendCount={friendIds.length}
+        isFilterActive={isFriendFilterActive}
+        onBack={() => router.back()}
+      />
        
         <MapComponent 
             location={mapLocation} 
@@ -345,3 +330,5 @@ export default function MapPage() {
         </Suspense>
     )
 }
+
+    
