@@ -18,6 +18,7 @@ import type { YMapLocation } from 'ymap3-components';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Sparkles, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 
 // Lazy load the MapComponent
@@ -40,7 +41,7 @@ export interface MarkerInfo {
   gender: Gender;
 }
 
-const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount }: { wishText: string, categoryKey: WishCategoryKey, onFilterFriends: () => void, friendCount: number }) => {
+const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount, isFilterActive }: { wishText: string, categoryKey: WishCategoryKey, onFilterFriends: () => void, friendCount: number, isFilterActive: boolean }) => {
     const category = WISH_CATEGORIES[categoryKey];
     const Icon = category ? category.icon : Sparkles;
     const t = useTranslation();
@@ -59,9 +60,12 @@ const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount }: { w
                     </div>
                 </div>
                  {friendCount > 0 && (
-                    <Button variant="ghost" size="icon" className="shrink-0" onClick={onFilterFriends}>
-                        <Users className="h-5 w-5 text-primary" />
-                    </Button>
+                    <>
+                        <div className="w-px h-6 bg-border mx-1 shrink-0" />
+                        <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={onFilterFriends}>
+                            <Users className={cn("h-5 w-5", isFilterActive ? "text-accent" : "text-primary")} />
+                        </Button>
+                    </>
                 )}
             </div>
         </div>
@@ -260,7 +264,7 @@ function MapContent() {
 
 
   const handleFilterFriends = () => {
-    if (friendIds.length === 0) {
+    if (friendIds.length === 0 && !isFriendFilterActive) {
         toast({
             title: "У вас пока нет друзей",
             variant: "destructive"
@@ -301,6 +305,7 @@ function MapContent() {
                 categoryKey={publishedCategoryKey}
                 onFilterFriends={handleFilterFriends}
                 friendCount={friendIds.length}
+                isFilterActive={isFriendFilterActive}
              />
         )}
        
