@@ -107,10 +107,10 @@ const getPlacemarkLayout = (marker: MarkerInfo, isCooperative: boolean): string 
     const strokeColor = getStrokeColor(color);
 
     const cooperativeIcon = isCooperative ? `
-      <g transform="translate(20, 55)">
-        <circle cx="0" cy="0" r="2" fill="${color}" />
-        <circle cx="7" cy="0" r="2" fill="${color}" />
-        <circle cx="14" cy="0" r="2" fill="${color}" />
+      <g transform="translate(15, 60) scale(1.5)">
+        <circle cx="0" cy="0" r="4" fill="${color}" />
+        <circle cx="12" cy="0" r="4" fill="${color}" />
+        <circle cx="24" cy="0" r="4" fill="${color}" />
       </g>
     ` : '';
 
@@ -143,7 +143,7 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
   const { theme } = useTheme();
   
   const [cooperativeWishes, setCooperativeWishes] = useState<Set<string>>(new Set());
-  const [dialogState, setDialogState] = useState<{ open: boolean, marker: MarkerInfo | null }>({ open: false, marker: null });
+  const [dialogState, setDialogState] = useState<{ open: boolean, marker: MarkerInfo | null, action: 'create' | 'remove' }>({ open: false, marker: null, action: 'create' });
 
 
   const mapApiKey = process.env.NEXT_PUBLIC_YANDEX_MAP_API_KEY || "";
@@ -164,25 +164,36 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
   const handleMarkerClick = (marker: MarkerInfo) => {
     if (marker.userId === '0') {
       if (cooperativeWishes.has(marker.id)) {
-          toast({ title: "Это ваше кооперативное желание" });
-          return;
+          setDialogState({ open: true, marker, action: 'remove' });
+      } else {
+          setDialogState({ open: true, marker, action: 'create' });
       }
-      setDialogState({ open: true, marker });
     } else {
       router.push(`/chats/conv-2?from=map`);
     }
   };
   
-  const handleMakeCooperative = () => {
+  const handleCooperativeAction = () => {
     if (dialogState.marker) {
-      setCooperativeWishes(prev => new Set(prev).add(dialogState.marker!.id));
-      // TODO: Here would be logic to convert the chat to multi-user
-      toast({
-          title: "Желание стало кооперативным!",
-          description: "Теперь другие могут присоединиться к вашей группе."
-      });
+      if (dialogState.action === 'create') {
+          setCooperativeWishes(prev => new Set(prev).add(dialogState.marker!.id));
+          toast({
+              title: "Желание стало кооперативным!",
+              description: "Теперь другие могут присоединиться к вашей группе."
+          });
+      } else {
+          setCooperativeWishes(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(dialogState.marker!.id);
+              return newSet;
+          });
+           toast({
+              title: "Желание снова личное",
+              variant: "destructive"
+          });
+      }
     }
-    setDialogState({ open: false, marker: null });
+    setDialogState({ open: false, marker: null, action: 'create' });
   };
 
   return (
@@ -213,17 +224,23 @@ export function MapComponent({ location, markers = [], className, onUpdate }: Ma
             </YMap>
         </YMapComponentsProvider>
         
-        <AlertDialog open={dialogState.open} onOpenChange={(isOpen) => setDialogState(prev => ({ ...prev, open: isOpen }))}>
+        <AlertDialog open={dialogState.open} onOpenChange={(isOpen) => !isOpen && setDialogState({ open: false, marker: null, action: 'create' })}>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Сделать желание кооперативным?</AlertDialogTitle>
+                    <AlertDialogTitle>
+                        {dialogState.action === 'create' 
+                            ? "Сделать желание кооперативным?" 
+                            : "Убрать кооперативное желание?"}
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
-                        Вы хотите, чтобы другие пользователи могли присоединиться к этому желанию в виде группового чата?
+                         {dialogState.action === 'create'
+                            ? "Вы хотите, чтобы другие пользователи могли присоединиться к этому желанию в виде группового чата?"
+                            : "Желание снова станет личным, и новые пользователи не смогут присоединиться к групповому чату."}
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="!flex-row !justify-center gap-4">
-                    <AlertDialogCancel className="max-w-[40%]" onClick={() => setDialogState({ open: false, marker: null })}>Нет</AlertDialogCancel>
-                    <AlertDialogAction className="max-w-[40%]" onClick={handleMakeCooperative}>Да</AlertDialogAction>
+                    <AlertDialogCancel className="max-w-[40%]" onClick={() => setDialogState({ open: false, marker: null, action: 'create' })}>Нет</AlertDialogCancel>
+                    <AlertDialogAction className="max-w-[40%]" onClick={handleCooperativeAction}>Да</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
