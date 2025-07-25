@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Sparkles, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { BackIcon } from '@/components/icons/BackIcon';
 
 
 // Lazy load the MapComponent
@@ -41,32 +42,45 @@ export interface MarkerInfo {
   gender: Gender;
 }
 
-const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount, isFilterActive }: { wishText: string, categoryKey: WishCategoryKey, onFilterFriends: () => void, friendCount: number, isFilterActive: boolean }) => {
+const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount, isFilterActive, onBack }: { wishText: string, categoryKey: WishCategoryKey, onFilterFriends: () => void, friendCount: number, isFilterActive: boolean, onBack: () => void }) => {
     const category = WISH_CATEGORIES[categoryKey];
     const Icon = category ? category.icon : Sparkles;
     const t = useTranslation();
 
     return (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-5rem)] max-w-sm">
-            <div className="p-3 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg flex items-center justify-between gap-2">
-                <div className="flex items-center gap-3 flex-1 overflow-hidden">
+        <div className="absolute top-4 left-0 right-0 z-10 w-full px-4">
+            <div className="p-2 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg flex items-center justify-between gap-2 w-full max-w-xl mx-auto">
+                 <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    onClick={onBack} 
+                    className="hover:bg-transparent active:bg-transparent group"
+                >
+                    <BackIcon className="h-6 w-6 text-muted-foreground group-active:text-primary" />
+                    <span className="sr-only">Назад</span>
+                </Button>
+
+                <div className="flex items-center gap-2 flex-1 overflow-hidden justify-center">
                     <Icon 
                         className="h-5 w-5 shrink-0"
                         style={{ color: category?.color || 'hsl(var(--primary))' }}
                     />
-                    <div className="flex-1 overflow-hidden">
+                    <div className="flex-1 overflow-hidden max-w-[200px] sm:max-w-xs">
                         <p className="text-sm font-semibold text-foreground">{t('yourWishLabel')}</p>
                         <p className="text-xs text-muted-foreground truncate">{wishText}</p>
                     </div>
                 </div>
-                 {friendCount > 0 && (
+                 {friendCount > 0 ? (
                     <>
                         <div className="w-px h-6 bg-border mx-1 shrink-0" />
                         <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={onFilterFriends}>
                             <Users className={cn("h-5 w-5", isFilterActive ? "text-accent" : "text-primary")} />
                         </Button>
                     </>
-                )}
+                 ) : (
+                    // Placeholder to keep alignment
+                    <div className="w-10 h-10 shrink-0"></div>
+                 )}
             </div>
         </div>
     );
@@ -289,24 +303,26 @@ function MapContent() {
 
   return (
     <div className="h-full w-full relative">
-        <Button
-            variant="default"
-            size="icon"
-            className="absolute top-4 left-4 z-10 rounded-full h-12 w-12 shadow-lg"
-            onClick={() => router.back()}
-        >
-            <ArrowLeft className="h-6 w-6" />
-            <span className="sr-only">Назад</span>
-        </Button>
-
-        {isPublished && publishedMessage && publishedCategoryKey && (
+        {(isPublished || isFromChat) && publishedMessage && publishedCategoryKey && (
              <WishHeader 
                 wishText={publishedMessage} 
                 categoryKey={publishedCategoryKey}
                 onFilterFriends={handleFilterFriends}
                 friendCount={friendIds.length}
                 isFilterActive={isFriendFilterActive}
+                onBack={() => router.back()}
              />
+        )}
+        {!isPublished && !isFromChat && (
+             <Button
+                variant="default"
+                size="icon"
+                className="absolute top-4 left-4 z-10 rounded-full h-12 w-12 shadow-lg"
+                onClick={() => router.back()}
+            >
+                <ArrowLeft className="h-6 w-6" />
+                <span className="sr-only">Назад</span>
+            </Button>
         )}
        
         <MapComponent 
