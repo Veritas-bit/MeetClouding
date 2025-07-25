@@ -102,8 +102,9 @@ function CategorizeWishForm() {
             const encodedMessage = encodeURIComponent(message);
             const encodedCategoryName = encodeURIComponent(t(categoryInfo.name as any));
             const color = categoryInfo.color;
+            const categoryKey = selectedCategory;
             
-            router.push(`/map?published=true&message=${encodedMessage}&lat=${coords.latitude}&lon=${coords.longitude}&categoryName=${encodedCategoryName}&color=${color}`);
+            router.push(`/map?published=true&message=${encodedMessage}&lat=${coords.latitude}&lon=${coords.longitude}&categoryName=${encodedCategoryName}&color=${color}&categoryKey=${categoryKey}`);
 
         } catch (err) {
             toast({

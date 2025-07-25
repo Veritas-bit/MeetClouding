@@ -15,7 +15,7 @@ import { getAllUsers } from '@/lib/mock-data';
 import type { User } from '@/lib/types';
 import type { YMapLocation } from 'ymap3-components';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 
 
 // Lazy load the MapComponent
@@ -37,6 +37,27 @@ export interface MarkerInfo {
   avatarUrl: string;
   gender: Gender;
 }
+
+const WishHeader = ({ wishText, categoryKey }: { wishText: string, categoryKey: WishCategoryKey }) => {
+    const category = WISH_CATEGORIES[categoryKey];
+    const Icon = category ? category.icon : Sparkles;
+    const t = useTranslation();
+
+    return (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 w-[calc(100%-5rem)] max-w-sm">
+            <div className="p-3 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg">
+                <div className="flex items-center gap-3">
+                    <Icon className="h-5 w-5 text-primary shrink-0" />
+                    <div className="flex-1 overflow-hidden">
+                        <p className="text-sm font-semibold text-foreground">{t('yourWishLabel')}</p>
+                        <p className="text-xs text-muted-foreground truncate">{wishText}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 // Function to generate random coordinates within a given radius using a simple and robust method
 const generateRandomMarkers = (center: { latitude: number, longitude: number }, category: WishCategoryKey | null, radiusKm: number, t: (key: any) => string, users: User[]): MarkerInfo[] => {
@@ -102,29 +123,28 @@ function MapContent() {
   const [mapLocation, setMapLocation] = useState<YMapLocation | null>(null);
 
   const isFromChat = searchParams.get('from') === 'chat';
+  const isPublished = searchParams.get('published') === 'true';
 
   useEffect(() => {
     // Request location only if not coming from a public link
-    if (!searchParams.get('published')) {
+    if (!isPublished) {
       requestLocation();
     }
     getAllUsers().then(setAllUsers);
-  }, [requestLocation, searchParams]);
+  }, [requestLocation, isPublished]);
 
   // Effect to initialize markers and view state
   useEffect(() => {
-    const isPublished = searchParams.get('published') === 'true';
     const isSearch = searchParams.get('search') === 'true';
-    const fromChat = searchParams.get('from') === 'chat';
 
     // If map already initialized, do nothing.
     if (mapLocation) return;
     
     // If not a public link or search, and location/users aren't ready, wait.
-    if (!isPublished && !fromChat && (!location || allUsers.length === 0)) return;
+    if (!isPublished && !isFromChat && (!location || allUsers.length === 0)) return;
     
     // If it is a public link but users aren't ready, wait.
-    if ((isPublished || fromChat) && allUsers.length === 0) return;
+    if ((isPublished || isFromChat) && allUsers.length === 0) return;
 
 
     // Set that user has interacted with map to show back button on other pages
@@ -137,7 +157,7 @@ function MapContent() {
     const latParam = parseFloat(searchParams.get('lat') || '0');
     const lonParam = parseFloat(searchParams.get('lon') || '0');
 
-    if (fromChat) {
+    if (isFromChat) {
         if (!latParam || !lonParam) return;
         initialCenter = { latitude: latParam, longitude: lonParam };
         initialMarkers.push({
@@ -198,31 +218,37 @@ function MapContent() {
     setMarkers(initialMarkers);
     setMapLocation({ center: [initialCenter.longitude, initialCenter.latitude], zoom: 12 });
     
-  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapLocation]);
+  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapLocation, isFromChat, isPublished]);
   
   const handleMapUpdate = useCallback((newLocation: YMapLocation) => {
     // We can use this callback to update state if needed, e.g., for saving map position
   }, []);
 
   if (!mapLocation) {
-    const isPublished = searchParams.get('published') === 'true';
     const text = !isPublished && !location ? 'Определяем ваше местоположение...' : 'Загрузка карты...';
     return <FullScreenLoader text={text} />;
   }
 
+  const publishedMessage = isPublished ? decodeURIComponent(searchParams.get('message') || '') : '';
+  const publishedCategoryKey = (isPublished ? searchParams.get('categoryKey') : null) as WishCategoryKey | null;
+
+
   return (
     <div className="h-full w-full relative">
-        {isFromChat && (
-            <Button
-                variant="default"
-                size="icon"
-                className="absolute top-4 left-4 z-10 rounded-full h-12 w-12 shadow-lg"
-                onClick={() => router.back()}
-            >
-                <ArrowLeft className="h-6 w-6" />
-                <span className="sr-only">Назад в чат</span>
-            </Button>
+        <Button
+            variant="default"
+            size="icon"
+            className="absolute top-4 left-4 z-10 rounded-full h-12 w-12 shadow-lg"
+            onClick={() => router.back()}
+        >
+            <ArrowLeft className="h-6 w-6" />
+            <span className="sr-only">Назад</span>
+        </Button>
+
+        {isPublished && publishedMessage && publishedCategoryKey && (
+             <WishHeader wishText={publishedMessage} categoryKey={publishedCategoryKey} />
         )}
+       
         <MapComponent 
             location={mapLocation} 
             markers={markers} 
