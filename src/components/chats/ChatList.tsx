@@ -66,7 +66,7 @@ export function ChatList({ mainChats: initialMainChats, friendChats: initialFrie
 
   return (
     <div className="flex-grow flex flex-col p-2 h-full">
-        <ScrollArea className="flex-grow rounded-lg bg-background h-full">
+        <ScrollArea className="flex-grow rounded-lg bg-primary/10 h-full">
             <div>
                 <div className="flex flex-col">
                 {chatsToShow.map((chat) => (
