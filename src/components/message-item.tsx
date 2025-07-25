@@ -218,7 +218,7 @@ export function MessageItem({ message, currentUser, otherParticipant, onOpenMenu
                 <LocationContent message={message} isSentByCurrentUser={isSentByCurrentUser} />
 
                 <div className={cn(
-                    "flex items-center gap-2 self-end text-sm", 
+                    "flex items-center gap-2 self-end text-xs", 
                     isSentByCurrentUser ? 'text-primary-foreground/70' : 'text-muted-foreground',
                      (message.image || message.location || message.video) ? 'p-1' : 'mt-1'
                 )}>
