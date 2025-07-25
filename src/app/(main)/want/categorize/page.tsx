@@ -130,15 +130,9 @@ function CategorizeWishForm() {
     }
     
     return (
-        <div className="flex-grow flex flex-col items-center p-4">
+        <div className="flex-grow flex flex-col items-center p-4 py-2">
             <div className="w-full max-w-lg">
                 <Card>
-                    <CardHeader className="p-3">
-                        <CardTitle className="flex items-center gap-2 font-headline text-lg">
-                            <LayoutGrid className="h-5 w-5 text-primary" />
-                            {t('selectCategoryTitle')}
-                        </CardTitle>
-                    </CardHeader>
                     <CardContent className="p-3">
                         <div className="grid w-full gap-3">
                             <div className="p-3 border rounded-lg bg-muted/50">
