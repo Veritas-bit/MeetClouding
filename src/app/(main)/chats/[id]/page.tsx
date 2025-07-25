@@ -106,67 +106,48 @@ export default function ConversationPage() {
   const startDistance = useRef<number | null>(null);
   const startPosition = useRef({ x: 0, y: 0 });
   
-  // New Timer state logic for timed images
+  // --- Timer logic ---
   const [countdown, setCountdown] = useState<number | null>(null);
-  const activeTimers = useRef<Map<string, { endTime: number }>>(new Map());
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const activeTimers = useRef<Map<string, number>>(new Map()); // <messageId, endTime>
+  const previewImageRef = useRef(previewImage);
+  previewImageRef.current = previewImage;
 
   // Function to remove a message by ID
   const removeMessage = useCallback((messageId: string) => {
     setMessages(prev => prev.filter(m => m.id !== messageId));
     activeTimers.current.delete(messageId);
+    if (previewImageRef.current?.messageId === messageId) {
+        setPreviewImage(null);
+    }
   }, []);
 
-  // Timer update function
-  const updateTimers = useCallback(() => {
-    const now = Date.now();
-    let isPreviewingTimedImage = false;
-
-    activeTimers.current.forEach((timer, messageId) => {
-      const timeLeft = Math.round((timer.endTime - now) / 1000);
-      
-      if (previewImage?.messageId === messageId) {
-        setCountdown(timeLeft > 0 ? timeLeft : 0);
-        isPreviewingTimedImage = true;
-      }
-      
-      if (timeLeft <= 0) {
-        removeMessage(messageId);
-        // If the expired image was being previewed, close it
-        if (previewImage?.messageId === messageId) {
-            setPreviewImage(null);
-            setScale(1);
-            setPosition({ x: 0, y: 0 });
-        }
-      }
-    });
-
-    // If no timed image is being previewed, set countdown to null
-    if (!isPreviewingTimedImage) {
-        setCountdown(null);
-    }
-  }, [previewImage, removeMessage]);
-
-  // Start/Stop the master interval timer
+  // Central timer loop
   useEffect(() => {
-    // Start interval if there are active timers and it's not already running
-    if (activeTimers.current.size > 0 && !intervalRef.current) {
-        intervalRef.current = setInterval(updateTimers, 1000);
-    }
-    
-    // Stop interval if there are no active timers
-    if (activeTimers.current.size === 0 && intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-    }
+    const timerInterval = setInterval(() => {
+        const now = Date.now();
+        let isPreviewingTimedImage = false;
+        
+        activeTimers.current.forEach((endTime, messageId) => {
+            const timeLeft = Math.round((endTime - now) / 1000);
 
-    // Cleanup on unmount
-    return () => {
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
+            if (previewImageRef.current?.messageId === messageId) {
+                setCountdown(timeLeft > 0 ? timeLeft : 0);
+                isPreviewingTimedImage = true;
+            }
+
+            if (timeLeft <= 0) {
+                removeMessage(messageId);
+            }
+        });
+
+        if (!isPreviewingTimedImage) {
+            setCountdown(null);
         }
-    };
-  }, [updateTimers]); // Dependency array should be stable
+
+    }, 1000);
+
+    return () => clearInterval(timerInterval);
+  }, [removeMessage]);
 
 
   // Initial data fetch
@@ -430,17 +411,14 @@ export default function ConversationPage() {
   
   const handlePreviewImage = (message: Message) => {
       if (!message.image || !message.id) return;
-
+      
+      // Start timer on first view only
       if (message.viewOptions && !activeTimers.current.has(message.id)) {
         if (message.viewOptions === 'once') {
-           removeMessage(message.id);
+            // It will be removed on close
         } else {
            const durationMs = parseInt(message.viewOptions.replace('s', ''), 10) * 1000;
-           activeTimers.current.set(message.id, { endTime: Date.now() + durationMs });
-           // Start the master timer if it's not already running
-           if (!intervalRef.current) {
-             intervalRef.current = setInterval(updateTimers, 1000);
-           }
+           activeTimers.current.set(message.id, Date.now() + durationMs);
         }
       }
 
@@ -449,13 +427,13 @@ export default function ConversationPage() {
   };
   
   const handleClosePreview = useCallback(() => {
-    if (previewImage?.viewOptions === 'once' && previewImage.messageId) {
-        removeMessage(previewImage.messageId);
+    if (previewImageRef.current?.viewOptions === 'once' && previewImageRef.current.messageId) {
+        removeMessage(previewImageRef.current.messageId);
     }
     setPreviewImage(null);
     resetZoomAndPan();
     setCountdown(null);
-  }, [previewImage, removeMessage, resetZoomAndPan]);
+  }, [removeMessage, resetZoomAndPan]);
   
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
       if (e.touches.length === 2) {
@@ -738,3 +716,5 @@ export default function ConversationPage() {
     </div>
   );
 }
+
+    
