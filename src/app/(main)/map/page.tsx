@@ -19,6 +19,7 @@ import { Sparkles, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { BackIcon } from '@/components/icons/BackIcon';
+import { useWishStore } from '@/lib/wish-store';
 
 
 // Lazy load the MapComponent
@@ -146,6 +147,7 @@ function MapContent() {
   const { location, requestLocation } = useLocationStore();
   const { isPremium, avatar, gender } = useProfileStore();
   const setHasInteractedWithMap = useInteractionStore((state) => state.setHasInteractedWithMap);
+  const { publishedWish } = useWishStore();
   
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [friendIds, setFriendIds] = useState<string[]>([]);
@@ -157,13 +159,11 @@ function MapContent() {
   const [mapLocation, setMapLocation] = useState<YMapLocation | null>(null);
 
   const isFromChat = searchParams.get('from') === 'chat';
-  const isPublished = searchParams.get('published') === 'true';
+  const isSearch = searchParams.get('search') === 'true';
 
   useEffect(() => {
-    // Request location only if not coming from a public link
-    if (!isPublished) {
-      requestLocation();
-    }
+    requestLocation();
+    
     async function fetchInitialData() {
         const [users, convos] = await Promise.all([getAllUsers(), getConversations()]);
         setAllUsers(users);
@@ -176,21 +176,17 @@ function MapContent() {
         }
     }
     fetchInitialData();
-  }, [requestLocation, isPublished]);
+  }, [requestLocation]);
 
   // Effect to initialize markers and view state
   useEffect(() => {
-    const isSearch = searchParams.get('search') === 'true';
-
     // If map already initialized, do nothing.
     if (mapLocation) return;
     
-    // If not a public link or search, and location/users aren't ready, wait.
-    if (!isPublished && !isFromChat && (!location || allUsers.length === 0)) return;
-    
     // If it is a public link but users aren't ready, wait.
-    if ((isPublished || isFromChat) && allUsers.length === 0) return;
+    if ((publishedWish || isFromChat) && allUsers.length === 0) return;
 
+    if (!isFromChat && !isSearch && !publishedWish && (!location || allUsers.length === 0)) return;
 
     // Set that user has interacted with map to show back button on other pages
     setHasInteractedWithMap(true);
@@ -218,45 +214,35 @@ function MapContent() {
             gender: gender,
         });
 
-    } else if (isPublished) {
-        // If lat/lon are invalid, don't render the map yet.
-        if (!latParam || !lonParam) return;
-
-        initialCenter = { latitude: latParam, longitude: lonParam };
-
-        const message = decodeURIComponent(searchParams.get('message') || '');
-        const categoryName = decodeURIComponent(searchParams.get('categoryName') || 'Желание');
-        const color = searchParams.get('color') || 'hsl(var(--primary))';
+    } else if (publishedWish) {
+        initialCenter = { latitude: publishedWish.location.latitude, longitude: publishedWish.location.longitude };
         
         const ownWishMarker: MarkerInfo = {
-            id: `user-wish-${latParam}-${lonParam}`,
+            id: `user-wish-${publishedWish.location.latitude}-${publishedWish.location.longitude}`,
             userId: '0', // Current user's wish
-            latitude: latParam,
-            longitude: lonParam,
-            message,
-            categoryName,
-            color,
+            latitude: publishedWish.location.latitude,
+            longitude: publishedWish.location.longitude,
+            message: publishedWish.message,
+            categoryName: publishedWish.categoryName,
+            color: publishedWish.color,
             isPremium: isPremium,
             avatarUrl: avatar,
             gender: gender,
         };
         initialMarkers.push(ownWishMarker);
-        // Also add random markers around the published wish
+        initialMarkers.push(...generateRandomMarkers(initialCenter, null, 5, t, allUsers));
+    
+    } else if (isSearch && location) {
+        initialCenter = { latitude: location.latitude, longitude: location.longitude };
+        const searchRadius = parseFloat(searchParams.get('radius') || '5');
+        const searchCategory = searchParams.get('category') as WishCategoryKey | null;
+        initialMarkers.push(...generateRandomMarkers(initialCenter, searchCategory, searchRadius, t, allUsers));
+    
+    } else if (location) { // Default view
+        initialCenter = { latitude: location.latitude, longitude: location.longitude };
         initialMarkers.push(...generateRandomMarkers(initialCenter, null, 5, t, allUsers));
 
-    } else if (location) { // Handles default view and search view, which require user location
-        initialCenter = { latitude: location.latitude, longitude: location.longitude };
-        
-        if (isSearch) {
-            const searchRadius = parseFloat(searchParams.get('radius') || '5');
-            const searchCategory = searchParams.get('category') as WishCategoryKey | null;
-            initialMarkers.push(...generateRandomMarkers(initialCenter, searchCategory, searchRadius, t, allUsers));
-        } else {
-            // Default view: add random markers
-            initialMarkers.push(...generateRandomMarkers(initialCenter, null, 5, t, allUsers));
-        }
     } else {
-        // This case is hit if it's not a published link and location is not yet available.
         return;
     }
     
@@ -264,7 +250,7 @@ function MapContent() {
     setVisibleMarkers(initialMarkers);
     setMapLocation({ center: [initialCenter.longitude, initialCenter.latitude], zoom: 12 });
     
-  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapLocation, isFromChat, isPublished]);
+  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapLocation, isFromChat, publishedWish, isSearch]);
   
   // Effect to update visible markers when filter changes
   useEffect(() => {
@@ -292,12 +278,12 @@ function MapContent() {
   }, []);
 
   if (!mapLocation) {
-    const text = !isPublished && !location ? 'Определяем ваше местоположение...' : 'Загрузка карты...';
+    const text = !publishedWish && !location ? 'Определяем ваше местоположение...' : 'Загрузка карты...';
     return <FullScreenLoader text={text} />;
   }
 
-  const wishText = decodeURIComponent(searchParams.get('message') || t('wish_other_1'));
-  const categoryKey = (searchParams.get('categoryKey') || 'other') as WishCategoryKey;
+  const wishText = publishedWish ? publishedWish.message : t('wish_other_1');
+  const categoryKey = publishedWish ? publishedWish.categoryKey : 'other';
 
   return (
     <div className="h-full w-full relative">

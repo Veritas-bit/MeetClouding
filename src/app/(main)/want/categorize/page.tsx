@@ -18,6 +18,7 @@ import { FullScreenLoader } from '@/components/common/FullScreenLoader';
 import { useProfileStore } from '@/lib/profile-store';
 import { useTranslation } from '@/hooks/use-translation';
 import { GradientBorderCloudIcon } from '@/components/icons/GradientBorderCloudIcon';
+import { useWishStore } from '@/lib/wish-store';
 
 function CategorizeWishForm() {
     const router = useRouter();
@@ -26,6 +27,7 @@ function CategorizeWishForm() {
     const { toast } = useToast();
     const { isPremium } = useProfileStore();
     const t = useTranslation();
+    const { setPublishedWish } = useWishStore();
 
     const [message, setMessage] = useState('');
     const [isPublishing, setIsPublishing] = useState(false);
@@ -99,12 +101,17 @@ function CategorizeWishForm() {
         try {
             const coords = await locationPromise;
             const categoryInfo = WISH_CATEGORIES[selectedCategory!];
-            const encodedMessage = encodeURIComponent(message);
-            const encodedCategoryName = encodeURIComponent(t(categoryInfo.name as any));
-            const color = categoryInfo.color;
-            const categoryKey = selectedCategory;
             
-            router.push(`/map?published=true&message=${encodedMessage}&lat=${coords.latitude}&lon=${coords.longitude}&categoryName=${encodedCategoryName}&color=${color}&categoryKey=${categoryKey}`);
+            // Set the wish in the global store
+            setPublishedWish({
+                message,
+                categoryKey: selectedCategory,
+                location: coords,
+                color: categoryInfo.color,
+                categoryName: t(categoryInfo.name as any)
+            });
+            
+            router.push(`/map`);
 
         } catch (err) {
             toast({
