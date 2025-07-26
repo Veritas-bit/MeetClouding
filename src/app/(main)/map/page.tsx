@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
@@ -309,7 +310,7 @@ function MapContent() {
         setMapLocation({ center: [initialCenter.longitude, initialCenter.latitude], zoom: 12 });
     }
     
-  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapLocation, isFromChat, publishedWish, isSearch]);
+  }, [location, allUsers, searchParams, isPremium, t, avatar, gender, mapLocation, isFromChat, publishedWish, isSearch]);
   
   // Effect to update visible markers when filter changes or markers update
   useEffect(() => {
