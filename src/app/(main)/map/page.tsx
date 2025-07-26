@@ -1,7 +1,7 @@
 
 "use client";
 
-import { Suspense, useEffect, useState, useCallback } from 'react';
+import { Suspense, useEffect, useState, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useLocationStore } from '@/lib/location-store';
@@ -15,7 +15,7 @@ import { getAllUsers, getConversations } from '@/lib/mock-data';
 import type { User, Conversation } from '@/lib/types';
 import type { YMapLocation } from 'ymap3-components';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Users } from 'lucide-react';
+import { Sparkles, Users, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { BackIcon } from '@/components/icons/BackIcon';
@@ -42,45 +42,100 @@ export interface MarkerInfo {
   gender: Gender;
 }
 
-const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount, isFilterActive, onBack }: { wishText: string, categoryKey: WishCategoryKey, onFilterFriends: () => void, friendCount: number, isFilterActive: boolean, onBack: () => void }) => {
+const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount, isFilterActive, onBack, onClearWish }: { wishText: string, categoryKey: WishCategoryKey, onFilterFriends: () => void, friendCount: number, isFilterActive: boolean, onBack: () => void, onClearWish: () => void }) => {
     const category = WISH_CATEGORIES[categoryKey];
     const Icon = category ? category.icon : Sparkles;
     const t = useTranslation();
 
+    const [swipeX, setSwipeX] = useState(0);
+    const touchStartRef = useRef(0);
+    const itemRef = useRef<HTMLDivElement>(null);
+    const isActionTriggeredRef = useRef(false);
+
+    const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+        touchStartRef.current = e.targetTouches[0].clientX;
+        isActionTriggeredRef.current = false;
+        if (itemRef.current) {
+            itemRef.current.style.transition = 'none';
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+        const deltaX = e.targetTouches[0].clientX - touchStartRef.current;
+        if (deltaX < 0) { // Only allow swiping left
+            setSwipeX(deltaX);
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (itemRef.current) {
+            itemRef.current.style.transition = 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)';
+        }
+        
+        const actionThreshold = itemRef.current ? itemRef.current.offsetWidth * 0.25 : 80;
+
+        if (swipeX < -actionThreshold) { // Swipe Left (Delete)
+          if (!isActionTriggeredRef.current) {
+            isActionTriggeredRef.current = true;
+            setSwipeX(-itemRef.current!.offsetWidth); 
+            setTimeout(onClearWish, 300);
+          }
+        } else {
+            setSwipeX(0);
+        }
+    };
+
+    const backgroundOpacity = Math.min(Math.abs(swipeX) / 80, 1);
+
+
     return (
         <div className="absolute top-4 left-0 right-0 z-10 w-full px-4">
-            <div className="p-2 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg flex items-center justify-between gap-2 w-full max-w-xl mx-auto">
-                 <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={onBack} 
-                    className="hover:bg-transparent active:bg-transparent group"
+            <div className="relative overflow-hidden rounded-lg">
+                <div 
+                    className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" 
+                    style={{ width: '100%', opacity: swipeX < 0 ? backgroundOpacity : 0, transition: 'opacity 0.1s ease-in-out' }}
                 >
-                    <BackIcon className="h-6 w-6 text-muted-foreground group-active:text-primary" />
-                    <span className="sr-only">Назад</span>
-                </Button>
-
-                <div className="flex items-center gap-2 flex-1 overflow-hidden justify-center">
-                    <Icon 
-                        className="h-5 w-5 shrink-0"
-                        style={{ color: category?.color || 'hsl(var(--primary))' }}
-                    />
-                    <div className="flex-1 overflow-hidden max-w-[200px] sm:max-w-xs">
-                        <p className="text-sm font-semibold text-foreground">{t('yourWishLabel')}</p>
-                        <p className="text-xs text-muted-foreground truncate">{wishText}</p>
-                    </div>
+                    <Trash2 className="h-6 w-6 text-destructive-foreground" />
                 </div>
-                 {friendCount > 0 ? (
-                    <>
-                        <div className="w-px h-6 bg-border mx-1 shrink-0" />
-                        <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={onFilterFriends}>
-                            <Users className={cn("h-5 w-5", isFilterActive ? "text-accent" : "text-primary")} />
-                        </Button>
-                    </>
-                 ) : (
-                    // Placeholder to keep alignment
-                    <div className="w-10 h-10 shrink-0"></div>
-                 )}
+                <div
+                    ref={itemRef}
+                    onTouchStart={handleTouchStart}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    style={{ transform: `translateX(${swipeX}px)` }}
+                    className="p-2 bg-background/80 backdrop-blur-sm border rounded-lg shadow-lg flex items-center justify-between gap-2 w-full max-w-xl mx-auto relative z-10"
+                >
+                    <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={onBack} 
+                        className="hover:bg-transparent active:bg-transparent group"
+                    >
+                        <BackIcon className="h-6 w-6 text-muted-foreground group-active:text-primary" />
+                        <span className="sr-only">Назад</span>
+                    </Button>
+
+                    <div className="flex items-center gap-2 flex-1 overflow-hidden justify-center">
+                        <Icon 
+                            className="h-5 w-5 shrink-0"
+                            style={{ color: category?.color || 'hsl(var(--primary))' }}
+                        />
+                        <div className="flex-1 overflow-hidden max-w-[200px] sm:max-w-xs">
+                            <p className="text-sm font-semibold text-foreground">{t('yourWishLabel')}</p>
+                            <p className="text-xs text-muted-foreground truncate">{wishText}</p>
+                        </div>
+                    </div>
+                    {friendCount > 0 ? (
+                        <>
+                            <div className="w-px h-6 bg-border mx-1 shrink-0" />
+                            <Button variant="ghost" size="icon" className="shrink-0 hover:bg-transparent active:bg-transparent" onClick={onFilterFriends}>
+                                <Users className={cn("h-5 w-5", isFilterActive ? "text-accent" : "text-primary")} />
+                            </Button>
+                        </>
+                    ) : (
+                        <div className="w-10 h-10 shrink-0"></div>
+                    )}
+                </div>
             </div>
         </div>
     );
@@ -147,7 +202,7 @@ function MapContent() {
   const { location, requestLocation } = useLocationStore();
   const { isPremium, avatar, gender } = useProfileStore();
   const setHasInteractedWithMap = useInteractionStore((state) => state.setHasInteractedWithMap);
-  const { publishedWish } = useWishStore();
+  const { publishedWish, setPublishedWish } = useWishStore();
   
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [friendIds, setFriendIds] = useState<string[]>([]);
@@ -200,7 +255,7 @@ function MapContent() {
 
     if (isFromChat) {
         if (!latParam || !lonParam) return;
-        initialCenter = { latitude: latParam, longitude: lonParam };
+        initialCenter = { latitude: latParam, longitude: latParam };
         initialMarkers.push({
             id: `user-location-${latParam}-${lonParam}`,
             userId: '0', 
@@ -277,6 +332,15 @@ function MapContent() {
     // We can use this callback to update state if needed, e.g., for saving map position
   }, []);
 
+  const handleClearWish = () => {
+    setPublishedWish(null);
+    router.push('/main');
+    toast({
+        title: "Ваше желание удалено с карты",
+        variant: "destructive"
+    });
+  };
+
   if (!mapLocation) {
     const text = !publishedWish && !location ? 'Определяем ваше местоположение...' : 'Загрузка карты...';
     return <FullScreenLoader text={text} />;
@@ -294,6 +358,7 @@ function MapContent() {
         friendCount={friendIds.length}
         isFilterActive={isFriendFilterActive}
         onBack={() => router.back()}
+        onClearWish={handleClearWish}
       />
        
         <MapComponent 
