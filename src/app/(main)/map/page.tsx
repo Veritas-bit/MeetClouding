@@ -235,8 +235,8 @@ function MapContent() {
 
   // Effect to initialize markers and view state
   useEffect(() => {
-    // If map already initialized, do nothing.
-    if (mapLocation) return;
+    // If map already initialized and it's not a publishedWish change, do nothing.
+    if (mapLocation && !publishedWish) return;
     
     // If it is a public link but users aren't ready, wait.
     if ((publishedWish || isFromChat) && allUsers.length === 0) return;
@@ -302,19 +302,25 @@ function MapContent() {
     }
     
     setAllMarkers(initialMarkers);
-    setVisibleMarkers(initialMarkers);
-    setMapLocation({ center: [initialCenter.longitude, initialCenter.latitude], zoom: 12 });
+    if (!mapLocation) {
+        setMapLocation({ center: [initialCenter.longitude, initialCenter.latitude], zoom: 12 });
+    }
     
   }, [location, allUsers, searchParams, isPremium, t, avatar, gender, setHasInteractedWithMap, mapLocation, isFromChat, publishedWish, isSearch]);
   
-  // Effect to update visible markers when filter changes
+  // Effect to update visible markers when filter changes or markers update
   useEffect(() => {
-    if (isFriendFilterActive) {
-        setVisibleMarkers(allMarkers.filter(m => friendIds.includes(m.userId) || m.userId === '0'));
+    const newVisibleMarkers = isFriendFilterActive
+        ? allMarkers.filter(m => friendIds.includes(m.userId) || m.userId === '0')
+        : allMarkers;
+
+    // Filter out the user's old wish if it was just removed
+    if (!publishedWish) {
+        setVisibleMarkers(newVisibleMarkers.filter(m => !m.id.startsWith('user-wish-')));
     } else {
-        setVisibleMarkers(allMarkers);
+        setVisibleMarkers(newVisibleMarkers);
     }
-  }, [isFriendFilterActive, allMarkers, friendIds]);
+  }, [isFriendFilterActive, allMarkers, friendIds, publishedWish]);
 
 
   const handleFilterFriends = () => {
@@ -334,7 +340,6 @@ function MapContent() {
 
   const handleClearWish = () => {
     setPublishedWish(null);
-    router.push('/main');
     toast({
         title: "Ваше желание удалено с карты",
         variant: "destructive"
@@ -381,5 +386,3 @@ export default function MapPage() {
         </Suspense>
     )
 }
-
-    
