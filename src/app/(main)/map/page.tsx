@@ -77,8 +77,11 @@ const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount, isFil
         if (swipeX < -actionThreshold) { // Swipe Left (Delete)
           if (!isActionTriggeredRef.current) {
             isActionTriggeredRef.current = true;
-            setSwipeX(-itemRef.current!.offsetWidth); 
-            setTimeout(onClearWish, 300);
+            setSwipeX(-itemRef.current!.offsetWidth);
+            setTimeout(() => {
+                onClearWish();
+                setSwipeX(0); // Reset swipe after action
+            }, 300);
           }
         } else {
             setSwipeX(0);
@@ -92,8 +95,8 @@ const WishHeader = ({ wishText, categoryKey, onFilterFriends, friendCount, isFil
         <div className="absolute top-4 left-0 right-0 z-10 w-full px-4">
             <div className="relative overflow-hidden rounded-lg">
                 <div 
-                    className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6" 
-                    style={{ width: '100%', opacity: swipeX < 0 ? backgroundOpacity : 0, transition: 'opacity 0.1s ease-in-out' }}
+                    className="absolute inset-y-0 right-0 flex items-center justify-end bg-destructive pr-6 transition-opacity duration-300"
+                    style={{ width: '100%', opacity: swipeX < 0 ? backgroundOpacity : 0 }}
                 >
                     <Trash2 className="h-6 w-6 text-destructive-foreground" />
                 </div>
@@ -302,7 +305,7 @@ function MapContent() {
     }
     
     setAllMarkers(initialMarkers);
-    if (!mapLocation) {
+    if (!mapLocation || publishedWish) { // Force update location if a wish is published/cleared
         setMapLocation({ center: [initialCenter.longitude, initialCenter.latitude], zoom: 12 });
     }
     
@@ -340,6 +343,8 @@ function MapContent() {
 
   const handleClearWish = () => {
     setPublishedWish(null);
+    // Force a re-render/re-calculation of markers and location
+    setMapLocation(null); 
     toast({
         title: "Ваше желание удалено с карты",
         variant: "destructive"
