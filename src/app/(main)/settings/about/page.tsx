@@ -28,9 +28,9 @@ export default function AboutPage() {
                   {t('githubRepo')}
                 </p>
                 <Button variant="outline" className="w-full justify-start h-12" asChild>
-                  <a href="https://github.com/new-account/meetcloud" target="_blank" rel="noopener noreferrer">
+                  <a href="https://github.com/Veritas-bit/MeetClouding" target="_blank" rel="noopener noreferrer">
                     <Github className="mr-3 h-5 w-5" />
-                    <span>github.com/new-account/meetcloud</span>
+                    <span>github.com/Veritas-bit/MeetClouding</span>
                   </a>
                 </Button>
               </div>

@@ -4,7 +4,7 @@ MeetCloud — это социальное приложение для поиск
 
 ## Ссылка на проект
 
-- **GitHub Repository**: [https://github.com/new-account/meetcloud](https://github.com/new-account/meetcloud)
+- **GitHub Repository**: [https://github.com/Veritas-bit/MeetClouding](https://github.com/Veritas-bit/MeetClouding)
 
 ## Технологический стек
 
