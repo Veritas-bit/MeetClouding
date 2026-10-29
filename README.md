@@ -2,31 +2,12 @@
 
 MeetCloud is a social app for finding nearby people with shared interests and plans. Users create “clouds” representing what they want to do and discover nearby matches.
 
-## Browser preview
-
-A responsive, interactive map-first prototype is available at `/preview` in the Next.js app. It is designed for quick inspection on desktop and mobile browsers and is separate from the native clients.
-
-To run it locally:
-
-```bash
-npm install
-npm run dev
-```
-
-Then open `http://localhost:9002/preview` on the computer. To view it on a phone connected to the same Wi-Fi, open `http://<computer-LAN-IP>:9002/preview` and allow the development server through the computer firewall if prompted.
-
-**Preview limitations:** the map is schematic, cloud cards are demo content, and creating a cloud or marking interest only changes local page state. No real location is requested and no data is sent to a backend. The page is a browser prototype, not a WebView wrapper around the native apps. A public shareable URL requires deployment of this branch to a web host.
-
-## Current product reference
-
-The existing `main` branch contains the legacy Next.js web app. Its UI, category catalog, translations and workflows are the reference for the native rewrite; it is not the implementation target for shipped mobile apps.
-
 ## Native rewrite
 
-Work is isolated on `rewrite/native-app-foundation`.
+Work is isolated on `rewrite/native-app-foundation`. Current testing priority is Android; the browser preview has been removed to keep the test focus on the native client.
 
 - `android/` — native Android client: Kotlin + Jetpack Compose.
-- `ios/` — native iOS client: Swift + SwiftUI + MapKit.
+- `ios/` — native iOS client: Swift + SwiftUI + MapKit (later priority).
 - `backend/` — Python/FastAPI service foundation.
 - `api/openapi.yaml` — initial shared API contract.
 - `docs/native-screen-inventory.md` — initial screen/behavior inventory.
@@ -37,7 +18,7 @@ Work is isolated on `rewrite/native-app-foundation`.
 - `docs/product-review.md` — product validity, user safety, feature priorities, monetization hypotheses and validation plan.
 - `docs/security.md` — initial security/privacy requirements and configuration finding.
 
-The mobile projects currently contain starter shells, not feature-complete apps. Authentication, persistence, real cloud discovery, chat, media, push and production deployment remain to be implemented and tested. The UI must not represent mock users or generated coordinates as real people.
+The Android map UI is currently a prototype: the map is schematic, sample clouds are demo content, newly created clouds and interest markers are local-only, and no real location or backend data is used yet. Authentication, persistence, real cloud discovery, chat, media, push and production deployment remain to be implemented and tested. The UI must not represent mock users or generated coordinates as real people.
 
 ## Backend local development
 
