@@ -22,12 +22,14 @@ The artifact is retained for 14 days. It is a debug build; testers may need to a
 ## What works in this prototype
 
 - Native bottom navigation between Clouds, Chats and Profile.
-- Cloud feed cards and category filters.
+- Map-first discovery screen with tappable floating cloud bubbles and category filters.
+- The interaction model treats a cloud as a current mood/open intention, not a fixed booking; users are encouraged to browse alternatives.
 - Local-only create-cloud draft flow.
 - Interactive interest toggle and cloud detail dialog.
-- Clear demo labels so sample cards cannot be mistaken for real nearby users.
+- Clear demo labels so sample clouds cannot be mistaken for real nearby users.
+- A stylised native map backdrop for UX testing; it does not claim to show real streets, users, or coordinates.
 - No location permission request and no invented fallback coordinates.
 
 ## Important limitations
 
-This build has no backend connection, authentication, persistent storage, real map, real users, server-side cloud publishing, chat delivery, moderation backend, or push notifications. Sample cards are clearly marked as examples. New clouds exist only in memory and disappear when the process is killed. Interest actions are local UI state only. Do not use it to arrange real-world meetings yet.
+This build has no backend connection, authentication, persistent storage, real geographic map, real users, server-side cloud publishing, chat delivery, moderation backend, or push notifications. Sample cards are clearly marked as examples. New clouds exist only in memory and disappear when the process is killed. Interest actions are local UI state only. Do not use it to arrange real-world meetings yet.
