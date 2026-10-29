@@ -308,6 +308,7 @@ private fun CloudFeed(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CloudCard(cloud: CloudPost, isInterested: Boolean, onInterest: () -> Unit, onClick: () -> Unit) {
     Card(
