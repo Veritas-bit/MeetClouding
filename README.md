@@ -1,15 +1,35 @@
-# MeetCloud
+# MeetCloud / MeetClouding
 
-MeetCloud — это социальное приложение для поиска компании по интересам и желаниям в реальном времени. Пользователи публикуют свои желания в виде "облачков" на карте, что позволяет быстро находить единомышленников поблизости.
+MeetCloud is a social app for finding nearby people with shared interests and plans. Users create “clouds” representing what they want to do and discover nearby matches.
 
-## Ссылка на проект
+## Current product reference
 
-- **GitHub Repository**: [https://github.com/Veritas-bit/MeetClouding](https://github.com/Veritas-bit/MeetClouding)
+The existing `main` branch contains the legacy Next.js web app. Its UI, category catalog, translations and workflows are the reference for the native rewrite; it is not the implementation target for shipped mobile apps.
 
-## Технологический стек
+## Native rewrite
 
-- **Frontend**: Next.js 15 (App Router), React, Tailwind CSS
-- **UI Компоненты**: Shadcn UI, Lucide React
-- **AI**: Genkit (автоматический перевод сообщений, генерация никнеймов)
-- **Карты**: Yandex Maps API (ymap3-components)
-- **Состояние**: Zustand
+Work is isolated on `rewrite/native-app-foundation`.
+
+- `android/` — native Android client: Kotlin + Jetpack Compose.
+- `ios/` — native iOS client: Swift + SwiftUI + MapKit.
+- `backend/` — Python/FastAPI service foundation.
+- `api/openapi.yaml` — initial shared API contract.
+- `docs/native-screen-inventory.md` — initial screen/behavior inventory.
+- `docs/architecture.md` — proposed system architecture and domain model.
+- `docs/migration-plan.md` — implementation phases and exit criteria.
+- `docs/security.md` — initial security/privacy requirements and configuration finding.
+
+The mobile projects currently contain starter shells, not feature-complete apps. Authentication, persistence, real cloud discovery, chat, media, push and production deployment remain to be implemented and tested. The UI must not represent mock users or generated coordinates as real people.
+
+## Backend local development
+
+See [backend/README.md](backend/README.md). The initial API exposes health endpoints only.
+
+## Product and implementation principles
+
+- Real native UI only: no WebView wrapper.
+- Shared backend and OpenAPI contract for Android and iOS.
+- Server-side authorization and provider secrets.
+- Explicit location permissions; never silently substitute a fake user location.
+- Preserve existing Russian, English, Belarusian, Ukrainian and Spanish localization.
+- Keep the legacy web app and `main` unchanged until the native replacement is tested and a cutover is approved.
