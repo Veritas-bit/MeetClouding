@@ -1,0 +1,116 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A10000000000000000000001 /* MeetCloudApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000001 /* MeetCloudApp.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A20000000000000000000001 /* MeetCloudApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetCloudApp.swift; sourceTree = "<group>"; };
+		A20000000000000000000002 /* MeetCloud.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MeetCloud.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A30000000000000000000001 /* Frameworks */ = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A40000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				A40000000000000000000002 /* MeetCloud */,
+				A20000000000000000000002 /* MeetCloud.app */,
+			);
+			sourceTree = "<group>";
+		};
+		A40000000000000000000002 /* MeetCloud */ = {
+			isa = PBXGroup;
+			children = (A20000000000000000000001 /* MeetCloudApp.swift */);
+			path = MeetCloud;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A50000000000000000000001 /* Sources */ = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A10000000000000000000001 /* MeetCloudApp.swift in Sources */); runOnlyForDeploymentPostprocessing = 0; };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		A60000000000000000000001 /* MeetCloud */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A70000000000000000000001 /* Build configuration list for PBXNativeTarget "MeetCloud" */;
+			buildPhases = (A30000000000000000000001 /* Frameworks */, A50000000000000000000001 /* Sources */, );
+			buildRules = ();
+			dependencies = ();
+			name = MeetCloud;
+			productName = MeetCloud;
+			productReference = A20000000000000000000002 /* MeetCloud.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A80000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {BuildIndependentTargetsInParallel = 1; LastUpgradeCheck = 1600; };
+			buildConfigurationList = A70000000000000000000002 /* Build configuration list for PBXProject */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (en, Base, );
+			mainGroup = A40000000000000000000001;
+			productRefGroup = A40000000000000000000001;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (A60000000000000000000001 /* MeetCloud */, );
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		A90000000000000000000001 /* Debug project */ = {isa = XCBuildConfiguration; buildSettings = {CLANG_ENABLE_MODULES = YES; }; name = Debug; };
+		A90000000000000000000002 /* Release project */ = {isa = XCBuildConfiguration; buildSettings = {CLANG_ENABLE_MODULES = YES; }; name = Release; };
+		A90000000000000000000003 /* Debug target */ = {isa = XCBuildConfiguration; buildSettings = {
+			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+			CODE_SIGN_STYLE = Automatic;
+			CURRENT_PROJECT_VERSION = 1;
+			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_KEY_CFBundleDisplayName = MeetCloud;
+			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			MARKETING_VERSION = 0.1.0;
+			PRODUCT_BUNDLE_IDENTIFIER = app.meetcloud.ios;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Debug; };
+		A90000000000000000000004 /* Release target */ = {isa = XCBuildConfiguration; buildSettings = {
+			ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+			CODE_SIGN_STYLE = Automatic;
+			CURRENT_PROJECT_VERSION = 1;
+			GENERATE_INFOPLIST_FILE = YES;
+			INFOPLIST_KEY_CFBundleDisplayName = MeetCloud;
+			INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
+			IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			MARKETING_VERSION = 0.1.0;
+			PRODUCT_BUNDLE_IDENTIFIER = app.meetcloud.ios;
+			PRODUCT_NAME = "$(TARGET_NAME)";
+			SWIFT_VERSION = 5.0;
+			TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Release; };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A70000000000000000000001 /* Build configuration list for PBXNativeTarget "MeetCloud" */ = {isa = XCConfigurationList; buildConfigurations = (A90000000000000000000003 /* Debug target */, A90000000000000000000004 /* Release target */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		A70000000000000000000002 /* Build configuration list for PBXProject "MeetCloud" */ = {isa = XCConfigurationList; buildConfigurations = (A90000000000000000000001 /* Debug project */, A90000000000000000000002 /* Release project */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+/* End XCConfigurationList section */
+
+/* Begin PBXProject section */
+		A80000000000000000000001 /* Project object */ = {isa = PBXProject; };
+/* End PBXProject section */
+	};
+	rootObject = A80000000000000000000001 /* Project object */;
+}
