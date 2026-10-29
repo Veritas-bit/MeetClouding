@@ -1,0 +1,40 @@
+openapi: 3.1.0
+info:
+  title: MeetCloud API
+  version: 0.1.0
+  description: Initial contract shared by native Android and iOS clients.
+servers:
+  - url: http://localhost:8000
+    description: Local development only
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Liveness check
+      responses:
+        "200":
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, service, version]
+                properties:
+                  status: { type: string, const: ok }
+                  service: { type: string, const: meetcloud-api }
+                  version: { type: string }
+  /api/v1/health:
+    get:
+      tags: [health]
+      summary: Versioned API health check
+      responses:
+        "200":
+          description: API is available
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status, api_version]
+                properties:
+                  status: { type: string, const: ok }
+                  api_version: { type: string, const: v1 }
