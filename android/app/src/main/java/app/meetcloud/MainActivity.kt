@@ -4,6 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -133,7 +141,7 @@ private fun MeetCloudApp() {
             }
         ) { insets ->
             when (tab) {
-                0 -> CloudFeed(
+                0 -> CloudMapScreen(
                     clouds = clouds.filter { category == "Все" || it.category == category },
                     categories = categories,
                     selectedCategory = category,
@@ -183,6 +191,7 @@ private fun MeetCloudApp() {
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text(cloud.description, color = Color(0xFFE0E4F2))
+                    Text("Это не бронь и не обещание: желание может измениться, а интерес к другим облачкам — появиться в любой момент.", color = Pink, fontSize = 12.sp)
                     Text("Время: ${cloud.time}", color = Muted)
                     Text("Место: ${cloud.distance}", color = Muted)
                     if (cloud.demo) {
@@ -214,8 +223,9 @@ private fun MeetCloudApp() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CloudFeed(
+private fun CloudMapScreen(
     clouds: List<CloudPost>,
     categories: List<String>,
     selectedCategory: String,
@@ -225,90 +235,147 @@ private fun CloudFeed(
     onSelect: (CloudPost) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(start = 20.dp, top = 24.dp, end = 20.dp, bottom = 28.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
-    ) {
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("MEETCLOUD", color = Pink, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 3.sp)
-                Text("На что ты сегодня?", color = Color.White, fontSize = 29.sp, fontWeight = FontWeight.ExtraBold)
-                Text("Найди людей, которым хочется того же.", color = Muted, fontSize = 14.sp)
+    Column(modifier = modifier.fillMaxSize().padding(top = 18.dp, bottom = 8.dp)) {
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text("MEETCLOUD", color = Pink, fontSize = 12.sp, fontWeight = FontWeight.Bold, letterSpacing = 3.sp)
+            Text("Куда потянет сегодня?", color = Color.White, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
+            Text("Твоё желание — не обязательство. Посмотри, что ещё происходит рядом.", color = Muted, fontSize = 13.sp, lineHeight = 18.sp)
+        }
+        Spacer(Modifier.height(14.dp))
+        androidx.compose.foundation.lazy.LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items(categories) { item ->
+                FilterChip(
+                    selected = selectedCategory == item,
+                    onClick = { onCategory(item) },
+                    label = { Text(item) }
+                )
             }
         }
-        item {
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = Panel,
-                modifier = Modifier.fillMaxWidth()
+        Spacer(Modifier.height(10.dp))
+        Box(
+            modifier = Modifier.fillMaxWidth().weight(1f).padding(horizontal = 10.dp)
+                .clip(RoundedCornerShape(28.dp))
+                .background(Color(0xFF151D31))
+                .border(1.dp, Color(0xFF2B3650), RoundedCornerShape(28.dp))
+        ) {
+            Canvas(Modifier.fillMaxSize()) {
+                val road = Color(0xFF26334B)
+                val roadEdge = Color(0xFF34435D)
+                val w = size.width
+                val h = size.height
+                // Stylised map artwork for the prototype; deliberately not real geography.
+                for (i in 0..5) {
+                    val x = w * (i / 5f)
+                    drawLine(roadEdge, Offset(x, -h * 0.1f), Offset(x + w * 0.13f, h * 1.1f), strokeWidth = 3.dp.toPx())
+                    drawLine(road, Offset(x + w * 0.035f, -h * 0.1f), Offset(x + w * 0.165f, h * 1.1f), strokeWidth = 15.dp.toPx())
+                }
+                for (i in 0..5) {
+                    val y = h * (i / 5f)
+                    drawLine(roadEdge, Offset(-w * 0.1f, y + h * 0.12f), Offset(w * 1.1f, y - h * 0.05f), strokeWidth = 3.dp.toPx())
+                    drawLine(road, Offset(-w * 0.1f, y + h * 0.12f), Offset(w * 1.1f, y - h * 0.05f), strokeWidth = 13.dp.toPx())
+                }
+                drawCircle(Color(0xFF3C7D79).copy(alpha = 0.22f), radius = 52.dp.toPx(), center = Offset(w * 0.82f, h * 0.78f))
+                drawCircle(Color(0xFF3C7D79).copy(alpha = 0.15f), radius = 32.dp.toPx(), center = Offset(w * 0.82f, h * 0.78f))
+            }
+            Row(
+                modifier = Modifier.align(Alignment.TopStart).padding(12.dp)
+                    .background(Color(0xDD101426), RoundedCornerShape(12.dp))
+                    .padding(horizontal = 10.dp, vertical = 7.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                Icon(Icons.Default.LocationOn, contentDescription = null, tint = Mint, modifier = Modifier.size(14.dp))
+                Text("Карта желаний · демо", color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+            }
+            if (clouds.isEmpty()) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center).padding(28.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Box(
-                        modifier = Modifier.size(46.dp).background(
-                            Brush.linearGradient(listOf(Violet, Pink)), CircleShape
-                        ),
-                        contentAlignment = Alignment.Center
-                    ) { Icon(Icons.Default.LocationOn, contentDescription = null, tint = Color.White) }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Рядом с тобой", color = Color.White, fontWeight = FontWeight.SemiBold)
-                        Text("Геолокация выключена в прототипе", color = Muted, fontSize = 12.sp)
-                    }
-                    TextButton(onClick = { onCategory("Все") }) { Text("Обзор", color = Pink) }
+                    Icon(Icons.Default.Cloud, contentDescription = null, tint = Muted, modifier = Modifier.size(36.dp))
+                    Text("Пока здесь тихо", color = Color.White, fontWeight = FontWeight.Bold)
+                    Text("Сними фильтр или добавь своё желание.", color = Muted, fontSize = 12.sp)
                 }
-            }
-        }
-        item {
-            androidx.compose.foundation.lazy.LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(categories) { item ->
-                    FilterChip(
-                        selected = selectedCategory == item,
-                        onClick = { onCategory(item) },
-                        label = { Text(item) }
+            } else {
+                BoxWithConstraints(Modifier.fillMaxSize()) {
+                    val positions = listOf(
+                        0.05f to 0.20f,
+                        0.48f to 0.30f,
+                        0.12f to 0.51f,
+                        0.50f to 0.62f,
+                        0.30f to 0.78f,
+                        0.03f to 0.38f
                     )
-                }
-            }
-        }
-        item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Облачка рядом", color = Color.White, fontSize = 19.sp, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.weight(1f))
-                Text("ДЕМО", color = Mint, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.5.sp)
-            }
-        }
-        if (clouds.isEmpty()) {
-            item {
-                Surface(color = Panel, shape = RoundedCornerShape(18.dp)) {
-                    Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Text("Пока пусто", color = Color.White, fontWeight = FontWeight.Bold)
-                        Text("Выбери другую категорию или создай своё облако.", color = Muted)
+                    clouds.take(6).forEachIndexed { index, cloud ->
+                        val p = positions[index % positions.size]
+                        CloudMapBubble(
+                            cloud = cloud,
+                            isInterested = interested.contains(cloud.id),
+                            onClick = { onSelect(cloud) },
+                            modifier = Modifier.offset(
+                                x = maxWidth * p.first,
+                                y = maxHeight * p.second
+                            )
+                        )
                     }
                 }
             }
+            Row(
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+                    .padding(12.dp).background(Color(0xE6101426), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(Icons.Default.Cloud, contentDescription = null, tint = Pink, modifier = Modifier.size(18.dp))
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text("Не выбирай навсегда — исследуй", color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                    Text("Тапни на любое облачко и посмотри, кто открыт к спонтанному плану.", color = Muted, fontSize = 10.sp, lineHeight = 14.sp)
+                }
+            }
         }
-        items(clouds, key = { it.id }) { cloud ->
-            CloudCard(
-                cloud = cloud,
-                isInterested = interested.contains(cloud.id),
-                onInterest = { onInterest(cloud.id) },
-                onClick = { onSelect(cloud) }
-            )
-        }
-        item {
-            Text(
-                "Карточки-примеры не являются реальными пользователями. Новые облака пока сохраняются только до закрытия приложения.",
-                color = Muted, fontSize = 11.sp, lineHeight = 16.sp,
-                modifier = Modifier.padding(top = 4.dp)
-            )
-        }
+        Text(
+            "Облачка на этой карте — примеры интерфейса, не реальные люди и не реальные координаты.",
+            color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+        )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CloudMapBubble(
+    cloud: CloudPost,
+    isInterested: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .widthIn(max = 158.dp)
+            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 7.dp))
+            .background(if (isInterested) Color(0xFF315E55) else Color(0xF21B2138))
+            .border(1.dp, cloud.color.copy(alpha = 0.9f), RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomEnd = 20.dp, bottomStart = 7.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Box(Modifier.size(7.dp).background(cloud.color, CircleShape))
+            Text(cloud.category, color = cloud.color, fontSize = 9.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+        }
+        Text(cloud.title, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp, lineHeight = 16.sp, maxLines = 2)
+        Text(if (isInterested) "Тебе интересно" else "Открыто к идеям", color = Muted, fontSize = 9.sp, maxLines = 1)
+    }
+}
+
 @Composable
 private fun CloudCard(cloud: CloudPost, isInterested: Boolean, onInterest: () -> Unit, onClick: () -> Unit) {
     Card(
@@ -403,7 +470,7 @@ private fun CreateCloudDialog(onDismiss: () -> Unit, onCreate: (String, String, 
         title = { Text("Создать облако", color = Color.White, fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Чего тебе хочется? Позже это увидят люди поблизости.", color = Muted, fontSize = 13.sp)
+                Text("Что тебе сейчас хочется? Это настроение, а не жёсткий план — можно выбрать и чужую идею.", color = Muted, fontSize = 13.sp)
                 OutlinedTextField(value = title, onValueChange = { title = it.take(48) }, label = { Text("Короткое желание") }, singleLine = true)
                 OutlinedTextField(value = description, onValueChange = { description = it.take(180) }, label = { Text("Подробности (необязательно)") }, minLines = 2)
                 Text("Категория", color = Color.White, fontWeight = FontWeight.SemiBold)
@@ -412,7 +479,7 @@ private fun CreateCloudDialog(onDismiss: () -> Unit, onCreate: (String, String, 
                         FilterChip(selected = category == item, onClick = { category = item }, label = { Text(item) })
                     }
                 }
-                Text("Черновик останется на устройстве в памяти приложения. Он не будет опубликован.", color = Mint, fontSize = 11.sp)
+                Text("В демо облачко останется только в памяти приложения. В продукте желание будет меняться, а чужие идеи можно будет подхватить в любой момент.", color = Mint, fontSize = 11.sp)
             }
         },
         confirmButton = {
