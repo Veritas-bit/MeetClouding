@@ -108,9 +108,6 @@
 		A70000000000000000000002 /* Build configuration list for PBXProject "MeetCloud" */ = {isa = XCConfigurationList; buildConfigurations = (A90000000000000000000001 /* Debug project */, A90000000000000000000002 /* Release project */, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
 /* End XCConfigurationList section */
 
-/* Begin PBXProject section */
-		A80000000000000000000001 /* Project object */ = {isa = PBXProject; };
-/* End PBXProject section */
 	};
 	rootObject = A80000000000000000000001 /* Project object */;
 }
