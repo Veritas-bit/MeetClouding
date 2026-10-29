@@ -2,6 +2,21 @@
 
 MeetCloud is a social app for finding nearby people with shared interests and plans. Users create “clouds” representing what they want to do and discover nearby matches.
 
+## Browser preview
+
+A responsive, interactive map-first prototype is available at `/preview` in the Next.js app. It is designed for quick inspection on desktop and mobile browsers and is separate from the native clients.
+
+To run it locally:
+
+```bash
+npm install
+npm run dev
+```
+
+Then open `http://localhost:9002/preview` on the computer. To view it on a phone connected to the same Wi-Fi, open `http://<computer-LAN-IP>:9002/preview` and allow the development server through the computer firewall if prompted.
+
+**Preview limitations:** the map is schematic, cloud cards are demo content, and creating a cloud or marking interest only changes local page state. No real location is requested and no data is sent to a backend. The page is a browser prototype, not a WebView wrapper around the native apps. A public shareable URL requires deployment of this branch to a web host.
+
 ## Current product reference
 
 The existing `main` branch contains the legacy Next.js web app. Its UI, category catalog, translations and workflows are the reference for the native rewrite; it is not the implementation target for shipped mobile apps.
