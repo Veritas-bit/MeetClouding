@@ -17,6 +17,9 @@ Work is isolated on `rewrite/native-app-foundation`.
 - `docs/native-screen-inventory.md` — initial screen/behavior inventory.
 - `docs/architecture.md` — proposed system architecture and domain model.
 - `docs/migration-plan.md` — implementation phases and exit criteria.
+- `docs/design-system.md` — preserved source palettes and visual parity requirements.
+- `docs/animation-inventory.md` — source-backed animation audit and native equivalents.
+- `docs/product-review.md` — product validity, user safety, feature priorities, monetization hypotheses and validation plan.
 - `docs/security.md` — initial security/privacy requirements and configuration finding.
 
 The mobile projects currently contain starter shells, not feature-complete apps. Authentication, persistence, real cloud discovery, chat, media, push and production deployment remain to be implemented and tested. The UI must not represent mock users or generated coordinates as real people.
@@ -33,3 +36,5 @@ See [backend/README.md](backend/README.md). The initial API exposes health endpo
 - Explicit location permissions; never silently substitute a fake user location.
 - Preserve existing Russian, English, Belarusian, Ukrainian and Spanish localization.
 - Keep the legacy web app and `main` unchanged until the native replacement is tested and a cutover is approved.
+- Prove the core loop (discover a relevant cloud → express interest → chat → arrange an activity) before adding heavy gamification or paid feature restrictions.
+- Keep basic discovery, messaging and safety controls available without a subscription.
