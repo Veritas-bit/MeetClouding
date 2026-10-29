@@ -1,3 +1,4 @@
+# Run with backend/ as the working directory.
 from fastapi.testclient import TestClient
 
 from app.main import app
